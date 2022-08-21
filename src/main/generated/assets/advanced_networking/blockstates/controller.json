@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "powered=false,success=false": {
+      "model": "advanced_networking:block/controller_error"
+    },
+    "powered=false,success=true": {
+      "model": "advanced_networking:block/controller_inactive"
+    },
+    "powered=true,success=false": {
+      "model": "advanced_networking:block/controller_error"
+    },
+    "powered=true,success=true": {
+      "model": "advanced_networking:block/controller"
+    }
+  }
+}

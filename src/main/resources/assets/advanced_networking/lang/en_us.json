@@ -1,0 +1,30 @@
+{
+  "advanced_networking.node.delete": "Delete Nodes",
+  "advanced_networking.node.add": "Add Node",
+  "advanced_networking.node.cancel": "Cancel",
+  "advanced_networking.node.config": "Configuration",
+  "advanced_networking.node.config_tooltip": "Click to configure",
+  "advanced_networking.node.errors": "Errors:",
+  "advanced_networking.node.not_connected": "Some connectors aren't connected!",
+  "advanced_networking.node.invalid_config": "The configuration is invalid!",
+
+  "advanced_networking.node.error.different_type": "Can't connect connectors of different types!",
+  "advanced_networking.node.error.two_outputs": "Can't connect two outputs!",
+  "advanced_networking.node.error.two_inputs": "Can't connect two inputs!",
+  "advanced_networking.node.error.recursion": "Recursive connections not allowed!",
+
+  "advanced_networking.node.math": "Math",
+  "advanced_networking.node.math.function": "Function",
+  "advanced_networking.node.math.new_variable": "Add variable",
+
+  "advanced_networking.node.debug": "Debug Print",
+  "advanced_networking.node.debug.message": "Computed value: %s",
+
+  "advanced_networking.node.time": "Time",
+
+  "advanced_networking.node.config.errors": "Errors:",
+  "advanced_networking.node.config.no_errors": "No errors",
+
+
+  "block.advanced_networking.controller": "Network Controller"
+}

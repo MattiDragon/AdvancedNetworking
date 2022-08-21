@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "advanced_networking",
+  "version": "${version}",
+  "name": "Advanced Networking",
+  "description": "",
+  "authors": [
+    "MattiDragon"
+  ],
+  "contact": {},
+  "license": "Apache-2.0",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "io.github.mattidragon.advancednetworking.client.AdvancedNetworkingClient"
+    ],
+    "main": [
+      "io.github.mattidragon.advancednetworking.AdvancedNetworking"
+    ],
+    "fabric-datagen": [
+      "io.github.mattidragon.advancednetworking.datagen.AdvancedNetworkingDatagen"
+    ]
+  },
+  "mixins": [
+    "advanced-networking.mixins.json"
+  ],
+  "accessWidener": "advanced_networking.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.14.9",
+    "fabric": "*",
+    "minecraft": "1.19.2"
+  }
+}
