@@ -56,12 +56,14 @@ public abstract class Node {
     public NodeConfigScreen createConfigScreen(NetworkingScreen parent) {
         return null;
     }
+
     public boolean hasConfig() {
         return false;
-    };
+    }
 
     public void readNbt(NbtCompound data) {
-        id = data.getUuid("id");
+        if (data.containsUuid("id")) // Default to old/random
+            id = data.getUuid("id");
         guiX = data.getFloat("guiX");
         guiY = data.getFloat("guiY");
     }

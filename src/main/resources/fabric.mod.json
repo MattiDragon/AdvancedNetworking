@@ -23,7 +23,6 @@
     ]
   },
   "mixins": [
-    "advanced-networking.mixins.json"
   ],
   "accessWidener": "advanced_networking.accesswidener",
   "depends": {

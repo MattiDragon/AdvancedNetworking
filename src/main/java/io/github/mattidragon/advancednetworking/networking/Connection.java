@@ -1,12 +1,16 @@
 package io.github.mattidragon.advancednetworking.networking;
 
 import net.minecraft.nbt.NbtCompound;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 public record Connection(UUID inputUuid, String inputName, UUID outputUuid, String outputName) {
+    @Nullable
     public static Connection fromNbt(NbtCompound data) {
-        return new Connection(data.getUuid("inputUuid"), data.getString("inputName"), data.getUuid("outputUuid"), data.getString("outputName"));
+        if (data.containsUuid("inputUuid") && data.containsUuid("outputUuid"))
+            return new Connection(data.getUuid("inputUuid"), data.getString("inputName"), data.getUuid("outputUuid"), data.getString("outputName"));
+        return null;
     }
 
     public NbtCompound toNbt() {

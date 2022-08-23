@@ -207,7 +207,7 @@ public class NodeWidget extends ClickableWidget {
         }
 
         public boolean hasConnectorAt(double mouseX, double mouseY) {
-            return mouseX > getConnectorX() && mouseX < getConnectorX() + 4 && mouseY > getConnectorY() && mouseY < getConnectorY() + 4;
+            return mouseX > getConnectorX() - 2 && mouseX < getConnectorX() + 6 && mouseY > getConnectorY() - 2 && mouseY < getConnectorY() + 6;
         }
 
         public void render(MatrixStack matrices, int mouseX, int mouseY) {

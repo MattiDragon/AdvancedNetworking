@@ -7,6 +7,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,7 +16,6 @@ import java.util.stream.Collectors;
 public class Graph {
     private final Map<UUID, Node> nodes = new HashMap<>();
     private final List<Connection> connections = new ArrayList<>();
-    private Runnable updateCallback = () -> {};
 
     public Graph copy() {
         var nbt = new NbtCompound();
@@ -24,17 +25,8 @@ public class Graph {
         return graph;
     }
 
-    public void addUpdateCallback(Runnable updateCallback) {
-        var oldCallback = this.updateCallback;
-        this.updateCallback = () -> {
-            oldCallback.run();
-            updateCallback.run();
-        };
-    }
-
     public void addNode(Node node) {
         nodes.put(node.id, node);
-        updateCallback.run();
     }
 
     public Node getNode(UUID id) {
@@ -67,7 +59,6 @@ public class Graph {
     public void removeConnections(Connector<?> connector) {
         connections.removeIf(connection -> connection.inputUuid().equals(connector.parent().id) && connection.inputName().equals(connector.id()));
         connections.removeIf(connection -> connection.outputUuid().equals(connector.parent().id) && connection.outputName().equals(connector.id()));
-        updateCallback.run();
     }
 
     public void cleanConnections() {
@@ -84,7 +75,6 @@ public class Graph {
 
             return false;
         });
-        updateCallback.run();
     }
 
     public List<Connection> getConnections() {
@@ -120,7 +110,9 @@ public class Graph {
             var type = NodeType.REGISTRY.getOrEmpty(new Identifier(nodeNbt.getString("type")));
             if (type.isEmpty()) {
                 AdvancedNetworking.LOGGER.warn("Unknown node type: {}. Ignoring node", nodeNbt.getString("type"));
-                ignoredIds.add(nodeNbt.getUuid("id"));
+                // uuid getter isn't safe
+                if (nodeNbt.containsUuid("id"))
+                    ignoredIds.add(nodeNbt.getUuid("id"));
                 continue;
             }
             var node = type.get().supplier().get();
@@ -137,7 +129,13 @@ public class Graph {
         }
     }
 
-    private boolean validateConnection(Connection connection, ArrayList<UUID> ignoredIds) {
+    @Contract("null, _ -> false")
+    private boolean validateConnection(@Nullable Connection connection, ArrayList<UUID> ignoredIds) {
+        if (connection == null) {
+            AdvancedNetworking.LOGGER.warn("Found malformed connection data. Removing");
+            return false;
+        }
+
         // Silently remove connections to removed nodes
         if (ignoredIds.contains(connection.inputUuid()) || ignoredIds.contains(connection.outputUuid()))
             return false;
