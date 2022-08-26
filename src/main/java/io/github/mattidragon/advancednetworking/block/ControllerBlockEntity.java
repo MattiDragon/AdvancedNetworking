@@ -49,7 +49,7 @@ public class ControllerBlockEntity extends BlockEntity implements ExtendedScreen
     @Nullable
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-        return new NetworkingScreenHandler(syncId, inv, this, ScreenHandlerContext.create(world, pos));
+        return new NetworkingScreenHandler(syncId, this, ScreenHandlerContext.create(world, pos));
     }
 
     @Override

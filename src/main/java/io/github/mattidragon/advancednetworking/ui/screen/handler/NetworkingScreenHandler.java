@@ -17,7 +17,7 @@ public class NetworkingScreenHandler extends ScreenHandler {
     public final Graph graph;
     public final ScreenHandlerContext context;
 
-    public NetworkingScreenHandler(int syncId, PlayerInventory inv, ControllerBlockEntity entity, ScreenHandlerContext context) {
+    public NetworkingScreenHandler(int syncId, ControllerBlockEntity entity, ScreenHandlerContext context) {
         super(ModScreens.NETWORKING_HANDLER, syncId);
         this.graph = entity.graph.copy();
         this.context = context;

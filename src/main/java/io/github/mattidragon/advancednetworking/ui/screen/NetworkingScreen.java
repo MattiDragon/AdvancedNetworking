@@ -11,7 +11,8 @@ import io.github.mattidragon.advancednetworking.ui.MessageToast;
 import io.github.mattidragon.advancednetworking.ui.screen.handler.NetworkingScreenHandler;
 import io.github.mattidragon.advancednetworking.ui.widget.NodeWidget;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.ScreenHandlerProvider;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.*;
 import net.minecraft.client.sound.PositionedSoundInstance;
@@ -26,7 +27,7 @@ import net.minecraft.util.math.Matrix4f;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class NetworkingScreen extends HandledScreen<NetworkingScreenHandler> {
+public class NetworkingScreen extends Screen implements ScreenHandlerProvider<NetworkingScreenHandler> {
     private static final Identifier TEXTURE = new Identifier(AdvancedNetworking.MOD_ID,"textures/gui/networking.png");
     public static final int TILE_SIZE = 16;
     public static final int BORDER_SIZE = 8;
@@ -34,6 +35,7 @@ public class NetworkingScreen extends HandledScreen<NetworkingScreenHandler> {
     public static final int GRID_OFFSET = BORDER_OFFSET + BORDER_SIZE;
 
     public final Graph graph;
+    private final NetworkingScreenHandler handler;
     private final List<ButtonWidget> addButtons = new ArrayList<>();
     private List<NodeWidget> nodes = null;
     private boolean isAddingNode = false;
@@ -47,17 +49,16 @@ public class NetworkingScreen extends HandledScreen<NetworkingScreenHandler> {
 
 
     public NetworkingScreen(NetworkingScreenHandler handler, PlayerInventory inventory, Text title) {
-        super(handler, inventory, title);
+        super(title);
         graph = handler.graph.copy();
+        this.handler = handler;
     }
 
     @Override
     protected void init() {
-        if (nodes == null) {
-            nodes = new ArrayList<>();
-            for (var node : graph.getNodes()) {
-                nodes.add(new NodeWidget(node, this));
-            }
+        nodes = new ArrayList<>();
+        for (var node : graph.getNodes()) {
+            nodes.add(new NodeWidget(node, this));
         }
 
         addButtons.clear();
@@ -178,7 +179,7 @@ public class NetworkingScreen extends HandledScreen<NetworkingScreenHandler> {
         setFocused(null);
         // Sync node movement and connector changes
         syncGraph();
-        return this.hoveredElement(mouseX, mouseY).filter(element -> element.mouseReleased(mouseX, mouseY, button)).isPresent();
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
@@ -215,8 +216,8 @@ public class NetworkingScreen extends HandledScreen<NetworkingScreenHandler> {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        if (!isAddingNode && this.getFocused() != null && this.isDragging() && button == 0) {
-            return this.getFocused().mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        if (isAddingNode) {
+            return true;
         }
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
@@ -291,13 +292,8 @@ public class NetworkingScreen extends HandledScreen<NetworkingScreenHandler> {
     }
 
     @Override
-    protected void drawBackground(MatrixStack matrices, float delta, int mouseX, int mouseY) {
-
-    }
-
-    @Override
-    protected void drawForeground(MatrixStack matrices, int mouseX, int mouseY) {
-
+    public NetworkingScreenHandler getScreenHandler() {
+        return handler;
     }
 
     private void renderConnectors(MatrixStack matrices, int mouseX, int mouseY) {
