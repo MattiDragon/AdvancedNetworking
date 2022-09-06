@@ -1,6 +1,5 @@
 package io.github.mattidragon.advancednetworking.block;
 
-import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -68,7 +67,6 @@ public class ControllerBlock extends BlockWithEntity {
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(POWERED, SUCCESS);
     }
-
 
     @Nullable
     @Override

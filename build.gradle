@@ -6,9 +6,11 @@ plugins {
 
 version = project.mod_version
 group = project.maven_group
+archivesBaseName = project.archives_base_name
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
@@ -17,6 +19,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$loader_version"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
+    modImplementation include("io.github.mattidragon:nodeflow:$nodeflow_version")
 
     implementation include("net.objecthunter:exp4j:0.4.8")
 

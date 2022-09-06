@@ -1,10 +1,7 @@
 package io.github.mattidragon.advancednetworking;
 
-import io.github.mattidragon.advancednetworking.networking.GraphSyncPacket;
-import io.github.mattidragon.advancednetworking.networking.node.NodeType;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import io.github.mattidragon.advancednetworking.registry.ModItems;
-import io.github.mattidragon.advancednetworking.registry.ModScreens;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -22,9 +19,5 @@ public class AdvancedNetworking implements ModInitializer {
     public void onInitialize() {
         ModBlocks.register();
         ModItems.register();
-        ModScreens.register();
-        NodeType.register();
-
-        GraphSyncPacket.register();
     }
 }
