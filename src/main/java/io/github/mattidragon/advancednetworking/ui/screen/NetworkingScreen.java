@@ -292,6 +292,12 @@ public class NetworkingScreen extends Screen implements ScreenHandlerProvider<Ne
     }
 
     @Override
+    public void close() {
+        super.close();
+        client.player.closeHandledScreen();
+    }
+
+    @Override
     public NetworkingScreenHandler getScreenHandler() {
         return handler;
     }
