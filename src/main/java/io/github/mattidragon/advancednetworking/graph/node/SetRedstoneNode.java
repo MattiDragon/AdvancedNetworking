@@ -16,7 +16,7 @@ import java.util.List;
 
 public class SetRedstoneNode extends AbstractInterfaceNode {
     public SetRedstoneNode(Graph graph) {
-        super(ModNodeTypes.WRITE_REDSTONE, List.of(ContextType.SERVER_WORLD, NetworkControllerContext.TYPE), graph);
+        super(ModNodeTypes.SET_REDSTONE, List.of(ContextType.SERVER_WORLD, NetworkControllerContext.TYPE), graph);
     }
 
     @Override
