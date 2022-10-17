@@ -35,6 +35,15 @@ jobs:
         with:
           path: gradle.properties
           properties: "mod_version minecraft_version"
+
+      - name: Fix lines in changelog
+        id: changelog
+        uses: mad9000/actions-find-and-replace-string@2
+        with:
+          source: "${{ inputs.changelog }}"
+          find: "\\n"
+          replace: "\n"
+
       - name: Publish
         uses: Kir-Antipov/mc-publish@v3.2
         with:
@@ -46,7 +55,7 @@ jobs:
           java: 17 18
 
           game-versions: ${{ steps.versions.outputs.minecraft_version }}
-          changelog: "${{ inputs.changelog }}"
+          changelog: "${{ steps.changelog.outputs.main }}"
 
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: IF0Y4xFw
