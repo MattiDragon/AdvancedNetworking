@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": {
+      "item": "advanced_networking:compound"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "I#I",
+    "#D#",
+    "I#I"
+  ],
+  "result": {
+    "item": "advanced_networking:controller"
+  }
+}

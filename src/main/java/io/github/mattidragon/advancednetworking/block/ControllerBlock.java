@@ -1,5 +1,6 @@
 package io.github.mattidragon.advancednetworking.block;
 
+import com.kneelawk.graphlib.GraphLib;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -21,11 +22,13 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("deprecation")
 public class ControllerBlock extends BlockWithEntity {
     public static final BooleanProperty POWERED = Properties.POWERED;
-    public static final BooleanProperty SUCCESS = BooleanProperty.of("success");;
+    public static final BooleanProperty SUCCESS = BooleanProperty.of("success");
 
     public ControllerBlock(Settings settings) {
         super(settings);
@@ -89,6 +92,13 @@ public class ControllerBlock extends BlockWithEntity {
             }
         }
         return ActionResult.SUCCESS;
+    }
+
+    @Override
+    public void prepare(BlockState state, WorldAccess world, BlockPos pos, int flags, int maxUpdateDepth) {
+        if (world instanceof ServerWorld serverWorld) {
+            GraphLib.getController(serverWorld).updateNodes(pos);
+        }
     }
 
     @Nullable

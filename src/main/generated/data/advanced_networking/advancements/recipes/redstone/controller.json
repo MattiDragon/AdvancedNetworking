@@ -1,0 +1,47 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_compound": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "advanced_networking:compound"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_controller": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "advanced_networking:controller"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "advanced_networking:controller"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_controller",
+      "has_compound",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "advanced_networking:controller"
+    ]
+  }
+}

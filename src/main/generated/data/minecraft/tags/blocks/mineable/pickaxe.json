@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "advanced_networking:cable",
+    "advanced_networking:controller"
+  ]
+}

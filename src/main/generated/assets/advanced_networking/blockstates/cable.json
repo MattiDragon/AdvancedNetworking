@@ -1,0 +1,269 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_none"
+      },
+      "when": {
+        "north": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_none",
+        "y": 90
+      },
+      "when": {
+        "east": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_none",
+        "y": 180
+      },
+      "when": {
+        "south": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_none",
+        "y": 270
+      },
+      "when": {
+        "west": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_none",
+        "x": 270
+      },
+      "when": {
+        "up": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_none",
+        "x": 90
+      },
+      "when": {
+        "down": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_disabled"
+      },
+      "when": {
+        "north": "disabled"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_disabled",
+        "y": 90
+      },
+      "when": {
+        "east": "disabled"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_disabled",
+        "y": 180
+      },
+      "when": {
+        "south": "disabled"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_disabled",
+        "y": 270
+      },
+      "when": {
+        "west": "disabled"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_disabled",
+        "x": 270
+      },
+      "when": {
+        "up": "disabled"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_disabled",
+        "x": 90
+      },
+      "when": {
+        "down": "disabled"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_connection"
+      },
+      "when": {
+        "north": "connected"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_connection",
+        "y": 90
+      },
+      "when": {
+        "east": "connected"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_connection",
+        "y": 180
+      },
+      "when": {
+        "south": "connected"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_connection",
+        "y": 270
+      },
+      "when": {
+        "west": "connected"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_connection",
+        "x": 270
+      },
+      "when": {
+        "up": "connected"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_connection",
+        "x": 90
+      },
+      "when": {
+        "down": "connected"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_interface"
+      },
+      "when": {
+        "north": "interface"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_interface",
+        "y": 90
+      },
+      "when": {
+        "east": "interface"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_interface",
+        "y": 180
+      },
+      "when": {
+        "south": "interface"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_interface",
+        "y": 270
+      },
+      "when": {
+        "west": "interface"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_interface",
+        "x": 270
+      },
+      "when": {
+        "up": "interface"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_interface",
+        "x": 90
+      },
+      "when": {
+        "down": "interface"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_powered_interface"
+      },
+      "when": {
+        "north": "interface_powered"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_powered_interface",
+        "y": 90
+      },
+      "when": {
+        "east": "interface_powered"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_powered_interface",
+        "y": 180
+      },
+      "when": {
+        "south": "interface_powered"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_powered_interface",
+        "y": 270
+      },
+      "when": {
+        "west": "interface_powered"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_powered_interface",
+        "x": 270
+      },
+      "when": {
+        "up": "interface_powered"
+      }
+    },
+    {
+      "apply": {
+        "model": "advanced_networking:block/cable_powered_interface",
+        "x": 90
+      },
+      "when": {
+        "down": "interface_powered"
+      }
+    }
+  ]
+}

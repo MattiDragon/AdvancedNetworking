@@ -4,13 +4,24 @@ plugins {
     id 'maven-publish'
 }
 
-version = project.mod_version
+version = project.mod_version + "+mc." + project.minecraft_version
 group = project.maven_group
 archivesBaseName = project.archives_base_name
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    maven {
+        url "https://kneelawk.com/maven/"
+        content {
+            includeGroup "com.kneelawk"
+        }
+    }
+    maven {
+        url 'https://jitpack.io'
+        content {
+            includeGroup "com.github.mattidragon"
+        }
+    }
 }
 
 dependencies {
@@ -19,9 +30,12 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$loader_version"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
-    modImplementation include("io.github.mattidragon:nodeflow:$nodeflow_version")
-
+    modImplementation include("com.github.mattidragon:nodeflow:$nodeflow_version")
+    modImplementation include("com.kneelawk:graphlib:$graphlib_version")
     implementation include("net.objecthunter:exp4j:0.4.8")
+    include modApi("teamreborn:energy:$energy_version") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     // Add generated data to runtime classpath (slightly hacky)
     runtimeOnly files("src/main/generated")

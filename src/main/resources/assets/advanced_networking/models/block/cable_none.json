@@ -1,0 +1,17 @@
+{
+	"credit": "Made with Blockbench",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "advanced_networking:block/cable",
+		"particle": "advanced_networking:block/cable_particle"
+	},
+	"elements": [
+		{
+			"from": [6, 6, 6],
+			"to": [10, 10, 10],
+			"faces": {
+				"north": {"uv": [4, 0, 8, 4], "texture": "#0"}
+			}
+		}
+	]
+}

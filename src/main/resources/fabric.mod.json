@@ -17,15 +17,20 @@
     ],
     "fabric-datagen": [
       "io.github.mattidragon.advancednetworking.datagen.AdvancedNetworkingDatagen"
+    ],
+    "client": [
+      "io.github.mattidragon.advancednetworking.client.AdvancedNetworkingClient"
     ]
   },
   "mixins": [
+    "advanced_networking.mixins.json"
   ],
   "accessWidener": "advanced_networking.accesswidener",
   "depends": {
     "fabricloader": ">=0.14.9",
     "fabric": "*",
     "minecraft": "1.19.2",
-    "nodeflow": "*"
+    "nodeflow": "*",
+    "graphlib": "*"
   }
 }

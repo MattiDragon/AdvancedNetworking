@@ -1,30 +1,18 @@
 {
-  "advanced_networking.node.delete": "Delete Nodes",
-  "advanced_networking.node.add": "Add Node",
-  "advanced_networking.node.cancel": "Cancel",
-  "advanced_networking.node.config": "Configuration",
-  "advanced_networking.node.config_tooltip": "Click to configure",
-  "advanced_networking.node.errors": "Errors:",
-  "advanced_networking.node.not_connected": "Some connectors aren't connected!",
-  "advanced_networking.node.invalid_config": "The configuration is invalid!",
+  "advanced_networking.editor.errors": "Run failed, hover for details",
+  "advanced_networking.editor.no_errors": "Run succeeded",
 
-  "advanced_networking.node.error.different_type": "Can't connect connectors of different types!",
-  "advanced_networking.node.error.two_outputs": "Can't connect two outputs!",
-  "advanced_networking.node.error.two_inputs": "Can't connect two inputs!",
-  "advanced_networking.node.error.recursion": "Recursive connections not allowed!",
+  "node.advanced_networking.read_redstone": "Read Redstone",
+  "node.advanced_networking.write_redstone": "Write Redstone",
+  "node.advanced_networking.set_redstone": "Set Redstone",
 
-  "advanced_networking.node.math": "Math",
-  "advanced_networking.node.math.function": "Function",
-  "advanced_networking.node.math.new_variable": "Add variable",
+  "node.advanced_networking.interface.missing": "Interface not found: %s",
+  "node.advanced_networking.interface.invalid": "Invalid interface id",
 
-  "advanced_networking.node.debug": "Debug Print",
-  "advanced_networking.node.debug.message": "Computed value: %s",
+  "group.advanced_networking.redstone": "Redstone",
 
-  "advanced_networking.node.time": "Time",
-
-  "advanced_networking.node.config.errors": "Errors:",
-  "advanced_networking.node.config.no_errors": "No errors",
-
-
-  "block.advanced_networking.controller": "Network Controller"
+  "block.advanced_networking.controller": "Network Controller",
+  "block.advanced_networking.cable": "Networking Cable",
+  "block.advanced_networking.cable.info": "Side '%s' of cable at %s, %s, %s has id %s",
+  "item.advanced_networking.compound": "Crystalline Compound"
 }

@@ -1,0 +1,47 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_cable": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "advanced_networking:cable"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_compound": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "advanced_networking:compound"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "advanced_networking:cable"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_cable",
+      "has_compound",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "advanced_networking:cable"
+    ]
+  }
+}
