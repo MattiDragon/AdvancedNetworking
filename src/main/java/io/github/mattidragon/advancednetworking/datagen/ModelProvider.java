@@ -74,6 +74,8 @@ public class ModelProvider extends FabricModelProvider {
         }
 
         generator.blockStateCollector.accept(builder);
+
+        generator.excludeFromSimpleItemModelGeneration(CABLE);
     }
 
     @Override
