@@ -46,7 +46,7 @@ jobs:
           java: 17 18
 
           game-versions: ${{ steps.versions.outputs.minecraft_version }}
-          changelog: ${{ inputs.changelog }}
+          changelog: "${{ inputs.changelog }}"
 
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: IF0Y4xFw
