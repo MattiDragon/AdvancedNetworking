@@ -1,0 +1,18 @@
+{
+  "advanced_networking.editor.errors": "Запуск не удался, наведи курсор для подробностей.",
+  "advanced_networking.editor.no_errors": "Запуск успешен",
+
+  "node.advanced_networking.read_redstone": "Прочитать редстоун",
+  "node.advanced_networking.write_redstone": "Записать редстоун",
+  "node.advanced_networking.set_redstone": "Задать редстоун",
+
+  "node.advanced_networking.interface.missing": "Интерфейс не найден: %s",
+  "node.advanced_networking.interface.invalid": "Неверный ID интерфейса",
+
+  "group.advanced_networking.redstone": "Редстоун",
+
+  "block.advanced_networking.controller": "Регулятор сети",
+  "block.advanced_networking.cable": "Сетевой кабель",
+  "block.advanced_networking.cable.info": "Сторона '%s' кабеля в %s, %s, %s имеет ID %s.",
+  "item.advanced_networking.compound": "Кристаллическое соединение"
+}
