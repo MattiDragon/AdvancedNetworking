@@ -242,7 +242,7 @@ public class CableBlock extends BlockWithEntity {
 
             return ActionResult.SUCCESS;
         }
-        if (hand == Hand.MAIN_HAND) {
+        if (hand == Hand.MAIN_HAND && player.isSneaking()) {
             if (player instanceof ServerPlayerEntity serverPlayer) {
                 var id = calcInterfaceId(pos, direction);
                 var idText = Texts.bracketed(Text.literal(id))

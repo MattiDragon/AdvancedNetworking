@@ -1,5 +1,6 @@
-package io.github.mattidragon.advancednetworking.screen;
+package io.github.mattidragon.advancednetworking.client.screen;
 
+import io.github.mattidragon.advancednetworking.misc.ScreenPosSyncPacket;
 import io.github.mattidragon.nodeflow.ui.screen.HandledEditorScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
@@ -21,12 +22,31 @@ public class ControllerScreen extends HandledEditorScreen {
     }
 
     @Override
+    protected void init() {
+        super.init();
+        var handler = (ControllerScreenHandler) getScreenHandler();
+        area.setViewX(handler.viewX);
+        area.setViewY(handler.viewY);
+        area.setZoom(handler.zoom);
+    }
+
+    @Override
+    public void syncGraph() {
+        super.syncGraph();
+        ScreenPosSyncPacket.send(getScreenHandler().syncId, area.getViewX(), area.getViewY(), area.getZoom());
+    }
+
+    @Override
+    public void close() {
+        syncGraph(); // Syncs pos and zoom
+        super.close();
+    }
+
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
 
         var isGray = new MutableBoolean(false);
-
-
 
         var texts = errors.stream()
                 .map(text -> {
@@ -38,8 +58,6 @@ public class ControllerScreen extends HandledEditorScreen {
         for (int i = 0; i < texts.size() - 1; i++) {
             texts.get(i).append("\n");
         }
-                //.flatMap(text -> textRenderer.wrapLines(text, 130).stream())
-                //.collect(Text::empty, (builder, text) -> builder.append("\n").append(text), MutableText::append);
 
         var x = GRID_OFFSET + 220;
         var y = GRID_OFFSET - 20;

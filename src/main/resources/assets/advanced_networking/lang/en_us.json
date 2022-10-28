@@ -6,10 +6,49 @@
   "node.advanced_networking.write_redstone": "Write Redstone",
   "node.advanced_networking.set_redstone": "Set Redstone",
 
+  "node.advanced_networking.item_source": "Item Source",
+  "node.advanced_networking.item_source.missing": "Can't find item source",
+  "node.advanced_networking.item_target": "Item Target",
+  "node.advanced_networking.item_target.missing": "Can't find item target",
+  "node.advanced_networking.split_items": "Split Items",
+  "node.advanced_networking.merge_items": "Merge Items",
+  "node.advanced_networking.empty_item_stream": "No Items",
+  "node.advanced_networking.limit_items": "Limit Items",
+
+  "node.advanced_networking.energy_source": "Energy Source",
+  "node.advanced_networking.energy_source.missing": "Can't find energy source",
+  "node.advanced_networking.energy_target": "Energy Target",
+  "node.advanced_networking.energy_target.missing": "Can't find energy target",
+  "node.advanced_networking.split_energy": "Split Energy",
+  "node.advanced_networking.merge_energy": "Merge Energy",
+  "node.advanced_networking.empty_energy_stream": "No Energy",
+  "node.advanced_networking.limit_energy": "Limit Energy",
+
+  "node.advanced_networking.fluid_source": "Fluid Source",
+  "node.advanced_networking.fluid_source.missing": "Can't find fluid source",
+  "node.advanced_networking.fluid_target": "Fluid Target",
+  "node.advanced_networking.fluid_target.missing": "Can't find fluid target",
+  "node.advanced_networking.split_fluid": "Split Fluid",
+  "node.advanced_networking.merge_fluid": "Merge Fluid",
+  "node.advanced_networking.empty_fluid_stream": "No Fluid",
+  "node.advanced_networking.limit_fluid": "Limit Fluid",
+
+  "node.advanced_networking.limit": "Limit",
+  "node.advanced_networking.streams": "Streams",
+
   "node.advanced_networking.interface.missing": "Interface not found: %s",
   "node.advanced_networking.interface.invalid": "Invalid interface id",
 
+  "data_type.advanced_networking.item_stream": "Item Stream",
+
   "group.advanced_networking.redstone": "Redstone",
+  "group.advanced_networking.item": "Item Transfer",
+  "group.advanced_networking.energy": "Energy Transfer",
+  "group.advanced_networking.fluid": "Fluid Transfer",
+
+  "block.advanced_networking.controller.item_sort_failed": "Failed to sort item paths",
+  "block.advanced_networking.controller.fluid_sort_failed": "Failed to sort fluid paths",
+  "block.advanced_networking.controller.energy_sort_failed": "Failed to sort energy paths",
 
   "block.advanced_networking.controller": "Network Controller",
   "block.advanced_networking.cable": "Networking Cable",

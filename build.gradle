@@ -22,6 +22,9 @@ repositories {
             includeGroup "com.github.mattidragon"
         }
     }
+    maven {
+        url = 'https://maven.cafeteria.dev/releases/'
+    }
 }
 
 dependencies {
@@ -32,10 +35,11 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
     modImplementation include("com.github.mattidragon:nodeflow:$nodeflow_version")
     modImplementation include("com.kneelawk:graphlib:$graphlib_version")
-    implementation include("net.objecthunter:exp4j:0.4.8")
     include modApi("teamreborn:energy:$energy_version") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+
+    include "me.luligabi:NoIndium:1.1.0+1.19"
 
     // Add generated data to runtime classpath (slightly hacky)
     runtimeOnly files("src/main/generated")

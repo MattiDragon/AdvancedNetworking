@@ -3,7 +3,7 @@
   "id": "advanced_networking",
   "version": "${version}",
   "name": "Advanced Networking",
-  "description": "",
+  "description": "Adds systems for programmable transfer of resources and data",
   "authors": [
     "MattiDragon"
   ],
@@ -31,6 +31,7 @@
     "fabric": "*",
     "minecraft": "1.19.2",
     "nodeflow": "*",
-    "graphlib": "*"
+    "graphlib": "*",
+    "noindium": "*"
   }
 }

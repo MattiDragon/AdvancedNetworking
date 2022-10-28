@@ -54,7 +54,7 @@ public abstract class AbstractInterfaceNode extends Node {
 
     @Override
     public List<Text> validate() {
-        return interfaceId.length() == 12 ? List.of() : List.of(Text.translatable("advanced_networking.node.interface.invalid"));
+        return interfaceId.length() == 12 ? List.of() : List.of(Text.translatable("node.advanced_networking.interface.invalid"));
     }
 
     @Override

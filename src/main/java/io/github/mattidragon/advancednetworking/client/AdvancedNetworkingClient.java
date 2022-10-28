@@ -2,8 +2,8 @@ package io.github.mattidragon.advancednetworking.client;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
-import io.github.mattidragon.advancednetworking.screen.ControllerScreen;
-import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
+import io.github.mattidragon.advancednetworking.client.screen.ControllerScreen;
+import io.github.mattidragon.advancednetworking.client.screen.ControllerScreenHandler;
 import io.github.mattidragon.nodeflow.ui.screen.EditorScreenHandler;
 import io.github.mattidragon.nodeflow.ui.screen.HandledEditorScreen;
 import net.fabricmc.api.ClientModInitializer;

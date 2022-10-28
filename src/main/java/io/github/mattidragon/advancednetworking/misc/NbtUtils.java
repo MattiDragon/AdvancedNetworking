@@ -1,4 +1,4 @@
-package io.github.mattidragon.advancednetworking.utils;
+package io.github.mattidragon.advancednetworking.misc;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;

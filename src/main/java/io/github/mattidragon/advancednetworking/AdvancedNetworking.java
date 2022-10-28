@@ -1,13 +1,15 @@
 package io.github.mattidragon.advancednetworking;
 
 import com.kneelawk.graphlib.GraphLib;
+import io.github.mattidragon.advancednetworking.client.screen.ControllerScreenHandler;
+import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
+import io.github.mattidragon.advancednetworking.misc.ScreenPosSyncPacket;
 import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import io.github.mattidragon.advancednetworking.network.UpdateScheduler;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import io.github.mattidragon.advancednetworking.registry.ModItems;
-import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import io.github.mattidragon.nodeflow.graph.GraphEnvironment;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.graph.data.DataType;
@@ -32,8 +34,9 @@ public class AdvancedNetworking implements ModInitializer {
     public static final ExtendedScreenHandlerType<ControllerScreenHandler> CONTROLLER_SCREEN = new ExtendedScreenHandlerType<>(ControllerScreenHandler::new);
     public static final GraphEnvironment ENVIRONMENT = GraphEnvironment.builder()
             .addContextTypes(ContextType.SERVER_WORLD, ContextType.BLOCK_POS, ContextType.SERVER, NetworkControllerContext.TYPE)
-            .addDataTypes(DataType.BOOLEAN, DataType.NUMBER, DataType.STRING)
-            .addNodeGroups(NodeGroup.MATH, NodeGroup.ADVANCED_MATH, NodeGroup.LOGIC, ModNodeTypes.REDSTONE_GROUP)
+            .addDataTypes(DataType.BOOLEAN, DataType.NUMBER, ModDataTypes.ITEM_STREAM, ModDataTypes.ENERGY_STREAM)
+            .addNodeGroups(NodeGroup.MATH, NodeGroup.ADVANCED_MATH, NodeGroup.LOGIC, NodeGroup.FLOW, NodeGroup.COMPARE_NUMBER, NodeGroup.CONSTANTS)
+            .addNodeGroups(ModNodeTypes.REDSTONE_GROUP, ModNodeTypes.ITEM_GROUP, ModNodeTypes.ENERGY_GROUP, ModNodeTypes.FLUID_GROUP)
             .addNodeTypes(NodeType.TIME)
             //.printDisableReasons()
             .build();
@@ -48,10 +51,12 @@ public class AdvancedNetworking implements ModInitializer {
 
         ModBlocks.register();
         ModItems.register();
+        ModNodeTypes.register();
+        ModDataTypes.register();
         NetworkRegistry.register();
         UpdateScheduler.register();
+        ScreenPosSyncPacket.register();
         NetworkControllerContext.register();
-        ModNodeTypes.register();
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) ->
                 dispatcher.register(CommandManager.literal("advanced_networking")
@@ -61,9 +66,12 @@ public class AdvancedNetworking implements ModInitializer {
                                             var pos = BlockPosArgumentType.getBlockPos(context, "pos");
                                             var controller = GraphLib.getController(context.getSource().getWorld());
                                             var message = new StringBuilder();
-                                            for (long graph : controller.getGraphsAt(pos).toArray()) {
-                                                message.append(graph).append("\n");
-                                                for (var node : controller.getGraph(graph).getNodes().sorted(Comparator.comparing(node -> node.data().getNode().getTypeId())).toList()) {
+                                            for (long graphId : controller.getGraphsAt(pos).toArray()) {
+                                                message.append(graphId).append("\n");
+                                                var graph = controller.getGraph(graphId);
+                                                if (graph == null)
+                                                    continue;
+                                                for (var node : graph.getNodes().sorted(Comparator.comparing(node -> node.data().getNode().getTypeId())).toList()) {
                                                     message.append("  ")
                                                             .append(node.data().getPos().toShortString())
                                                             .append(" | ")

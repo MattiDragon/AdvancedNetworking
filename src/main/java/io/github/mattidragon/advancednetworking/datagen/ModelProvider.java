@@ -27,11 +27,11 @@ public class ModelProvider extends FabricModelProvider {
         generator.blockStateCollector
                 .accept(VariantsBlockStateSupplier.create(CONTROLLER)
                         .coordinate(BlockStateVariantMap.create(ControllerBlock.POWERED, ControllerBlock.SUCCESS).register((powered, successful) -> {
+                            if (!powered)
+                                return BlockStateVariant.create().put(VariantSettings.MODEL, inactiveModel);
                             if (!successful)
                                 return BlockStateVariant.create().put(VariantSettings.MODEL, errorModel);
-                            if (powered)
-                                return BlockStateVariant.create().put(VariantSettings.MODEL, activeModel);
-                            return BlockStateVariant.create().put(VariantSettings.MODEL, inactiveModel);
+                            return BlockStateVariant.create().put(VariantSettings.MODEL, activeModel);
                         })));
 
         generateCableModel(generator);

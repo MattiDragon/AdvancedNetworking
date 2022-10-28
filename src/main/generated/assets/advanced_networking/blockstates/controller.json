@@ -1,7 +1,7 @@
 {
   "variants": {
     "powered=false,success=false": {
-      "model": "advanced_networking:block/controller_error"
+      "model": "advanced_networking:block/controller_inactive"
     },
     "powered=false,success=true": {
       "model": "advanced_networking:block/controller_inactive"
