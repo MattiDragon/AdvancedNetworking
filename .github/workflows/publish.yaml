@@ -34,7 +34,7 @@ jobs:
           replace: "\n"
 
       - name: Print changelog
-        run: "echo ${{ steps.changelog.outputs.value }}"
+        run: "echo \"${{ steps.changelog.outputs.value }}\""
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
