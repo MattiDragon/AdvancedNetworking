@@ -24,6 +24,18 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'gradle'
+
+      - name: Fix lines in changelog
+        id: changelog
+        uses: mad9000/actions-find-and-replace-string@2
+        with:
+          source: "${{ inputs.changelog }}"
+          find: "\\n"
+          replace: "\n"
+
+      - name: Print changelog
+        run: "echo ${{ steps.changelog.outputs.value }}"
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
@@ -36,14 +48,6 @@ jobs:
           path: gradle.properties
           properties: "mod_version minecraft_version"
 
-      - name: Fix lines in changelog
-        id: changelog
-        uses: mad9000/actions-find-and-replace-string@2
-        with:
-          source: "${{ inputs.changelog }}"
-          find: "\\n"
-          replace: "\n"
-
       - name: Publish
         uses: Kir-Antipov/mc-publish@v3.2
         with:
@@ -55,7 +59,7 @@ jobs:
           java: 17 18
 
           game-versions: ${{ steps.versions.outputs.minecraft_version }}
-          changelog: "${{ steps.changelog.outputs.value }}"
+          changelog: ${{ steps.changelog.outputs.value }}
 
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: IF0Y4xFw

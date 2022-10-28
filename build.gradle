@@ -39,6 +39,7 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
+    modImplementation "me.luligabi:NoIndium:1.1.0+1.19"
     include "me.luligabi:NoIndium:1.1.0+1.19"
 
     // Add generated data to runtime classpath (slightly hacky)
