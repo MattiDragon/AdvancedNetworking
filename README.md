@@ -15,7 +15,7 @@ Using that you can craft cables and controllers. Click on a cable with a stick o
 Open up the controller, add some nodes and connect them. Shift-click on an interface with an empty hand to get its id.
 Configure your nodes to use that id within the controller, and you should have a working network.
 
-<img src=".github/media/room.png" width="50%"/>
+<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/main/.github/media/room.png" width="50%"/>
 
 ## Features
 ### Cables
@@ -23,7 +23,7 @@ Cables are a core part of the mod, they are used to connect controllers to every
 Click on them with a stick or any wrench from other mods to change the mode of a side.
 Cables automatically connect to each other and controllers, but not other blocks. For those you will need to set the cable to interface mode.
 
-<img src=".github/media/cables.png" width="50%"/>
+<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/main/.github/media/cables.png" width="50%"/>
 
 ### Controllers
 Controllers house your programs. They have a node based UI where you can perform routing of resources and all kinds of logic.
@@ -31,13 +31,13 @@ You can add nodes from the `Add Nodes` menu and it's submenus.
 Deleting nodes can be done by right-clicking and selecting `Delete` or using the `Delete Nodes` mode.
 Nodes can also be duplicated from the right-clicking menu. You can freely move around by dragging and zoom by scrolling in the editor. 
 
-<img src=".github/media/right_click_menu.png" width="50%"/>
+<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/main/.github/media/right_click_menu.png" width="50%"/>
 
 ### Resource Transfer and Streams
 Some of the most important nodes are for transfer of energy, items and fluids. 
 They work on with a stream system where the nodes control set the flow of resources and the actual transfer happens after all nodes have evaluated.
 
-<img src=".github/media/fluids.png" width="50%"/>
+<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/main/.github/media/fluids.png" width="50%"/>
 
 ## Other Info
 ### Modpack permission
