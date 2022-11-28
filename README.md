@@ -56,7 +56,7 @@ I intend to try and stay compatible with as many mods as possible, but might aba
 * **Optifine** will never be officially supported. Might work, might not.
 
 ### Forge?
-No, I will not port to forge and probably won't accept any port as official. I can't stop unofficial ports to my license so go on if you want. 
+No, I will not port to forge and probably won't accept any port as official. I can't and won't try to stop unofficial ports due to my license so go on if you want. 
 
 ## Licencing
 The mod is licensed under the Apache License, Version 2.0. 
