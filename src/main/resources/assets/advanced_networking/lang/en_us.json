@@ -53,5 +53,16 @@
   "block.advanced_networking.controller": "Network Controller",
   "block.advanced_networking.cable": "Networking Cable",
   "block.advanced_networking.cable.info": "Side '%s' of cable at %s, %s, %s has id %s",
-  "item.advanced_networking.compound": "Crystalline Compound"
+  "item.advanced_networking.compound": "Crystalline Compound",
+
+  "config.advanced_networking.save.fail": "Failed to save config",
+  "config.advanced_networking.category.controller": "Controller",
+  "config.advanced_networking.option.controller_tick_rate": "Tick Rate",
+  "config.advanced_networking.option.controller_tick_rate.tooltip": "Defines how many ticks a controller waits between actions.",
+  "config.advanced_networking.option.controller_item_transfer_rate": "Item Transfer Rate",
+  "config.advanced_networking.option.controller_item_transfer_rate.tooltip": "Defines how many items a controller can move in a action.",
+  "config.advanced_networking.option.controller_fluid_transfer_rate": "Fluid Transfer Rate",
+  "config.advanced_networking.option.controller_fluid_transfer_rate.tooltip": "Defines how much fluid a controller can move in a action.",
+  "config.advanced_networking.option.controller_energy_transfer_rate": "Item Transfer Rate",
+  "config.advanced_networking.option.controller_energy_transfer_rate.tooltip": "Defines how much energy a controller can move in a action."
 }

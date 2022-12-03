@@ -3,6 +3,7 @@ package io.github.mattidragon.advancednetworking.block;
 import com.kneelawk.graphlib.GraphLib;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.client.screen.ControllerScreenHandler;
+import io.github.mattidragon.advancednetworking.config.Config;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
 import io.github.mattidragon.advancednetworking.graph.stream.ResourceStream;
 import io.github.mattidragon.advancednetworking.graph.stream.ResourceStreamEvaluator;
@@ -13,7 +14,6 @@ import io.github.mattidragon.nodeflow.graph.context.Context;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.misc.EvaluationError;
 import io.github.mattidragon.nodeflow.misc.GraphProvidingBlockEntity;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -30,6 +30,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
@@ -106,9 +107,9 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
         if (controller.ticks-- <= 0) {
             if (state.get(ControllerBlock.POWERED)) {
                 var errors = controller.evaluate();
-                var itemSuccess = ResourceStreamEvaluator.evaluate(controller.itemStreams, 64L, (from, to, context) -> context <= 0 ? 0 : context - StorageUtil.move(from, to, variant -> true, context, null));
-                var fluidSuccess = ResourceStreamEvaluator.evaluate(controller.fluidStreams, FluidConstants.BUCKET, (from, to, context) -> context <= 0 ? 0 : context - StorageUtil.move(from, to, variant -> true, context, null));
-                var energySuccess = ResourceStreamEvaluator.evaluate(controller.energyStreams, 256L, (from, to, context) -> context <= 0 ? 0 : context - EnergyStorageUtil.move(from, to, context, null));
+                var itemSuccess = ResourceStreamEvaluator.evaluate(controller.itemStreams, Config.CONTROLLER_ITEM_TRANSFER_RATE.get(), (from, to, context) -> context <= 0 ? 0 : context - StorageUtil.move(from, to, variant -> true, context, null));
+                var fluidSuccess = ResourceStreamEvaluator.evaluate(controller.fluidStreams, Config.CONTROLLER_FLUID_TRANSFER_RATE.get(), (from, to, context) -> context <= 0 ? 0 : context - StorageUtil.move(from, to, variant -> true, context, null));
+                var energySuccess = ResourceStreamEvaluator.evaluate(controller.energyStreams, Config.CONTROLLER_ENERGY_TRANSFER_RATE.get(), (from, to, context) -> context <= 0 ? 0 : context - EnergyStorageUtil.move(from, to, context, null));
                 controller.itemStreams.clear();
                 controller.fluidStreams.clear();
                 controller.energyStreams.clear();
@@ -126,7 +127,7 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
                 if (!energySuccess)
                     controller.errors.add(Text.translatable("block.advanced_networking.controller.energy_sort_failed"));
 
-                controller.ticks = 10;
+                controller.ticks = (byte) MathHelper.clamp(Config.CONTROLLER_TICK_RATE.get(), 1, 125);
             }
         }
     }

@@ -9,7 +9,6 @@ group = project.maven_group
 archivesBaseName = project.archives_base_name
 
 repositories {
-    mavenCentral()
     maven {
         url "https://kneelawk.com/maven/"
         content {
@@ -23,8 +22,30 @@ repositories {
         }
     }
     maven {
-        url = 'https://maven.cafeteria.dev/releases/'
+        url "https://maven.isxander.dev/releases"
+        content {
+            includeGroup "dev.isxander"
+        }
     }
+    maven {
+        url "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
+    maven {
+        url 'https://maven.cafeteria.dev/releases/'
+        content {
+            includeGroup "me.luligabi"
+        }
+    }
+    maven {
+        url "https://maven.terraformersmc.com"
+        content {
+            includeGroup "com.terraformersmc"
+        }
+    }
+    mavenCentral()
 }
 
 dependencies {
@@ -33,14 +54,15 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:$loader_version"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
+
     modImplementation include("com.github.mattidragon:nodeflow:$nodeflow_version")
     modImplementation include("com.kneelawk:graphlib:$graphlib_version")
+    modImplementation include("dev.isxander:yet-another-config-lib:$yacl_version")
+    modImplementation include("maven.modrinth:paragon:$paragon_version")
+    modImplementation include("me.luligabi:NoIndium:1.1.0+1.19")
     include modApi("teamreborn:energy:$energy_version") {
         exclude(group: "net.fabricmc.fabric-api")
     }
-
-    modImplementation "me.luligabi:NoIndium:1.1.0+1.19"
-    include "me.luligabi:NoIndium:1.1.0+1.19"
 
     // Add generated data to runtime classpath (slightly hacky)
     runtimeOnly files("src/main/generated")

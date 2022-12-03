@@ -7,7 +7,12 @@
   "authors": [
     "MattiDragon"
   ],
-  "contact": {},
+  "contact": {
+    "homepage": "https://modrinth.com/mod/advanced-networking",
+    "issues": "https://github.com/mattidragon/advancednetworking/issues",
+    "source": "https://github.com/MattiDragon/AdvancedNetworking",
+    "discord": "https://discord.gg/26T5KK2PBv"
+  },
   "license": "Apache-2.0",
   "icon": "icon.png",
   "environment": "*",
@@ -20,6 +25,9 @@
     ],
     "client": [
       "io.github.mattidragon.advancednetworking.client.AdvancedNetworkingClient"
+    ],
+    "modmenu": [
+      "io.github.mattidragon.advancednetworking.config.ModmenuIntegration"
     ]
   },
   "mixins": [
