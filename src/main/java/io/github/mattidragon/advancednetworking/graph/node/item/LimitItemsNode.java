@@ -88,8 +88,8 @@ public class LimitItemsNode extends Node {
         }
 
         @Override
-        public @Nullable StorageView<ItemVariant> exactView(TransactionContext transaction, ItemVariant resource) {
-            return delegate.exactView(transaction, resource);
+        public @Nullable StorageView<ItemVariant> exactView(ItemVariant resource) {
+            return delegate.exactView(resource);
         }
 
         @Override

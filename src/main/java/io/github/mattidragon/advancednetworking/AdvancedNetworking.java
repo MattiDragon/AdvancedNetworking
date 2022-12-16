@@ -21,10 +21,11 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.command.argument.BlockPosArgumentType;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,7 @@ public class AdvancedNetworking implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        Registry.register(Registry.SCREEN_HANDLER, id("controller"), CONTROLLER_SCREEN);
+        Registry.register(Registries.SCREEN_HANDLER, id("controller"), CONTROLLER_SCREEN);
         ConfigRegistry.register(Config.INSTANCE);
 
         ModBlocks.register();

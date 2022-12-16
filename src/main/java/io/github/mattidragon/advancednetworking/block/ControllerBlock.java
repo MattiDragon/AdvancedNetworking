@@ -47,7 +47,7 @@ public class ControllerBlock extends BlockWithEntity {
             boolean bl = state.get(POWERED);
             if (bl != world.isReceivingRedstonePower(pos)) {
                 if (bl) {
-                    world.createAndScheduleBlockTick(pos, this, 10);
+                    world.scheduleBlockTick(pos, this, 10);
                 } else {
                     world.setBlockState(pos, state.cycle(POWERED), Block.NOTIFY_LISTENERS);
                     if (world.getBlockEntity(pos) instanceof ControllerBlockEntity controller) {

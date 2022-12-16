@@ -2,21 +2,33 @@ package io.github.mattidragon.advancednetworking.registry;
 
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.item.ItemGroups;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 
 public final class ModItems {
-    public static final BlockItem CONTROLLER = new BlockItem(ModBlocks.CONTROLLER, new FabricItemSettings().group(ItemGroup.REDSTONE));
-    public static final BlockItem CABLE = new BlockItem(ModBlocks.CABLE, new FabricItemSettings().group(ItemGroup.REDSTONE));
-    public static final Item COMPOUND = new Item(new FabricItemSettings().group(ItemGroup.REDSTONE));
+    public static final BlockItem CONTROLLER = new BlockItem(ModBlocks.CONTROLLER, new FabricItemSettings());
+    public static final BlockItem CABLE = new BlockItem(ModBlocks.CABLE, new FabricItemSettings());
+    public static final Item COMPOUND = new Item(new FabricItemSettings());
 
     private ModItems() { throw new UnsupportedOperationException(); }
 
     public static void register() {
-        Registry.register(Registry.ITEM, AdvancedNetworking.id("controller"), CONTROLLER);
-        Registry.register(Registry.ITEM, AdvancedNetworking.id("cable"), CABLE);
-        Registry.register(Registry.ITEM, AdvancedNetworking.id("compound"), COMPOUND);
+        Registry.register(Registries.ITEM, AdvancedNetworking.id("controller"), CONTROLLER);
+        Registry.register(Registries.ITEM, AdvancedNetworking.id("cable"), CABLE);
+        Registry.register(Registries.ITEM, AdvancedNetworking.id("compound"), COMPOUND);
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register(entries -> {
+            entries.add(CONTROLLER);
+            entries.add(CABLE);
+        });
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
+            entries.add(CONTROLLER);
+            entries.add(CABLE);
+        });
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> entries.add(COMPOUND));
     }
 }

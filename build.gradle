@@ -56,6 +56,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
 
     modImplementation include("com.github.mattidragon:nodeflow:$nodeflow_version")
+    modImplementation include("com.terraformersmc:modmenu:$modmenu_version")
     modImplementation include("com.kneelawk:graphlib:$graphlib_version")
     modImplementation include("dev.isxander:yet-another-config-lib:$yacl_version")
     modImplementation include("maven.modrinth:paragon:$paragon_version")

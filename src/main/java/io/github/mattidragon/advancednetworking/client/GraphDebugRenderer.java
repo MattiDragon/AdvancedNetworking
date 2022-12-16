@@ -41,7 +41,7 @@ public class GraphDebugRenderer{
                 .toList();
 
         var builder = Tessellator.getInstance().getBuffer();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         builder.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
 
         var cam = context.camera().getPos();
@@ -54,10 +54,10 @@ public class GraphDebugRenderer{
             if (link.second().data().getNode() instanceof SidedBlockNode sided)
                 second = second.add(Vec3d.of(sided.getSide().getVector()).multiply(0.25));
 
-            builder.vertex(first.getX() - cam.x, first.getY() - cam.y, first.getZ() - cam.z).color(classview ? link.first().data().getNode().getClass().hashCode() | 0xff000000 : 0xffffffff).next();
-            builder.vertex(second.getX() - cam.x, second.getY() - cam.y, second.getZ() - cam.z).color(classview ? link.second().data().getNode().getClass().hashCode() | 0xff000000 : 0xffffffff).next();
+            builder.vertex(first.getX() - cam.x, first.getY() - cam.y, first.getZ() - cam.z).color(classview ? link.first().data().getNode().getClass().getName().hashCode() | 0xff000000 : 0xffffffff).next();
+            builder.vertex(second.getX() - cam.x, second.getY() - cam.y, second.getZ() - cam.z).color(classview ? link.second().data().getNode().getClass().getName().hashCode() | 0xff000000 : 0xffffffff).next();
         }
 
-        BufferRenderer.drawWithShader(builder.end());
+        BufferRenderer.drawWithGlobalProgram(builder.end());
     }
 }

@@ -95,8 +95,8 @@ public class LimitFluidNode extends Node {
         }
 
         @Override
-        public @Nullable StorageView<FluidVariant> exactView(TransactionContext transaction, FluidVariant resource) {
-            return delegate.exactView(transaction, resource);
+        public @Nullable StorageView<FluidVariant> exactView(FluidVariant resource) {
+            return delegate.exactView(resource);
         }
 
         @Override
