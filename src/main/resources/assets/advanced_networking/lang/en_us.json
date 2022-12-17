@@ -63,6 +63,6 @@
   "config.advanced_networking.option.controller_item_transfer_rate.tooltip": "Defines how many items a controller can move in a action.",
   "config.advanced_networking.option.controller_fluid_transfer_rate": "Fluid Transfer Rate",
   "config.advanced_networking.option.controller_fluid_transfer_rate.tooltip": "Defines how much fluid a controller can move in a action.",
-  "config.advanced_networking.option.controller_energy_transfer_rate": "Item Transfer Rate",
+  "config.advanced_networking.option.controller_energy_transfer_rate": "Energy Transfer Rate",
   "config.advanced_networking.option.controller_energy_transfer_rate.tooltip": "Defines how much energy a controller can move in a action."
 }
