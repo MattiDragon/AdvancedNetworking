@@ -1,0 +1,68 @@
+{
+  "advanced_networking.editor.errors": "Operacja nie powiodła się, najedź kursorem na szczegóły",
+  "advanced_networking.editor.no_errors": "Operacja się powiodła",
+
+  "node.advanced_networking.read_redstone": "Czytaj Redstone",
+  "node.advanced_networking.write_redstone": "Pisz Redstone",
+  "node.advanced_networking.set_redstone": "Ustaw Redstone",
+
+  "node.advanced_networking.item_source": "Źródło Przedmiotów",
+  "node.advanced_networking.item_source.missing": "Nie można znaleźć źródła przedmiotu",
+  "node.advanced_networking.item_target": "Cel Przedmiotów",
+  "node.advanced_networking.item_target.missing": "Nie można znaleźć celu przedmiotu",
+  "node.advanced_networking.split_items": "Dzielenie przedmiotów",
+  "node.advanced_networking.merge_items": "Łączenie Przedmiotów",
+  "node.advanced_networking.empty_item_stream": "Brak Przedmiotów",
+  "node.advanced_networking.limit_items": "Limitowane przedmioty",
+
+  "node.advanced_networking.energy_source": "Źródło Energii",
+  "node.advanced_networking.energy_source.missing": "Nie można znaleźć źródła energii",
+  "node.advanced_networking.energy_target": "Cel Energii",
+  "node.advanced_networking.energy_target.missing": "Nie można znaleźć celu energii",
+  "node.advanced_networking.split_energy": "Dzielenie Energii",
+  "node.advanced_networking.merge_energy": "Łączenie Energii",
+  "node.advanced_networking.empty_energy_stream": "Brak Energii",
+  "node.advanced_networking.limit_energy": "Limitowana Energia",
+
+  "node.advanced_networking.fluid_source": "Źródło Płynów",
+  "node.advanced_networking.fluid_source.missing": "Nie mogę znaleźć źródła płynów",
+  "node.advanced_networking.fluid_target": "Cel Płynów",
+  "node.advanced_networking.fluid_target.missing": "Nie można znaleźć docelowych płynów",
+  "node.advanced_networking.split_fluid": "Dzielenie Płynów",
+  "node.advanced_networking.merge_fluid": "Łączenie Płynów",
+  "node.advanced_networking.empty_fluid_stream": "Brak Płynów",
+  "node.advanced_networking.limit_fluid": "Limitowane Płyny",
+
+  "node.advanced_networking.limit": "Limit",
+  "node.advanced_networking.streams": "Strumienie",
+
+  "node.advanced_networking.interface.missing": "Nie znaleziono interfejsu: %s",
+  "node.advanced_networking.interface.invalid": "Nieprawidłowy interfejs id",
+
+  "data_type.advanced_networking.item_stream": "Strumień Przedmiotu",
+
+  "group.advanced_networking.redstone": "Redstone",
+  "group.advanced_networking.item": "Tranfer Przedmiotów",
+  "group.advanced_networking.energy": "Transfer Energii",
+  "group.advanced_networking.fluid": "Transfer Płynów",
+
+  "block.advanced_networking.controller.item_sort_failed": "Nie udało się posortować ścieżek przedmiotów",
+  "block.advanced_networking.controller.fluid_sort_failed": "Nie udało się posortować ścieżek płynów",
+  "block.advanced_networking.controller.energy_sort_failed": "Nie udało się posortować ścieżek energii",
+
+  "block.advanced_networking.controller": "Kontroler Sieci",
+  "block.advanced_networking.cable": "Kabel Sieciowy",
+  "block.advanced_networking.cable.info": "Bok '%s' kabla w %s, %s, %s ma identyfikator %s",
+  "item.advanced_networking.compound": "Związek Krystaliczny",
+
+  "config.advanced_networking.save.fail": "Nie udało się zapisać konfiguracji",
+  "config.advanced_networking.category.controller": "Kontroler",
+  "config.advanced_networking.option.controller_tick_rate": "Wskaźnik Tickowy",
+  "config.advanced_networking.option.controller_tick_rate.tooltip": "Określa ile ticków kontroler czeka pomiędzy akcjami.",
+  "config.advanced_networking.option.controller_item_transfer_rate": "Szybkość Transferu Przedmiotów",
+  "config.advanced_networking.option.controller_item_transfer_rate.tooltip": "Określa ile przedmiotów może kontroler przenieść w akcji.",
+  "config.advanced_networking.option.controller_fluid_transfer_rate": "Szybkość Transferu Płynów",
+  "config.advanced_networking.option.controller_fluid_transfer_rate.tooltip": "Określa, ile płynów może kontroler przenieść w akcji.",
+  "config.advanced_networking.option.controller_energy_transfer_rate": "Szybkość Transferu Energii",
+  "config.advanced_networking.option.controller_energy_transfer_rate.tooltip": "Określa ile energii może kontroler przenieść w akcji."
+}
