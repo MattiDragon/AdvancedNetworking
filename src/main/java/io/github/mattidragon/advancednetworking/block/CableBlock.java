@@ -20,15 +20,13 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -259,18 +257,6 @@ public class CableBlock extends BlockWithEntity {
         if (hand == Hand.MAIN_HAND && player.isSneaking()) {
             if (world.isClient && world.getBlockEntity(pos) instanceof CableBlockEntity cable) {
                 openConfig(pos.toImmutable(), direction, (side) -> InterfaceType.ofConnectionType(world.getBlockState(pos).get(FACING_PROPERTIES.get(side))), cable::getName);
-            }
-
-            if (player instanceof ServerPlayerEntity serverPlayer) {
-                var id = calcInterfaceId(pos, direction);
-                var idText = Texts.bracketed(Text.literal(id))
-                        .styled(style ->
-                                style.withColor(Formatting.GREEN)
-                                        .withInsertion(id)
-                                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, id))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.copy.click"))));
-
-                serverPlayer.sendMessage(Text.translatable("block.advanced_networking.cable.info", direction, pos.getX(), pos.getY(), pos.getX(), idText));
             }
             return ActionResult.SUCCESS;
         }

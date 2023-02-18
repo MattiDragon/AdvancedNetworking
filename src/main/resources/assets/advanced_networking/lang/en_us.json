@@ -89,7 +89,6 @@
 
   "block.advanced_networking.controller": "Network Controller",
   "block.advanced_networking.cable": "Networking Cable",
-  "block.advanced_networking.cable.info": "Side '%s' of cable at %s, %s, %s has id %s",
   "item.advanced_networking.compound": "Crystalline Compound",
 
   "config.advanced_networking.save.fail": "Failed to save config",
