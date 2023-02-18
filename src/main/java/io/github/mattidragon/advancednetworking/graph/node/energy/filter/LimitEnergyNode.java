@@ -1,9 +1,10 @@
-package io.github.mattidragon.advancednetworking.graph.node.item;
+package io.github.mattidragon.advancednetworking.graph.node.energy.filter;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.client.screen.SliderConfigScreen;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
+import io.github.mattidragon.advancednetworking.graph.node.energy.EnergyLimitTransformer;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
@@ -18,34 +19,34 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
-public class LimitItemsNode extends Node {
-    private int limit = 64;
+public class LimitEnergyNode extends Node {
+    private int limit = 256;
 
-    public LimitItemsNode(Graph graph) {
-        super(ModNodeTypes.LIMIT_ITEMS, List.of(), graph);
+    public LimitEnergyNode(Graph graph) {
+        super(ModNodeTypes.LIMIT_ENERGY, List.of(), graph);
     }
 
     @Override
     public Connector<?>[] getOutputs() {
-        return new Connector[] { ModDataTypes.ITEM_STREAM.makeRequiredOutput("out", this) };
+        return new Connector[] { ModDataTypes.ENERGY_STREAM.makeRequiredOutput("out", this) };
     }
 
     @Override
     public Connector<?>[] getInputs() {
-        return new Connector[] { ModDataTypes.ITEM_STREAM.makeRequiredInput("in", this) };
+        return new Connector[] { ModDataTypes.ENERGY_STREAM.makeRequiredInput("in", this) };
     }
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        var stream = inputs[0].getAs(ModDataTypes.ITEM_STREAM);
-        stream.transform(new ItemTransformer.Limit(limit));
-        return Either.left(new DataValue<?>[]{ ModDataTypes.ITEM_STREAM.makeValue(stream) });
+        var stream = inputs[0].getAs(ModDataTypes.ENERGY_STREAM);
+        stream.transform(new EnergyLimitTransformer(limit));
+        return Either.left(new DataValue<?>[]{ ModDataTypes.ENERGY_STREAM.makeValue(stream) });
     }
 
     @Override
     public void readNbt(NbtCompound data) {
         super.readNbt(data);
-        limit = MathHelper.clamp(data.getInt("limit"), 1, 64);
+        limit = MathHelper.clamp(data.getInt("limit"), 1, 256);
     }
 
     @Override
@@ -57,7 +58,7 @@ public class LimitItemsNode extends Node {
     @Environment(EnvType.CLIENT)
     @Override
     public NodeConfigScreen createConfigScreen(EditorScreen parent) {
-        return new SliderConfigScreen(this, parent, value -> limit = value, () -> limit, Text.translatable("node.advanced_networking.limit"), 1, 64);
+        return new SliderConfigScreen(this, parent, value -> limit = value, () -> limit, Text.translatable("node.advanced_networking.limit"), 1, 256);
     }
 
     @Override

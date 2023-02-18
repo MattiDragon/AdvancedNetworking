@@ -1,32 +1,34 @@
-package io.github.mattidragon.advancednetworking.graph.node.fluid;
+package io.github.mattidragon.advancednetworking.graph.node.energy.storage;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
 import io.github.mattidragon.advancednetworking.graph.node.InterfaceNode;
+import io.github.mattidragon.advancednetworking.graph.node.energy.EnergyLimitTransformer;
+import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.minecraft.text.Text;
+import team.reborn.energy.api.EnergyStorage;
 
 import java.util.List;
 
-public class FluidTargetNode extends InterfaceNode {
-    public FluidTargetNode(Graph graph) {
-        super(ModNodeTypes.FLUID_TARGET, List.of(ContextType.SERVER_WORLD, NetworkControllerContext.TYPE), graph);
+public class EnergySourceNode extends InterfaceNode {
+    public EnergySourceNode(Graph graph) {
+        super(ModNodeTypes.ENERGY_SOURCE, List.of(ContextType.SERVER_WORLD, NetworkControllerContext.TYPE), graph);
     }
 
     @Override
     public Connector<?>[] getOutputs() {
-        return new Connector[0];
+        return new Connector[] { ModDataTypes.ENERGY_STREAM.makeRequiredOutput("energy", this) };
     }
 
     @Override
     public Connector<?>[] getInputs() {
-        return new Connector[] { ModDataTypes.FLUID_STREAM.makeRequiredInput("fluid", this) };
+        return new Connector[0];
     }
 
     @Override
@@ -40,12 +42,11 @@ public class FluidTargetNode extends InterfaceNode {
         var pos = optionalPos.get().pos();
         var side = optionalPos.get().side();
 
-        var storage = FluidStorage.SIDED.find(world, pos.offset(side), side.getOpposite());
+        var storage = EnergyStorage.SIDED.find(world, pos.offset(side), side.getOpposite());
         if (storage == null)
-            return Either.right(Text.translatable("node.advanced_networking.item_target.missing", interfaceId));
+            return Either.right(Text.translatable("node.advanced_networking.energy_source.missing", interfaceId));
 
-        var stream = inputs[0].getAs(ModDataTypes.FLUID_STREAM);
-        stream.end(storage, controller.controller().fluidEnvironment);
-        return Either.left(new DataValue<?>[0]);
+        var bundle = PathBundle.<EnergyStorage, EnergyLimitTransformer>begin(storage);
+        return Either.left(new DataValue<?>[] { ModDataTypes.ENERGY_STREAM.makeValue(bundle) });
     }
 }

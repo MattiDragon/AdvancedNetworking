@@ -1,4 +1,4 @@
-package io.github.mattidragon.advancednetworking.graph.node.item;
+package io.github.mattidragon.advancednetworking.graph.node.energy.storage;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
@@ -9,14 +9,14 @@ import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.text.Text;
+import team.reborn.energy.api.EnergyStorage;
 
 import java.util.List;
 
-public class ItemTargetNode extends InterfaceNode {
-    public ItemTargetNode(Graph graph) {
-        super(ModNodeTypes.ITEM_TARGET, List.of(ContextType.SERVER_WORLD, NetworkControllerContext.TYPE), graph);
+public class EnergyTargetNode extends InterfaceNode {
+    public EnergyTargetNode(Graph graph) {
+        super(ModNodeTypes.ENERGY_TARGET, List.of(ContextType.SERVER_WORLD, NetworkControllerContext.TYPE), graph);
     }
 
     @Override
@@ -26,7 +26,7 @@ public class ItemTargetNode extends InterfaceNode {
 
     @Override
     public Connector<?>[] getInputs() {
-        return new Connector[] { ModDataTypes.ITEM_STREAM.makeRequiredInput("items", this) };
+        return new Connector[] { ModDataTypes.ENERGY_STREAM.makeRequiredInput("energy", this) };
     }
 
     @Override
@@ -40,12 +40,12 @@ public class ItemTargetNode extends InterfaceNode {
         var pos = optionalPos.get().pos();
         var side = optionalPos.get().side();
 
-        var storage = ItemStorage.SIDED.find(world, pos.offset(side), side.getOpposite());
+        var storage = EnergyStorage.SIDED.find(world, pos.offset(side), side.getOpposite());
         if (storage == null)
-            return Either.right(Text.translatable("node.advanced_networking.item_target.missing", interfaceId));
+            return Either.right(Text.translatable("node.advanced_networking.energy_target.missing", interfaceId));
 
-        var stream = inputs[0].getAs(ModDataTypes.ITEM_STREAM);
-        stream.end(storage, controller.controller().itemEnvironment);
+        var stream = inputs[0].getAs(ModDataTypes.ENERGY_STREAM);
+        stream.end(storage, controller.controller().energyEnvironment);
         return Either.left(new DataValue<?>[0]);
     }
 }

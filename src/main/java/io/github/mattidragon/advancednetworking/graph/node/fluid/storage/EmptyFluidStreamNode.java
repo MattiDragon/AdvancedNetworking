@@ -1,26 +1,28 @@
-package io.github.mattidragon.advancednetworking.graph.node.energy;
+package io.github.mattidragon.advancednetworking.graph.node.fluid.storage;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
+import io.github.mattidragon.advancednetworking.graph.node.fluid.FluidTransformer;
 import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
 import io.github.mattidragon.nodeflow.graph.node.Node;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.text.Text;
-import team.reborn.energy.api.EnergyStorage;
 
 import java.util.List;
 
-public class EmptyEnergyStreamNode extends Node {
-    public EmptyEnergyStreamNode(Graph graph) {
-        super(ModNodeTypes.EMPTY_ENERGY_STREAM, List.of(), graph);
+public class EmptyFluidStreamNode extends Node {
+    public EmptyFluidStreamNode(Graph graph) {
+        super(ModNodeTypes.EMPTY_FLUID_STREAM, List.of(), graph);
     }
 
     @Override
     public Connector<?>[] getOutputs() {
-        return new Connector[] { ModDataTypes.ENERGY_STREAM.makeRequiredOutput("energy", this) };
+        return new Connector[] { ModDataTypes.FLUID_STREAM.makeRequiredOutput("fluid", this) };
     }
 
     @Override
@@ -30,7 +32,7 @@ public class EmptyEnergyStreamNode extends Node {
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        var stream = PathBundle.<EnergyStorage, EnergyLimitTransformer>begin(EnergyStorage.EMPTY);
-        return Either.left(new DataValue<?>[] { ModDataTypes.ENERGY_STREAM.makeValue(stream) });
+        var stream = PathBundle.<Storage<FluidVariant>, FluidTransformer>begin(Storage.empty());
+        return Either.left(new DataValue<?>[] { ModDataTypes.FLUID_STREAM.makeValue(stream) });
     }
 }

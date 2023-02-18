@@ -1,4 +1,4 @@
-package io.github.mattidragon.advancednetworking.graph.node.item;
+package io.github.mattidragon.advancednetworking.graph.node.item.route;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.client.screen.SliderConfigScreen;

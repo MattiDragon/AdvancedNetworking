@@ -1,27 +1,27 @@
-package io.github.mattidragon.advancednetworking.graph.node.item;
+package io.github.mattidragon.advancednetworking.graph.node.energy.storage;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
+import io.github.mattidragon.advancednetworking.graph.node.energy.EnergyLimitTransformer;
 import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
 import io.github.mattidragon.nodeflow.graph.node.Node;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.text.Text;
+import team.reborn.energy.api.EnergyStorage;
 
 import java.util.List;
 
-public class EmptyItemStreamNode extends Node {
-    public EmptyItemStreamNode(Graph graph) {
-        super(ModNodeTypes.EMPTY_ITEM_STREAM, List.of(), graph);
+public class EmptyEnergyStreamNode extends Node {
+    public EmptyEnergyStreamNode(Graph graph) {
+        super(ModNodeTypes.EMPTY_ENERGY_STREAM, List.of(), graph);
     }
 
     @Override
     public Connector<?>[] getOutputs() {
-        return new Connector[] { ModDataTypes.ITEM_STREAM.makeRequiredOutput("items", this) };
+        return new Connector[] { ModDataTypes.ENERGY_STREAM.makeRequiredOutput("energy", this) };
     }
 
     @Override
@@ -31,7 +31,7 @@ public class EmptyItemStreamNode extends Node {
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        var stream = PathBundle.<Storage<ItemVariant>, ItemTransformer>begin(Storage.empty());
-        return Either.left(new DataValue<?>[] { ModDataTypes.ITEM_STREAM.makeValue(stream) });
+        var stream = PathBundle.<EnergyStorage, EnergyLimitTransformer>begin(EnergyStorage.EMPTY);
+        return Either.left(new DataValue<?>[] { ModDataTypes.ENERGY_STREAM.makeValue(stream) });
     }
 }

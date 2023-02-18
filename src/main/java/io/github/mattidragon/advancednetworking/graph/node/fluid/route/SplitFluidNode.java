@@ -1,4 +1,4 @@
-package io.github.mattidragon.advancednetworking.graph.node.fluid;
+package io.github.mattidragon.advancednetworking.graph.node.fluid.route;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.client.screen.SliderConfigScreen;
@@ -18,37 +18,41 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
-public class MergeFluidNode extends Node {
+public class SplitFluidNode extends Node {
     private int count = 2;
 
-    public MergeFluidNode(Graph graph) {
-        super(ModNodeTypes.MERGE_FLUID, List.of(), graph);
+    public SplitFluidNode(Graph graph) {
+        super(ModNodeTypes.SPLIT_FLUID, List.of(), graph);
     }
 
     @Override
-    public Connector<?>[] getInputs() {
+    public Connector<?>[] getOutputs() {
         var connectors = new Connector[count];
         for (int i = 0; i < connectors.length; i++) {
-            connectors[i] = ModDataTypes.FLUID_STREAM.makeRequiredInput(String.valueOf(i), this);
+            connectors[i] = ModDataTypes.FLUID_STREAM.makeOptionalOutput(String.valueOf(i), this);
         }
 
         return connectors;
     }
 
     @Override
-    public Connector<?>[] getOutputs() {
-        return new Connector[] { ModDataTypes.FLUID_STREAM.makeOptionalOutput("combined", this) };
+    public Connector<?>[] getInputs() {
+        return new Connector[] { ModDataTypes.FLUID_STREAM.makeRequiredInput("items", this) };
     }
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
         var current = inputs[0].getAs(ModDataTypes.FLUID_STREAM);
+        var out = new DataValue<?>[count];
 
-        for (int i = 1; i < count; i++) {
-            current = current.merge(inputs[i].getAs(ModDataTypes.FLUID_STREAM));
+        for (int i = 0; i < count - 1; i++) {
+            var split = current.split();
+            out[i] = ModDataTypes.FLUID_STREAM.makeValue(current);
+            current = split;
         }
+        out[count - 1] = ModDataTypes.FLUID_STREAM.makeValue(current);
 
-        return Either.left(new DataValue<?>[] { ModDataTypes.FLUID_STREAM.makeValue(current) });
+        return Either.left(out);
     }
 
     @Override

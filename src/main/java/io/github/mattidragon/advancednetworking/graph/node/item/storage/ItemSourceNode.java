@@ -1,10 +1,11 @@
-package io.github.mattidragon.advancednetworking.graph.node.item;
+package io.github.mattidragon.advancednetworking.graph.node.item.storage;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
 import io.github.mattidragon.advancednetworking.graph.node.InterfaceNode;
+import io.github.mattidragon.advancednetworking.graph.node.item.ItemTransformer;
 import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;

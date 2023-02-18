@@ -1,4 +1,4 @@
-package io.github.mattidragon.advancednetworking.graph.node.energy;
+package io.github.mattidragon.advancednetworking.graph.node.item.route;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.client.screen.SliderConfigScreen;
@@ -18,46 +18,59 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
-public class LimitEnergyNode extends Node {
-    private int limit = 256;
+public class SplitItemsNode extends Node {
+    private int count = 2;
 
-    public LimitEnergyNode(Graph graph) {
-        super(ModNodeTypes.LIMIT_ENERGY, List.of(), graph);
+    public SplitItemsNode(Graph graph) {
+        super(ModNodeTypes.SPLIT_ITEMS, List.of(), graph);
     }
 
     @Override
     public Connector<?>[] getOutputs() {
-        return new Connector[] { ModDataTypes.ENERGY_STREAM.makeRequiredOutput("out", this) };
+        var connectors = new Connector[count];
+        for (int i = 0; i < connectors.length; i++) {
+            connectors[i] = ModDataTypes.ITEM_STREAM.makeOptionalOutput(String.valueOf(i), this);
+        }
+
+        return connectors;
     }
 
     @Override
     public Connector<?>[] getInputs() {
-        return new Connector[] { ModDataTypes.ENERGY_STREAM.makeRequiredInput("in", this) };
+        return new Connector[] { ModDataTypes.ITEM_STREAM.makeRequiredInput("items", this) };
     }
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        var stream = inputs[0].getAs(ModDataTypes.ENERGY_STREAM);
-        stream.transform(new EnergyLimitTransformer(limit));
-        return Either.left(new DataValue<?>[]{ ModDataTypes.ENERGY_STREAM.makeValue(stream) });
+        var current = inputs[0].getAs(ModDataTypes.ITEM_STREAM);
+        var out = new DataValue<?>[count];
+
+        for (int i = 0; i < count - 1; i++) {
+            var split = current.split();
+            out[i] = ModDataTypes.ITEM_STREAM.makeValue(current);
+            current = split;
+        }
+        out[count - 1] = ModDataTypes.ITEM_STREAM.makeValue(current);
+
+        return Either.left(out);
     }
 
     @Override
     public void readNbt(NbtCompound data) {
         super.readNbt(data);
-        limit = MathHelper.clamp(data.getInt("limit"), 1, 256);
+        count = MathHelper.clamp(data.getInt("count"), 2, 8);
     }
 
     @Override
     public void writeNbt(NbtCompound data) {
         super.writeNbt(data);
-        data.putInt("limit", limit);
+        data.putInt("count", count);
     }
 
     @Environment(EnvType.CLIENT)
     @Override
     public NodeConfigScreen createConfigScreen(EditorScreen parent) {
-        return new SliderConfigScreen(this, parent, value -> limit = value, () -> limit, Text.translatable("node.advanced_networking.limit"), 1, 256);
+        return new SliderConfigScreen(this, parent, value -> count = value, () -> count, Text.translatable("node.advanced_networking.streams"), 2, 8);
     }
 
     @Override

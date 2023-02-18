@@ -1,4 +1,4 @@
-package io.github.mattidragon.advancednetworking.graph.node.fluid;
+package io.github.mattidragon.advancednetworking.graph.node.energy.route;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.client.screen.SliderConfigScreen;
@@ -12,59 +12,65 @@ import io.github.mattidragon.nodeflow.ui.screen.EditorScreen;
 import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
-public class LimitFluidNode extends Node {
-    private int limit = (int) FluidConstants.BUCKET;
+public class SplitEnergyNode extends Node {
+    private int count = 2;
 
-    public LimitFluidNode(Graph graph) {
-        super(ModNodeTypes.LIMIT_FLUID, List.of(), graph);
+    public SplitEnergyNode(Graph graph) {
+        super(ModNodeTypes.SPLIT_ENERGY, List.of(), graph);
     }
 
     @Override
     public Connector<?>[] getOutputs() {
-        return new Connector[] { ModDataTypes.FLUID_STREAM.makeRequiredOutput("out", this) };
+        var connectors = new Connector[count];
+        for (int i = 0; i < connectors.length; i++) {
+            connectors[i] = ModDataTypes.ENERGY_STREAM.makeOptionalOutput(String.valueOf(i), this);
+        }
+
+        return connectors;
     }
 
     @Override
     public Connector<?>[] getInputs() {
-        return new Connector[] { ModDataTypes.FLUID_STREAM.makeRequiredInput("in", this) };
+        return new Connector[] { ModDataTypes.ENERGY_STREAM.makeRequiredInput("items", this) };
     }
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        var stream = inputs[0].getAs(ModDataTypes.FLUID_STREAM);
-        stream.transform(new FluidTransformer.Limit(limit));
-        return Either.left(new DataValue<?>[]{ ModDataTypes.FLUID_STREAM.makeValue(stream) });
+        var current = inputs[0].getAs(ModDataTypes.ENERGY_STREAM);
+        var out = new DataValue<?>[count];
+
+        for (int i = 0; i < count - 1; i++) {
+            var split = current.split();
+            out[i] = ModDataTypes.ENERGY_STREAM.makeValue(current);
+            current = split;
+        }
+        out[count - 1] = ModDataTypes.ENERGY_STREAM.makeValue(current);
+
+        return Either.left(out);
     }
 
     @Override
     public void readNbt(NbtCompound data) {
         super.readNbt(data);
-        limit = MathHelper.clamp(data.getInt("limit"), 1, (int) FluidConstants.BUCKET);
+        count = MathHelper.clamp(data.getInt("count"), 2, 8);
     }
 
     @Override
     public void writeNbt(NbtCompound data) {
         super.writeNbt(data);
-        data.putInt("limit", limit);
+        data.putInt("count", count);
     }
 
     @Environment(EnvType.CLIENT)
     @Override
     public NodeConfigScreen createConfigScreen(EditorScreen parent) {
-        return new SliderConfigScreen(this,
-                parent,
-                value -> limit = (int) (Math.round(value / 1000.0) * 1000),
-                () -> limit,
-                Text.translatable("node.advanced_networking.limit"),
-                1,
-                (int) FluidConstants.BUCKET);
+        return new SliderConfigScreen(this, parent, value -> count = value, () -> count, Text.translatable("node.advanced_networking.streams"), 2, 8);
     }
 
     @Override
