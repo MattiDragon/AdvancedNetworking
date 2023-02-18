@@ -11,29 +11,51 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import java.util.function.Function;
+
 public class CableConfigScreen extends Screen {
     private final BlockPos pos;
-    private final Direction side;
+    private final Function<Direction, InterfaceType> typeSupplier;
+    private final Function<Direction, String> nameSupplier;
+    private Direction side;
     private InterfaceType type;
     private String name;
 
-    public CableConfigScreen(BlockPos pos, Direction side, InterfaceType type, String name) {
+    private CyclingButtonWidget<InterfaceType> interfaceTypeButton;
+    private TextFieldWidget nameField;
+
+    public CableConfigScreen(BlockPos pos, Direction side, Function<Direction, InterfaceType> typeSupplier, Function<Direction, String> nameSupplier) {
         super(Text.translatable("screen.advanced_networking.cable_config"));
         this.pos = pos;
+        this.typeSupplier = typeSupplier;
+        this.nameSupplier = nameSupplier;
         this.side = side;
-        this.type = type;
-        this.name = name;
+        this.type = typeSupplier.apply(side);
+        this.name = nameSupplier.apply(side);
     }
 
     @Override
     protected void init() {
-        addDrawableChild(CyclingButtonWidget.<InterfaceType>builder(type -> Text.translatable("screen.advanced_networking.cable_config.interface_type." + type.id))
+        addDrawableChild(CyclingButtonWidget.<Direction>builder(direction -> Text.translatable("side.advanced_networking." + direction.asString()))
+                .values(Direction.values())
+                .initially(side)
+                .build(calcLeftX(), 40, 150, 20, Text.translatable("screen.advanced_networking.cable_config.side"), (button, value) -> {
+                    UpdateInterfacePacket.send(pos, side, type, name);
+                    side = value;
+                    type = typeSupplier.apply(side);
+                    name = nameSupplier.apply(side);
+                    interfaceTypeButton.setValue(type);
+                    nameField.setText(name);
+                }));
+
+        interfaceTypeButton = addDrawableChild(CyclingButtonWidget.<InterfaceType>builder(type -> Text.translatable("screen.advanced_networking.cable_config.interface_type." + type.id))
                 .values(InterfaceType.values())
                 .initially(type)
                 .build(calcRightX() - 150, 40, 150, 20, Text.translatable("screen.advanced_networking.cable_config.interface_type"), (button, value) -> type = value));
-        var nameBox = addDrawableChild(new TextFieldWidget(textRenderer, calcRightX() - 100, 70, 100, 20, Text.empty()));
-        nameBox.setText(name);
-        nameBox.setChangedListener(value -> name = value.trim());
+
+        nameField = addDrawableChild(new TextFieldWidget(textRenderer, calcRightX() - 100, 70, 100, 20, Text.empty()));
+        nameField.setText(name);
+        nameField.setChangedListener(value -> name = value.trim());
     }
 
     @Override
@@ -64,9 +86,8 @@ public class CableConfigScreen extends Screen {
         textRenderer.draw(matrices, title, (width - textRenderer.getWidth(title.asOrderedText())) / 2f, 10, 0xffffff);
 
         // Left info rows
-        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.pos", pos.getX(), pos.getY(), pos.getZ()), calcLeftX(), 40, 0xffffff);
-        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.side", side.asString()), calcLeftX(), 50, 0xffffff);
-        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.id", CableBlock.calcInterfaceId(pos, side)), calcLeftX(), 60, 0xffffff);
+        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.pos", pos.getX(), pos.getY(), pos.getZ()), calcLeftX(), 70, 0xffffff);
+        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.id", CableBlock.calcInterfaceId(pos, side)), calcLeftX(), 80, 0xffffff);
 
         // Name field tag
         var nameText = Text.translatable("screen.advanced_networking.cable_config.name");

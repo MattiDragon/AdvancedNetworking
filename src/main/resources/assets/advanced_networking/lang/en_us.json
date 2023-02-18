@@ -4,13 +4,20 @@
 
   "screen.advanced_networking.cable_config": "Configure Interface",
   "screen.advanced_networking.cable_config.pos": "Position: %s %s %s",
-  "screen.advanced_networking.cable_config.side": "Side: %s",
+  "screen.advanced_networking.cable_config.side": "Side",
   "screen.advanced_networking.cable_config.name": "Name:",
   "screen.advanced_networking.cable_config.id": "Interface ID: %s",
   "screen.advanced_networking.cable_config.interface_type": "Interface Type",
   "screen.advanced_networking.cable_config.interface_type.default": "Default",
   "screen.advanced_networking.cable_config.interface_type.interface": "Interface",
   "screen.advanced_networking.cable_config.interface_type.blocked": "Blocked",
+
+  "side.advanced_networking.north": "North",
+  "side.advanced_networking.south": "South",
+  "side.advanced_networking.east": "East",
+  "side.advanced_networking.west": "West",
+  "side.advanced_networking.up": "Up",
+  "side.advanced_networking.down": "Down",
 
   "node.advanced_networking.read_redstone": "Read Redstone",
   "node.advanced_networking.write_redstone": "Write Redstone",

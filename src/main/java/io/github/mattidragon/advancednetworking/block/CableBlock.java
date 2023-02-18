@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 // Mojank
@@ -257,7 +258,7 @@ public class CableBlock extends BlockWithEntity {
         }
         if (hand == Hand.MAIN_HAND && player.isSneaking()) {
             if (world.isClient && world.getBlockEntity(pos) instanceof CableBlockEntity cable) {
-                openConfig(pos.toImmutable(), direction, InterfaceType.ofConnectionType(state.get(property)), cable.getName(direction));
+                openConfig(pos.toImmutable(), direction, (side) -> InterfaceType.ofConnectionType(world.getBlockState(pos).get(FACING_PROPERTIES.get(side))), cable::getName);
             }
 
             if (player instanceof ServerPlayerEntity serverPlayer) {
@@ -278,8 +279,8 @@ public class CableBlock extends BlockWithEntity {
     }
 
     @Environment(EnvType.CLIENT)
-    private void openConfig(BlockPos pos, Direction direction, InterfaceType type, String name) {
-        MinecraftClient.getInstance().setScreen(new CableConfigScreen(pos, direction, type, name));
+    private void openConfig(BlockPos pos, Direction direction, Function<Direction, InterfaceType> typeSupplier, Function<Direction, String> nameSupplier) {
+        MinecraftClient.getInstance().setScreen(new CableConfigScreen(pos, direction, typeSupplier, nameSupplier));
     }
 
     private Direction calcHitDirection(Vec3d pos) {
