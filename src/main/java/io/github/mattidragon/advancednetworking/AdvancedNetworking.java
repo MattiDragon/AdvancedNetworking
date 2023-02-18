@@ -2,16 +2,18 @@ package io.github.mattidragon.advancednetworking;
 
 import com.kneelawk.graphlib.GraphLib;
 import com.kyanite.paragon.api.ConfigRegistry;
-import io.github.mattidragon.advancednetworking.client.screen.ControllerScreenHandler;
 import io.github.mattidragon.advancednetworking.config.Config;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
+import io.github.mattidragon.advancednetworking.misc.RequestInterfacesPacket;
 import io.github.mattidragon.advancednetworking.misc.ScreenPosSyncPacket;
+import io.github.mattidragon.advancednetworking.misc.UpdateInterfacePacket;
 import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import io.github.mattidragon.advancednetworking.network.UpdateScheduler;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import io.github.mattidragon.advancednetworking.registry.ModItems;
+import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import io.github.mattidragon.nodeflow.graph.GraphEnvironment;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.graph.data.DataType;
@@ -60,6 +62,8 @@ public class AdvancedNetworking implements ModInitializer {
         NetworkRegistry.register();
         UpdateScheduler.register();
         ScreenPosSyncPacket.register();
+        UpdateInterfacePacket.register();
+        RequestInterfacesPacket.register();
         NetworkControllerContext.register();
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) ->

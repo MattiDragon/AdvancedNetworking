@@ -6,13 +6,18 @@ import com.google.common.primitives.Longs;
 import com.kneelawk.graphlib.GraphLib;
 import com.kneelawk.graphlib.graph.BlockNode;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
+import io.github.mattidragon.advancednetworking.client.screen.CableConfigScreen;
+import io.github.mattidragon.advancednetworking.misc.InterfaceType;
 import io.github.mattidragon.advancednetworking.network.UpdateScheduler;
 import io.github.mattidragon.advancednetworking.network.node.CableNode;
 import io.github.mattidragon.advancednetworking.network.node.InterfaceNode;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import io.github.mattidragon.advancednetworking.registry.ModTags;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -119,11 +124,11 @@ public class CableBlock extends BlockWithEntity {
         return getStrongRedstonePower(state, world, pos, direction);
     }
 
-    private boolean canConnect(BlockState state, BlockState other, Direction direction) {
+    private static boolean canConnect(BlockState state, BlockState other, Direction direction) {
         if (other.isOf(ModBlocks.CONTROLLER))
             return state.get(FACING_PROPERTIES.get(direction)).canConnect();
 
-        return other.isOf(this) && state.get(FACING_PROPERTIES.get(direction)).canConnect() && other.get(FACING_PROPERTIES.get(direction.getOpposite())).canConnect();
+        return other.isOf(ModBlocks.CABLE) && state.get(FACING_PROPERTIES.get(direction)).canConnect() && other.get(FACING_PROPERTIES.get(direction.getOpposite())).canConnect();
     }
 
     /**
@@ -218,31 +223,43 @@ public class CableBlock extends BlockWithEntity {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(ArrayUtils.add(Longs.toByteArray(id), (byte) dir.getId()));
     }
 
+    public static void changeMode(World world, BlockState state, BlockPos pos, Direction side, InterfaceType newType) {
+        var connectionType = switch (newType) {
+            case INTERFACE -> ConnectionType.INTERFACE;
+            case BLOCKED -> ConnectionType.DISABLED;
+            case DEFAULT -> ConnectionType.NONE;
+        };
+
+        var newState = state.with(FACING_PROPERTIES.get(side), connectionType);
+        world.setBlockState(pos, newState);
+
+        if (canConnect(newState, world.getBlockState(pos.offset(side)), side)) {
+            world.setBlockState(pos, state.with(FACING_PROPERTIES.get(side), ConnectionType.CONNECTED));
+        }
+
+        if (world instanceof ServerWorld serverWorld)
+            GraphLib.getController(serverWorld).updateConnections(pos);
+    }
+
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         var direction = calcHitDirection(hit.getPos().subtract(Vec3d.of(pos)));
         var property = FACING_PROPERTIES.get(direction);
 
         if (player.getStackInHand(hand).isIn(ModTags.Items.WRENCHES)) {
-            var newType = switch (state.get(property)) {
-                case NONE -> ConnectionType.INTERFACE;
-                case DISABLED -> ConnectionType.NONE;
-                case INTERFACE, INTERFACE_POWERED, CONNECTED -> ConnectionType.DISABLED;
-            };
-
-            var newState = state.with(property, newType);
-            world.setBlockState(pos, newState);
-
-            if (canConnect(newState, world.getBlockState(pos.offset(direction)), direction)) {
-                world.setBlockState(pos, state.with(property, ConnectionType.CONNECTED));
-            }
-
-            if (world instanceof ServerWorld serverWorld)
-                GraphLib.getController(serverWorld).updateConnections(pos);
+            changeMode(world, state, pos, direction, switch (state.get(property)) {
+                case NONE -> InterfaceType.INTERFACE;
+                case DISABLED -> InterfaceType.DEFAULT;
+                case INTERFACE, INTERFACE_POWERED, CONNECTED -> InterfaceType.BLOCKED;
+            });
 
             return ActionResult.SUCCESS;
         }
         if (hand == Hand.MAIN_HAND && player.isSneaking()) {
+            if (world.isClient && world.getBlockEntity(pos) instanceof CableBlockEntity cable) {
+                openConfig(pos.toImmutable(), direction, InterfaceType.ofConnectionType(state.get(property)), cable.getName(direction));
+            }
+
             if (player instanceof ServerPlayerEntity serverPlayer) {
                 var id = calcInterfaceId(pos, direction);
                 var idText = Texts.bracketed(Text.literal(id))
@@ -258,6 +275,11 @@ public class CableBlock extends BlockWithEntity {
         }
 
         return ActionResult.PASS;
+    }
+
+    @Environment(EnvType.CLIENT)
+    private void openConfig(BlockPos pos, Direction direction, InterfaceType type, String name) {
+        MinecraftClient.getInstance().setScreen(new CableConfigScreen(pos, direction, type, name));
     }
 
     private Direction calcHitDirection(Vec3d pos) {

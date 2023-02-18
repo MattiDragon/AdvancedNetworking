@@ -45,7 +45,7 @@ public class MergeEnergyNode extends Node {
         var current = inputs[0].getAs(ModDataTypes.ENERGY_STREAM);
 
         for (int i = 1; i < count; i++) {
-            current = current.join(inputs[i].getAs(ModDataTypes.ENERGY_STREAM));
+            current = current.merge(inputs[i].getAs(ModDataTypes.ENERGY_STREAM));
         }
 
         return Either.left(new DataValue<?>[] { ModDataTypes.ENERGY_STREAM.makeValue(current) });

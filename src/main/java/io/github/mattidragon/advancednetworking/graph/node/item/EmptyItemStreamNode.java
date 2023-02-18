@@ -3,8 +3,7 @@ package io.github.mattidragon.advancednetworking.graph.node.item;
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
-import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
-import io.github.mattidragon.advancednetworking.graph.stream.ResourceStream;
+import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
@@ -17,7 +16,7 @@ import java.util.List;
 
 public class EmptyItemStreamNode extends Node {
     public EmptyItemStreamNode(Graph graph) {
-        super(ModNodeTypes.EMPTY_ITEM_STREAM, List.of(NetworkControllerContext.TYPE), graph);
+        super(ModNodeTypes.EMPTY_ITEM_STREAM, List.of(), graph);
     }
 
     @Override
@@ -32,10 +31,7 @@ public class EmptyItemStreamNode extends Node {
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        var controller = context.get(NetworkControllerContext.TYPE);
-
-        var stream = ResourceStream.start(Storage.<ItemVariant>empty());
-        controller.controller().addItemStream(stream);
+        var stream = PathBundle.<Storage<ItemVariant>, ItemTransformer>begin(Storage.empty());
         return Either.left(new DataValue<?>[] { ModDataTypes.ITEM_STREAM.makeValue(stream) });
     }
 }

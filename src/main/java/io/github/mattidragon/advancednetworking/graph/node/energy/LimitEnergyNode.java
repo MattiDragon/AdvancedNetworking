@@ -12,12 +12,9 @@ import io.github.mattidragon.nodeflow.ui.screen.EditorScreen;
 import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
-import org.apache.commons.lang3.mutable.MutableInt;
-import team.reborn.energy.api.EnergyStorage;
 
 import java.util.List;
 
@@ -40,11 +37,8 @@ public class LimitEnergyNode extends Node {
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        // Shared counter for all paths
-        var counter = new MutableInt(limit);
-
-        var stream = inputs[0].getAs(ModDataTypes.ENERGY_STREAM).transform(storage -> new LimitingStorage(storage, counter));
-
+        var stream = inputs[0].getAs(ModDataTypes.ENERGY_STREAM);
+        stream.transform(new EnergyLimitTransformer(limit));
         return Either.left(new DataValue<?>[]{ ModDataTypes.ENERGY_STREAM.makeValue(stream) });
     }
 
@@ -69,39 +63,5 @@ public class LimitEnergyNode extends Node {
     @Override
     public boolean hasConfig() {
         return true;
-    }
-
-    private record LimitingStorage(EnergyStorage delegate, MutableInt counter) implements EnergyStorage {
-        @Override
-        public boolean supportsInsertion() {
-            return delegate.supportsInsertion();
-        }
-
-        @Override
-        public boolean supportsExtraction() {
-            return delegate.supportsExtraction();
-        }
-
-        @Override
-        public long insert(long maxAmount, TransactionContext transaction) {
-            var inserted = delegate.insert(Math.min(maxAmount, counter.getValue()), transaction);
-            counter.subtract(inserted);
-            return inserted;
-        }
-
-        @Override
-        public long extract(long maxAmount, TransactionContext transaction) {
-            return delegate.extract(maxAmount, transaction);
-        }
-
-        @Override
-        public long getAmount() {
-            return delegate.getAmount();
-        }
-
-        @Override
-        public long getCapacity() {
-            return delegate.getCapacity();
-        }
     }
 }

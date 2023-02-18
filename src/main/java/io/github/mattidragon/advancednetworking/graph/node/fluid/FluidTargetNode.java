@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
-import io.github.mattidragon.advancednetworking.graph.node.AbstractInterfaceNode;
+import io.github.mattidragon.advancednetworking.graph.node.InterfaceNode;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
@@ -14,7 +14,7 @@ import net.minecraft.text.Text;
 
 import java.util.List;
 
-public class FluidTargetNode extends AbstractInterfaceNode {
+public class FluidTargetNode extends InterfaceNode {
     public FluidTargetNode(Graph graph) {
         super(ModNodeTypes.FLUID_TARGET, List.of(ContextType.SERVER_WORLD, NetworkControllerContext.TYPE), graph);
     }
@@ -45,7 +45,7 @@ public class FluidTargetNode extends AbstractInterfaceNode {
             return Either.right(Text.translatable("node.advanced_networking.item_target.missing", interfaceId));
 
         var stream = inputs[0].getAs(ModDataTypes.FLUID_STREAM);
-        stream.end(storage);
+        stream.end(storage, controller.controller().fluidEnvironment);
         return Either.left(new DataValue<?>[0]);
     }
 }

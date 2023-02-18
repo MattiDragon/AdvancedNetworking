@@ -45,7 +45,7 @@ public class MergeItemsNode extends Node {
         var current = inputs[0].getAs(ModDataTypes.ITEM_STREAM);
 
         for (int i = 1; i < count; i++) {
-            current = current.join(inputs[i].getAs(ModDataTypes.ITEM_STREAM));
+            current = current.merge(inputs[i].getAs(ModDataTypes.ITEM_STREAM));
         }
 
         return Either.left(new DataValue<?>[] { ModDataTypes.ITEM_STREAM.makeValue(current) });

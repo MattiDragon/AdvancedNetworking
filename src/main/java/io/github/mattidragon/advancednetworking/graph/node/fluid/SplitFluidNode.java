@@ -47,8 +47,8 @@ public class SplitFluidNode extends Node {
 
         for (int i = 0; i < count - 1; i++) {
             var split = current.split();
-            out[i] = ModDataTypes.FLUID_STREAM.makeValue(split.getLeft());
-            current = split.getRight();
+            out[i] = ModDataTypes.FLUID_STREAM.makeValue(current);
+            current = split;
         }
         out[count - 1] = ModDataTypes.FLUID_STREAM.makeValue(current);
 

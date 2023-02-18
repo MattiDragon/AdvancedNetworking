@@ -1,7 +1,6 @@
 package io.github.mattidragon.advancednetworking.block;
 
 import com.kneelawk.graphlib.GraphLib;
-import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -43,26 +42,33 @@ public class ControllerBlock extends BlockWithEntity {
 
     @Override
     public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        if (!world.isClient) {
-            boolean bl = state.get(POWERED);
-            if (bl != world.isReceivingRedstonePower(pos)) {
-                if (bl) {
-                    world.scheduleBlockTick(pos, this, 10);
-                } else {
-                    world.setBlockState(pos, state.cycle(POWERED), Block.NOTIFY_LISTENERS);
-                    if (world.getBlockEntity(pos) instanceof ControllerBlockEntity controller) {
-                        controller.ticks = 0;
-                    }
-                }
+        if (world instanceof ServerWorld serverWorld) {
+            boolean active = state.get(POWERED);
+            boolean hasRedstone = world.isReceivingRedstonePower(pos);
+
+            if (active && !hasRedstone) { // Extra tick in case ticking stopped
+                world.scheduleBlockTick(pos, this, 10);
             }
 
+            if (!active && hasRedstone) {
+                var newState = state.cycle(POWERED);
+                world.setBlockState(pos, newState, Block.NOTIFY_LISTENERS);
+                scheduledTick(newState, serverWorld, pos, world.random);
+            }
         }
     }
 
     @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        if (state.get(POWERED) && !world.isReceivingRedstonePower(pos)) {
-            world.setBlockState(pos, state.cycle(POWERED), Block.NOTIFY_LISTENERS);
+        if (state.get(POWERED)) {
+            if (world.isReceivingRedstonePower(pos)) {
+                if (!(world.getBlockEntity(pos) instanceof ControllerBlockEntity controller))
+                    return;
+                ControllerBlockEntity.tick(world, pos, state, controller);
+                world.scheduleBlockTick(pos, this, 10);
+            } else {
+                world.setBlockState(pos, state.cycle(POWERED), Block.NOTIFY_LISTENERS);
+            }
         }
     }
 
@@ -104,6 +110,7 @@ public class ControllerBlock extends BlockWithEntity {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, ModBlocks.CONTROLLER_BLOCK_ENTITY, ControllerBlockEntity::tick);
+        return null;
+//        return checkType(type, ModBlocks.CONTROLLER_BLOCK_ENTITY, ControllerBlockEntity::tick);
     }
 }

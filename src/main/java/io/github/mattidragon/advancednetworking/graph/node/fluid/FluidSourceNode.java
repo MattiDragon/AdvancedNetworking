@@ -4,18 +4,20 @@ import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
-import io.github.mattidragon.advancednetworking.graph.node.AbstractInterfaceNode;
-import io.github.mattidragon.advancednetworking.graph.stream.ResourceStream;
+import io.github.mattidragon.advancednetworking.graph.node.InterfaceNode;
+import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.text.Text;
 
 import java.util.List;
 
-public class FluidSourceNode extends AbstractInterfaceNode {
+public class FluidSourceNode extends InterfaceNode {
     public FluidSourceNode(Graph graph) {
         super(ModNodeTypes.FLUID_SOURCE, List.of(ContextType.SERVER_WORLD, NetworkControllerContext.TYPE), graph);
     }
@@ -45,8 +47,7 @@ public class FluidSourceNode extends AbstractInterfaceNode {
         if (storage == null)
             return Either.right(Text.translatable("node.advanced_networking.item_source.missing", interfaceId));
 
-        var stream = ResourceStream.start(storage);
-        controller.controller().addFluidStream(stream);
+        var stream = PathBundle.<Storage<FluidVariant>, FluidTransformer>begin(storage);
         return Either.left(new DataValue<?>[] { ModDataTypes.FLUID_STREAM.makeValue(stream) });
     }
 }

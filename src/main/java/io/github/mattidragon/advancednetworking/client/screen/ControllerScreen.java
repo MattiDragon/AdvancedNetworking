@@ -1,6 +1,7 @@
 package io.github.mattidragon.advancednetworking.client.screen;
 
 import io.github.mattidragon.advancednetworking.misc.ScreenPosSyncPacket;
+import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import io.github.mattidragon.nodeflow.ui.screen.HandledEditorScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;

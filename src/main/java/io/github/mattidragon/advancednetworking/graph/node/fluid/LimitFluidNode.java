@@ -13,18 +13,10 @@ import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class LimitFluidNode extends Node {
@@ -46,11 +38,8 @@ public class LimitFluidNode extends Node {
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        // Shared counter for all paths
-        var counter = new MutableInt(limit);
-
-        var stream = inputs[0].getAs(ModDataTypes.FLUID_STREAM).transform(storage -> new LimitingStorage(storage, counter));
-
+        var stream = inputs[0].getAs(ModDataTypes.FLUID_STREAM);
+        stream.transform(new FluidTransformer.Limit(limit));
         return Either.left(new DataValue<?>[]{ ModDataTypes.FLUID_STREAM.makeValue(stream) });
     }
 
@@ -81,44 +70,5 @@ public class LimitFluidNode extends Node {
     @Override
     public boolean hasConfig() {
         return true;
-    }
-
-    private record LimitingStorage(Storage<FluidVariant> delegate, MutableInt counter) implements Storage<FluidVariant> {
-        @Override
-        public boolean supportsInsertion() {
-            return delegate.supportsInsertion();
-        }
-
-        @Override
-        public boolean supportsExtraction() {
-            return delegate.supportsExtraction();
-        }
-
-        @Override
-        public @Nullable StorageView<FluidVariant> exactView(FluidVariant resource) {
-            return delegate.exactView(resource);
-        }
-
-        @Override
-        public long getVersion() {
-            return delegate.getVersion();
-        }
-
-        @Override
-        public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-            var inserted = delegate.insert(resource, Math.min(maxAmount, counter.getValue()), transaction);
-            counter.subtract(inserted);
-            return inserted;
-        }
-
-        @Override
-        public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-            return delegate.extract(resource, maxAmount, transaction);
-        }
-
-        @Override
-        public @NotNull Iterator<StorageView<FluidVariant>> iterator() {
-            return delegate.iterator();
-        }
     }
 }

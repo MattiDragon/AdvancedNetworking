@@ -1,18 +1,23 @@
-package io.github.mattidragon.advancednetworking.client.screen;
+package io.github.mattidragon.advancednetworking.screen;
 
+import com.kneelawk.graphlib.GraphLib;
+import com.kneelawk.graphlib.graph.BlockGraph;
+import com.kneelawk.graphlib.graph.struct.Node;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
+import io.github.mattidragon.advancednetworking.block.CableBlock;
+import io.github.mattidragon.advancednetworking.block.CableBlockEntity;
 import io.github.mattidragon.advancednetworking.block.ControllerBlockEntity;
+import io.github.mattidragon.advancednetworking.network.node.InterfaceNode;
 import io.github.mattidragon.nodeflow.ui.screen.EditorScreenHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ControllerScreenHandler extends EditorScreenHandler {
     private final List<Text> errors;
@@ -39,6 +44,35 @@ public class ControllerScreenHandler extends EditorScreenHandler {
         errors = buf.readList(PacketByteBuf::readText);
     }
 
+    public Optional<Map<String, String>> getInterfaces() {
+        return context.get((world, pos) -> {
+            if (!(world instanceof ServerWorld serverWorld))
+                return Optional.empty();
+
+            var graphController = GraphLib.getController(serverWorld);
+            var nodes = graphController.getGraphsAt(pos)
+                    .mapToObj(graphController::getGraph)
+                    .filter(Objects::nonNull)
+                    .flatMap(BlockGraph::getNodes)
+                    .map(Node::data)
+                    .toList();
+
+            var map = new HashMap<String, String>();
+
+            for (var node : nodes) {
+                if (!(node.getNode() instanceof InterfaceNode interfaceNode))
+                    continue;
+                if (!(world.getBlockEntity(node.getPos()) instanceof CableBlockEntity cable))
+                    continue;
+
+                var interfaceId = CableBlock.calcInterfaceId(node.getPos(), interfaceNode.getSide());
+                var name = cable.getName(interfaceNode.getSide());
+                map.put(interfaceId, name);
+            }
+            return Optional.of(map);
+        }, Optional.empty());
+    }
+
     public List<Text> getErrors() {
         return Collections.unmodifiableList(errors);
     }
@@ -52,8 +86,7 @@ public class ControllerScreenHandler extends EditorScreenHandler {
     public void close(PlayerEntity player) {
         super.close(player);
         context.run((world, pos) -> {
-            var blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof ControllerBlockEntity controller) {
+            if (world.getBlockEntity(pos) instanceof ControllerBlockEntity controller) {
                 controller.viewX = viewX;
                 controller.viewY = viewY;
                 controller.zoom = zoom;

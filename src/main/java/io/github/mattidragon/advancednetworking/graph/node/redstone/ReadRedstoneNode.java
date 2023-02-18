@@ -1,8 +1,9 @@
-package io.github.mattidragon.advancednetworking.graph.node;
+package io.github.mattidragon.advancednetworking.graph.node.redstone;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
+import io.github.mattidragon.advancednetworking.graph.node.InterfaceNode;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
@@ -12,7 +13,7 @@ import net.minecraft.text.Text;
 
 import java.util.List;
 
-public class ReadRedstoneNode extends AbstractInterfaceNode {
+public class ReadRedstoneNode extends InterfaceNode {
     public ReadRedstoneNode(Graph graph) {
         super(ModNodeTypes.READ_REDSTONE, List.of(ContextType.SERVER_WORLD, NetworkControllerContext.TYPE), graph);
     }

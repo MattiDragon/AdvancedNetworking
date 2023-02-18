@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
@@ -22,13 +23,13 @@ public final class ModItems {
         Registry.register(Registries.ITEM, AdvancedNetworking.id("compound"), COMPOUND);
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register(entries -> {
-            entries.add(CONTROLLER);
-            entries.add(CABLE);
+            entries.addBefore(Items.RAIL, CONTROLLER);
+            entries.addBefore(Items.RAIL, CABLE);
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
-            entries.add(CONTROLLER);
-            entries.add(CABLE);
+            entries.addAfter(Items.LECTERN, CONTROLLER);
+            entries.addAfter(Items.LECTERN, CABLE);
         });
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> entries.add(COMPOUND));
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> entries.addAfter(Items.DISC_FRAGMENT_5, COMPOUND));
     }
 }
