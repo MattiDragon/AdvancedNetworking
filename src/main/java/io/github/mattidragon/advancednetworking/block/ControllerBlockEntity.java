@@ -93,7 +93,6 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
     public static void tick(World world, BlockPos pos, BlockState state, ControllerBlockEntity controller) {
         if (world.isClient) return;
 
-
         controller.itemEnvironment.clear();
         controller.fluidEnvironment.clear();
         controller.energyEnvironment.clear();

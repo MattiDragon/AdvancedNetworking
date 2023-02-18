@@ -23,6 +23,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -90,18 +91,18 @@ public class FilterFluidNode extends Node {
     }
 
     @NotNull
-    private Predicate<FluidVariant> buildFilter(Fluid item, TagKey<Fluid> tag, NbtPathArgumentType.NbtPath path, boolean whitelist) {
-        return (itemVariant) -> {
-            if (mode == Mode.FLUID && item != null && itemVariant.getFluid() != item)
+    private Predicate<FluidVariant> buildFilter(Fluid fluid, TagKey<Fluid> tag, NbtPathArgumentType.NbtPath path, boolean whitelist) {
+        return (fluidVariant) -> {
+            if (mode == Mode.FLUID && fluid != null && fluidVariant.getFluid() != fluid)
                 return !whitelist;
 
             //noinspection deprecation
-            if (mode == Mode.TAG && tag != null && !itemVariant.getFluid().getRegistryEntry().isIn(tag))
+            if (mode == Mode.TAG && tag != null && !fluidVariant.getFluid().getRegistryEntry().isIn(tag))
                 return !whitelist;
 
             if (path == null)
                 return whitelist;
-            if (path.count(itemVariant.getNbt()) > 0)
+            if (path.count(fluidVariant.getNbt()) > 0)
                 return whitelist;
             return !whitelist;
         };
@@ -166,14 +167,14 @@ public class FilterFluidNode extends Node {
             addDrawableChild(button);
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
-            idField.setPlaceholder(Text.literal("id"));
+            idField.setPlaceholder(Text.literal("id").formatted(Formatting.GRAY));
             idField.setText(fluidId);
             idField.setChangedListener(newValue -> fluidId = newValue);
             addDrawableChild(idField);
 
             var nbtField = new TextFieldWidget(textRenderer, x, 145, 100, 20, Text.empty());
             nbtField.setMaxLength(200);
-            nbtField.setPlaceholder(Text.literal("nbt"));
+            nbtField.setPlaceholder(Text.literal("nbt").formatted(Formatting.GRAY));
             nbtField.setText(nbt);
             nbtField.setChangedListener(newValue -> nbt = newValue);
             addDrawableChild(nbtField);

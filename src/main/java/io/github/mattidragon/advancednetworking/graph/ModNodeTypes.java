@@ -42,7 +42,7 @@ public class ModNodeTypes {
     public static final NodeType<EmptyFluidStreamNode> EMPTY_FLUID_STREAM = new NodeType<>(EmptyFluidStreamNode::new);
     public static final NodeType<LimitFluidNode> LIMIT_FLUID = new NodeType<>(LimitFluidNode::new);
     public static final NodeType<FilterFluidNode> FILTER_FLUID = new NodeType<>(FilterFluidNode::new);
-    public static final NodeGroup FLUID_GROUP = new NodeGroup(Text.translatable("group.advanced_networking.fluid"), FLUID_SOURCE, FLUID_TARGET, SPLIT_FLUID, MERGE_FLUID, EMPTY_FLUID_STREAM, LIMIT_FLUID);
+    public static final NodeGroup FLUID_GROUP = new NodeGroup(Text.translatable("group.advanced_networking.fluid"), FLUID_SOURCE, FLUID_TARGET, SPLIT_FLUID, MERGE_FLUID, EMPTY_FLUID_STREAM, LIMIT_FLUID, FILTER_FLUID);
 
     public static void register() {
         NodeType.register(READ_REDSTONE, id("read_redstone"));
