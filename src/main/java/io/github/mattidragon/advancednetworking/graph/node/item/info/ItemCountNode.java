@@ -62,16 +62,16 @@ public class ItemCountNode extends InterfaceNode {
         if (!itemId.isBlank()) {
             var id = Identifier.tryParse(itemId.trim());
             if (id == null)
-                list.add(Text.translatable("node.advanced_networking.filter_item.invalid_id"));
+                list.add(Text.translatable("node.advanced_networking.filter_items.invalid_id"));
             else if (filterMode == FilterMode.ITEM && !Registries.ITEM.containsId(id))
-                list.add(Text.translatable("node.advanced_networking.filter_item.unknown_item", id));
+                list.add(Text.translatable("node.advanced_networking.filter_items.unknown_item", id));
         }
 
         try {
             if (!nbt.isBlank())
                 NbtPathArgumentType.nbtPath().parse(new StringReader(nbt.trim()));
         } catch (CommandSyntaxException e) {
-            list.add(Text.translatable("node.advanced_networking.filter_item.invalid_nbt_path", e.getMessage()));
+            list.add(Text.translatable("node.advanced_networking.filter_items.invalid_nbt_path", e.getMessage()));
         }
 
         list.addAll(super.validate());
@@ -196,16 +196,16 @@ public class ItemCountNode extends InterfaceNode {
         protected void init() {
             var x = ((width - 200) / 2) - 50;
 
-            var whitelistButton = CyclingButtonWidget.onOffBuilder(Text.translatable("node.advanced_networking.filter_item.mode.whitelist"), Text.translatable("node.advanced_networking.filter_item.mode.blacklist"))
+            var whitelistButton = CyclingButtonWidget.onOffBuilder(Text.translatable("node.advanced_networking.filter_items.mode.whitelist"), Text.translatable("node.advanced_networking.filter_items.mode.blacklist"))
                     .initially(whitelist)
                     .omitKeyText()
                     .build(x, 70, 100, 20, Text.empty(), (button1, value) -> whitelist = value);
             addDrawableChild(whitelistButton);
 
-            var modeButton = CyclingButtonWidget.<FilterMode>builder(filterMode -> filterMode == FilterMode.ITEM ? Text.translatable("node.advanced_networking.filter_item.mode.item") : Text.translatable("node.advanced_networking.filter_item.mode.tag"))
+            var modeButton = CyclingButtonWidget.<FilterMode>builder(filterMode -> filterMode == FilterMode.ITEM ? Text.translatable("node.advanced_networking.filter_items.mode.item") : Text.translatable("node.advanced_networking.filter_items.mode.tag"))
                     .values(FilterMode.values())
                     .initially(filterMode)
-                    .build(x, 95, 100, 20, Text.translatable("node.advanced_networking.filter_item.mode"), (button1, value) -> filterMode = value);
+                    .build(x, 95, 100, 20, Text.translatable("node.advanced_networking.filter_items.mode"), (button1, value) -> filterMode = value);
             addDrawableChild(modeButton);
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
@@ -226,7 +226,6 @@ public class ItemCountNode extends InterfaceNode {
                     .position(x, 175)
                     .build();
             addDrawableChild(chooseInterfaceButton);
-
         }
     }
 }

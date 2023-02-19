@@ -4,6 +4,7 @@ import io.github.mattidragon.advancednetworking.block.CableBlock;
 import io.github.mattidragon.advancednetworking.misc.InterfaceType;
 import io.github.mattidragon.advancednetworking.misc.UpdateInterfacePacket;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -21,9 +22,6 @@ public class CableConfigScreen extends Screen {
     private InterfaceType type;
     private String name;
 
-    private CyclingButtonWidget<InterfaceType> interfaceTypeButton;
-    private TextFieldWidget nameField;
-
     public CableConfigScreen(BlockPos pos, Direction side, Function<Direction, InterfaceType> typeSupplier, Function<Direction, String> nameSupplier) {
         super(Text.translatable("screen.advanced_networking.cable_config"));
         this.pos = pos;
@@ -36,26 +34,33 @@ public class CableConfigScreen extends Screen {
 
     @Override
     protected void init() {
-        addDrawableChild(CyclingButtonWidget.<Direction>builder(direction -> Text.translatable("side.advanced_networking." + direction.asString()))
-                .values(Direction.values())
-                .initially(side)
-                .build(calcLeftX(), 40, 150, 20, Text.translatable("screen.advanced_networking.cable_config.side"), (button, value) -> {
-                    UpdateInterfacePacket.send(pos, side, type, name);
-                    side = value;
-                    type = typeSupplier.apply(side);
-                    name = nameSupplier.apply(side);
-                    interfaceTypeButton.setValue(type);
-                    nameField.setText(name);
-                }));
-
-        interfaceTypeButton = addDrawableChild(CyclingButtonWidget.<InterfaceType>builder(type -> Text.translatable("screen.advanced_networking.cable_config.interface_type." + type.id))
+        var interfaceTypeButton = addDrawableChild(CyclingButtonWidget.<InterfaceType>builder(type -> Text.translatable("screen.advanced_networking.cable_config.interface_type." + type.id))
                 .values(InterfaceType.values())
                 .initially(type)
                 .build(calcRightX() - 150, 40, 150, 20, Text.translatable("screen.advanced_networking.cable_config.interface_type"), (button, value) -> type = value));
 
-        nameField = addDrawableChild(new TextFieldWidget(textRenderer, calcRightX() - 100, 70, 100, 20, Text.empty()));
+        var nameField = addDrawableChild(new TextFieldWidget(textRenderer, calcRightX() - 100, 70, 100, 20, Text.empty()));
         nameField.setText(name);
         nameField.setChangedListener(value -> name = value.trim());
+
+        var buttons = new ButtonWidget[6];
+        for (int i = 0; i < 6; i++) {
+            var direction = Direction.byId(i);
+            var button = ButtonWidget.builder(Text.translatable("side.advanced_networking." + direction.asString()), button1 -> {
+                button1.active = false;
+                buttons[side.getId()].active = true;
+
+                UpdateInterfacePacket.send(pos, side, type, name);
+                side = direction;
+                type = typeSupplier.apply(side);
+                name = nameSupplier.apply(side);
+                interfaceTypeButton.setValue(type);
+                nameField.setText(name);
+            }).width(100).position(calcLeftX(), 40 + 20 * i).build();
+            addDrawableChild(button);
+            buttons[i] = button;
+        }
+        buttons[side.getId()].active = false;
     }
 
     @Override
@@ -85,9 +90,9 @@ public class CableConfigScreen extends Screen {
         // Title
         textRenderer.draw(matrices, title, (width - textRenderer.getWidth(title.asOrderedText())) / 2f, 10, 0xffffff);
 
-        // Left info rows
-        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.pos", pos.getX(), pos.getY(), pos.getZ()), calcLeftX(), 70, 0xffffff);
-        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.id", CableBlock.calcInterfaceId(pos, side)), calcLeftX(), 80, 0xffffff);
+        // Info rows
+        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.pos", pos.getX(), pos.getY(), pos.getZ()), calcRightX() - 150, 100, 0xffffff);
+        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.id", CableBlock.calcInterfaceId(pos, side)), calcRightX() - 150, 110, 0xffffff);
 
         // Name field tag
         var nameText = Text.translatable("screen.advanced_networking.cable_config.name");

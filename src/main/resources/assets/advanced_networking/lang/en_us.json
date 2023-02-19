@@ -2,9 +2,8 @@
   "advanced_networking.editor.errors": "Run failed, hover for details",
   "advanced_networking.editor.no_errors": "Run succeeded",
 
-  "screen.advanced_networking.cable_config": "Configure Interface",
+  "screen.advanced_networking.cable_config": "Configure Cable",
   "screen.advanced_networking.cable_config.pos": "Position: %s %s %s",
-  "screen.advanced_networking.cable_config.side": "Side",
   "screen.advanced_networking.cable_config.name": "Name:",
   "screen.advanced_networking.cable_config.id": "Interface ID: %s",
   "screen.advanced_networking.cable_config.interface_type": "Interface Type",
