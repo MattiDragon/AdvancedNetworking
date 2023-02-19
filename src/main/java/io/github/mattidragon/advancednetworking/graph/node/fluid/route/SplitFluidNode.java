@@ -37,7 +37,7 @@ public class SplitFluidNode extends Node {
 
     @Override
     public Connector<?>[] getInputs() {
-        return new Connector[] { ModDataTypes.FLUID_STREAM.makeRequiredInput("items", this) };
+        return new Connector[] { ModDataTypes.FLUID_STREAM.makeRequiredInput("stream", this) };
     }
 
     @Override

@@ -37,7 +37,7 @@ public class SplitItemsNode extends Node {
 
     @Override
     public Connector<?>[] getInputs() {
-        return new Connector[] { ModDataTypes.ITEM_STREAM.makeRequiredInput("items", this) };
+        return new Connector[] { ModDataTypes.ITEM_STREAM.makeRequiredInput("stream", this) };
     }
 
     @Override

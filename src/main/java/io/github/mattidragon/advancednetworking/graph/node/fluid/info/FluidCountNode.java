@@ -1,20 +1,24 @@
-package io.github.mattidragon.advancednetworking.graph.node.fluid.filter;
+package io.github.mattidragon.advancednetworking.graph.node.fluid.info;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
-import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
-import io.github.mattidragon.advancednetworking.graph.node.fluid.FluidTransformer;
+import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
+import io.github.mattidragon.advancednetworking.graph.node.InterfaceNode;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
+import io.github.mattidragon.nodeflow.graph.context.ContextType;
+import io.github.mattidragon.nodeflow.graph.data.DataType;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
-import io.github.mattidragon.nodeflow.graph.node.Node;
 import io.github.mattidragon.nodeflow.ui.screen.EditorScreen;
 import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.command.argument.NbtPathArgumentType;
@@ -32,24 +36,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class FilterFluidNode extends Node {
+public class FluidCountNode extends InterfaceNode {
     private String fluidId = "";
     private String nbt = "";
-    private Mode mode = Mode.FLUID;
+    private FilterMode filterMode = FilterMode.FLUID;
     private boolean whitelist = true;
 
-    public FilterFluidNode(Graph graph) {
-        super(ModNodeTypes.FILTER_FLUID, List.of(), graph);
+    public FluidCountNode(Graph graph) {
+        super(ModNodeTypes.FLUID_COUNT, List.of(NetworkControllerContext.TYPE, ContextType.SERVER_WORLD), graph);
     }
 
     @Override
     public Connector<?>[] getOutputs() {
-        return new Connector[] { ModDataTypes.FLUID_STREAM.makeRequiredOutput("out", this) };
+        return new Connector[] { DataType.NUMBER.makeRequiredOutput("count", this) };
     }
 
     @Override
     public Connector<?>[] getInputs() {
-        return new Connector[] { ModDataTypes.FLUID_STREAM.makeRequiredInput("in", this) };
+        return new Connector[0];
     }
 
     @Override
@@ -59,7 +63,7 @@ public class FilterFluidNode extends Node {
             var id = Identifier.tryParse(fluidId.trim());
             if (id == null)
                 list.add(Text.translatable("node.advanced_networking.filter_fluid.invalid_id"));
-            else if (mode == Mode.FLUID && !Registries.FLUID.containsId(id))
+            else if (filterMode == FilterMode.FLUID && !Registries.FLUID.containsId(id))
                 list.add(Text.translatable("node.advanced_networking.filter_fluid.unknown_fluid", id));
         }
 
@@ -77,6 +81,9 @@ public class FilterFluidNode extends Node {
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
+        var controller = context.get(NetworkControllerContext.TYPE);
+        var world = context.get(ContextType.SERVER_WORLD);
+
         var fluid = fluidId.isBlank() ? null : Registries.FLUID.get(new Identifier(fluidId));
         var tag = fluidId.isBlank() ? null : TagKey.of(RegistryKeys.FLUID, new Identifier(fluidId));
         NbtPathArgumentType.NbtPath path;
@@ -85,20 +92,42 @@ public class FilterFluidNode extends Node {
         } catch (CommandSyntaxException e) {
             throw new RuntimeException("Error while building nbt path not caught in validation", e);
         }
+        var filter = buildFilter(fluid, tag, path, whitelist);
 
-        var stream = inputs[0].getAs(ModDataTypes.FLUID_STREAM);
-        stream.transform(new FluidTransformer.Filter(buildFilter(fluid, tag, path, whitelist)));
-        return Either.left(new DataValue<?>[]{ ModDataTypes.FLUID_STREAM.makeValue(stream) });
+        var optionalPos = findInterface(world, controller.graphId());
+        if (optionalPos.isEmpty()) {
+            return Either.right(Text.translatable("node.advanced_networking.interface.missing", interfaceId));
+        }
+
+        var pos = optionalPos.get().pos();
+        var side = optionalPos.get().side();
+
+        var storage = FluidStorage.SIDED.find(world, pos.offset(side), side.getOpposite());
+        if (storage == null) {
+            return Either.right(Text.translatable("node.advanced_networking.fluid_source.missing", interfaceId));
+        }
+
+        var total = 0L;
+        try (var transaction = Transaction.openOuter()) {
+            for (var view : storage) {
+                if (!view.isResourceBlank() && filter.test(view.getResource())) {
+                    total += view.extract(view.getResource(), Long.MAX_VALUE, transaction);
+                }
+            }
+            transaction.abort();
+        }
+
+        return Either.left(new DataValue<?>[]{ DataType.NUMBER.makeValue((double) total) });
     }
 
     @NotNull
     private Predicate<FluidVariant> buildFilter(Fluid fluid, TagKey<Fluid> tag, NbtPathArgumentType.NbtPath path, boolean whitelist) {
         return (fluidVariant) -> {
-            if (mode == Mode.FLUID && fluid != null && fluidVariant.getFluid() != fluid)
+            if (filterMode == FilterMode.FLUID && fluid != null && fluidVariant.getFluid() != fluid)
                 return !whitelist;
 
             //noinspection deprecation
-            if (mode == Mode.TAG && tag != null && !fluidVariant.getFluid().getRegistryEntry().isIn(tag))
+            if (filterMode == FilterMode.TAG && tag != null && !fluidVariant.getFluid().getRegistryEntry().isIn(tag))
                 return !whitelist;
 
             if (path == null)
@@ -114,7 +143,7 @@ public class FilterFluidNode extends Node {
         super.readNbt(data);
         fluidId = data.getString("fluidId");
         nbt = data.getString("nbt");
-        mode = Mode.byOrdinal(data.getInt("mode"));
+        filterMode = FilterMode.byOrdinal(data.getInt("mode"));
         whitelist = data.getBoolean("whitelist");
     }
 
@@ -123,7 +152,7 @@ public class FilterFluidNode extends Node {
         super.writeNbt(data);
         data.putString("fluidId", fluidId);
         data.putString("nbt", nbt);
-        data.putInt("mode", mode.ordinal());
+        data.putInt("mode", filterMode.ordinal());
         data.putBoolean("whitelist", whitelist);
     }
 
@@ -133,22 +162,34 @@ public class FilterFluidNode extends Node {
         return new ConfigScreen(parent);
     }
 
-    @Override
-    public boolean hasConfig() {
-        return true;
-    }
-
-    private enum Mode {
+    private enum FilterMode {
         FLUID, TAG;
 
-        private static Mode byOrdinal(int ordinal) {
+        private static FilterMode byOrdinal(int ordinal) {
             return ordinal > 0 && ordinal < values().length ? values()[ordinal] : FLUID;
         }
     }
 
-    protected class ConfigScreen extends NodeConfigScreen {
+    private class InterfaceSelectionScreen extends InterfaceNode.ConfigScreen {
+        private final ConfigScreen configScreen;
+
+        public InterfaceSelectionScreen(EditorScreen parent, ConfigScreen configScreen) {
+            super(parent);
+            this.configScreen = configScreen;
+        }
+
+        @Override
+        public void close() {
+            client.setScreen(this.configScreen);
+        }
+    }
+
+    private class ConfigScreen extends NodeConfigScreen {
+        private final EditorScreen parent;
+
         public ConfigScreen(EditorScreen parent) {
-            super(FilterFluidNode.this, parent);
+            super(FluidCountNode.this, parent);
+            this.parent = parent;
         }
 
         @Override
@@ -161,11 +202,11 @@ public class FilterFluidNode extends Node {
                     .build(x, 70, 100, 20, Text.empty(), (button1, value) -> whitelist = value);
             addDrawableChild(whitelistButton);
 
-            var button = CyclingButtonWidget.<Mode>builder(mode -> mode == Mode.FLUID ? Text.translatable("node.advanced_networking.filter_fluid.mode.fluid") : Text.translatable("node.advanced_networking.filter_fluid.mode.tag"))
-                    .values(Mode.values())
-                    .initially(mode)
-                    .build(x, 95, 100, 20, Text.translatable("node.advanced_networking.filter_fluid.mode"), (button1, value) -> mode = value);
-            addDrawableChild(button);
+            var modeButton = CyclingButtonWidget.<FilterMode>builder(filterMode -> filterMode == FilterMode.FLUID ? Text.translatable("node.advanced_networking.filter_fluid.mode.fluid") : Text.translatable("node.advanced_networking.filter_fluid.mode.tag"))
+                    .values(FilterMode.values())
+                    .initially(filterMode)
+                    .build(x, 95, 100, 20, Text.translatable("node.advanced_networking.filter_fluid.mode"), (button1, value) -> filterMode = value);
+            addDrawableChild(modeButton);
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
             idField.setPlaceholder(Text.literal("id").formatted(Formatting.GRAY));
@@ -179,6 +220,13 @@ public class FilterFluidNode extends Node {
             nbtField.setText(nbt);
             nbtField.setChangedListener(newValue -> nbt = newValue);
             addDrawableChild(nbtField);
+
+            var chooseInterfaceButton = ButtonWidget.builder(Text.translatable("node.advanced_networking.fluid_count.choose_interface"), button -> client.setScreen(new InterfaceSelectionScreen(parent, this)))
+                    .width(100)
+                    .position(x, 175)
+                    .build();
+            addDrawableChild(chooseInterfaceButton);
+
         }
     }
 }
