@@ -4,14 +4,26 @@ import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 
 public class CableBlockEntity extends BlockEntity {
     private final int[] power = new int[6];
+    private final String[] names = new String[6];
 
     public CableBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.CABLE_BLOCK_ENTITY, pos, state);
+        Arrays.fill(names, "");
     }
 
     public void setPower(Direction direction, int power) {
@@ -25,16 +37,49 @@ public class CableBlockEntity extends BlockEntity {
         return this.power[direction.getId()];
     }
 
+    public void setName(Direction direction, String name) {
+        this.names[direction.getId()] = name;
+        markDirty();
+        if (world instanceof ServerWorld serverWorld)
+            serverWorld.getChunkManager().markForUpdate(pos);
+    }
+
+    public String getName(Direction direction) {
+        return names[direction.getId()];
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
+
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+        return createNbt();
+    }
+
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         var power = nbt.getIntArray("power");
         System.arraycopy(power, 0, this.power, 0, Math.min(power.length, 6));
+
+        var names = nbt.getList("names", NbtElement.STRING_TYPE);
+        for (int i = 0; i < Math.min(names.size(), 6); i++) {
+            this.names[i] = names.get(i).asString();
+        }
     }
 
     @Override
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         nbt.putIntArray("power", power);
+
+        var names = new NbtList();
+        for (var name : this.names) {
+            names.add(NbtString.of(name));
+        }
+        nbt.put("names", names);
     }
 }

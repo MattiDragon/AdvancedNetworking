@@ -6,8 +6,8 @@ import io.github.mattidragon.advancednetworking.network.node.ControllerNode;
 import io.github.mattidragon.advancednetworking.network.node.InterfaceNode;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
 
 import java.util.List;
 

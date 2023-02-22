@@ -3,7 +3,7 @@ package io.github.mattidragon.advancednetworking.datagen;
 import io.github.mattidragon.advancednetworking.block.CableBlock;
 import io.github.mattidragon.advancednetworking.block.ControllerBlock;
 import io.github.mattidragon.advancednetworking.registry.ModItems;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.minecraft.data.client.*;
 import net.minecraft.util.Identifier;
@@ -14,8 +14,8 @@ import static io.github.mattidragon.advancednetworking.registry.ModBlocks.CABLE;
 import static io.github.mattidragon.advancednetworking.registry.ModBlocks.CONTROLLER;
 
 public class ModelProvider extends FabricModelProvider {
-    public ModelProvider(FabricDataGenerator dataGenerator) {
-        super(dataGenerator);
+    public ModelProvider(FabricDataOutput output) {
+        super(output);
     }
 
     @Override

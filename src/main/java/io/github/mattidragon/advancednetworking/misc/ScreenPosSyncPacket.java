@@ -1,6 +1,6 @@
 package io.github.mattidragon.advancednetworking.misc;
 
-import io.github.mattidragon.advancednetworking.client.screen.ControllerScreenHandler;
+import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
