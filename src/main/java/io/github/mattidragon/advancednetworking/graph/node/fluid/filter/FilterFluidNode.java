@@ -20,12 +20,11 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.command.argument.NbtPathArgumentType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public class FilterFluidNode extends Node {
             var id = Identifier.tryParse(fluidId.trim());
             if (id == null)
                 list.add(Text.translatable("node.advanced_networking.filter_fluid.invalid_id"));
-            else if (mode == Mode.FLUID && !Registries.FLUID.containsId(id))
+            else if (mode == Mode.FLUID && !Registry.FLUID.containsId(id))
                 list.add(Text.translatable("node.advanced_networking.filter_fluid.unknown_fluid", id));
         }
 
@@ -77,8 +76,8 @@ public class FilterFluidNode extends Node {
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        var fluid = fluidId.isBlank() ? null : Registries.FLUID.get(new Identifier(fluidId));
-        var tag = fluidId.isBlank() ? null : TagKey.of(RegistryKeys.FLUID, new Identifier(fluidId));
+        var fluid = fluidId.isBlank() ? null : Registry.FLUID.get(new Identifier(fluidId));
+        var tag = fluidId.isBlank() ? null : TagKey.of(Registry.FLUID_KEY, new Identifier(fluidId));
         NbtPathArgumentType.NbtPath path;
         try {
             path = nbt.isBlank() ? null : NbtPathArgumentType.nbtPath().parse(new StringReader(nbt.trim()));
@@ -168,16 +167,26 @@ public class FilterFluidNode extends Node {
             addDrawableChild(button);
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
-            idField.setPlaceholder(Text.literal("id").formatted(Formatting.GRAY));
+            if (fluidId.isEmpty()) {
+                idField.setSuggestion("id");
+            }
             idField.setText(fluidId);
-            idField.setChangedListener(newValue -> fluidId = newValue);
+            idField.setChangedListener(newValue -> {
+                fluidId = newValue;
+                idField.setSuggestion(newValue.isEmpty() ? "id" : "");
+            });
             addDrawableChild(idField);
 
             var nbtField = new TextFieldWidget(textRenderer, x, 145, 100, 20, Text.empty());
             nbtField.setMaxLength(200);
-            nbtField.setPlaceholder(Text.literal("nbt").formatted(Formatting.GRAY));
+            if (nbt.isEmpty()) {
+                nbtField.setSuggestion("nbt");
+            }
             nbtField.setText(nbt);
-            nbtField.setChangedListener(newValue -> nbt = newValue);
+            nbtField.setChangedListener(newValue -> {
+                nbt = newValue;
+                nbtField.setSuggestion(newValue.isEmpty() ? "nbt" : "");
+            });
             addDrawableChild(nbtField);
         }
     }

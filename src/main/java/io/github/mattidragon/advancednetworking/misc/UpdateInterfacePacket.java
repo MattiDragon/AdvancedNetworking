@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 
 import static io.github.mattidragon.advancednetworking.AdvancedNetworking.id;
 
@@ -23,7 +24,7 @@ public class UpdateInterfacePacket {
             var name = buf.readString();
 
             server.execute(() -> {
-                if (player.squaredDistanceTo(pos.toCenterPos()) > 64.0)
+                if (player.squaredDistanceTo(Vec3d.ofCenter(pos)) > 64.0)
                     return; // Player too far away
                 if (!player.world.getBlockState(pos).isOf(ModBlocks.CABLE))
                     return; // Block changed

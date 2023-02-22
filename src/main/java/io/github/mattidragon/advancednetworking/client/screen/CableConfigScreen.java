@@ -46,7 +46,7 @@ public class CableConfigScreen extends Screen {
         var buttons = new ButtonWidget[6];
         for (int i = 0; i < 6; i++) {
             var direction = Direction.byId(i);
-            var button = ButtonWidget.builder(Text.translatable("side.advanced_networking." + direction.asString()), button1 -> {
+            var button = new ButtonWidget(calcLeftX(), 40 + 20 * i, 100, 20, Text.translatable("side.advanced_networking." + direction.asString()), button1 -> {
                 button1.active = false;
                 buttons[side.getId()].active = true;
 
@@ -56,7 +56,7 @@ public class CableConfigScreen extends Screen {
                 name = nameSupplier.apply(side);
                 interfaceTypeButton.setValue(type);
                 nameField.setText(name);
-            }).width(100).position(calcLeftX(), 40 + 20 * i).build();
+            });
             addDrawableChild(button);
             buttons[i] = button;
         }

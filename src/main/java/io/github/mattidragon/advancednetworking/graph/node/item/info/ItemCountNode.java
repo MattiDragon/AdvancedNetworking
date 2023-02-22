@@ -24,12 +24,10 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.command.argument.NbtPathArgumentType;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.tag.TagKey;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -63,7 +61,7 @@ public class ItemCountNode extends InterfaceNode {
             var id = Identifier.tryParse(itemId.trim());
             if (id == null)
                 list.add(Text.translatable("node.advanced_networking.filter_items.invalid_id"));
-            else if (filterMode == FilterMode.ITEM && !Registries.ITEM.containsId(id))
+            else if (filterMode == FilterMode.ITEM && !Registry.ITEM.containsId(id))
                 list.add(Text.translatable("node.advanced_networking.filter_items.unknown_item", id));
         }
 
@@ -84,8 +82,8 @@ public class ItemCountNode extends InterfaceNode {
         var controller = context.get(NetworkControllerContext.TYPE);
         var world = context.get(ContextType.SERVER_WORLD);
 
-        var item = itemId.isBlank() ? null : Registries.ITEM.get(new Identifier(itemId));
-        var tag = itemId.isBlank() ? null : TagKey.of(RegistryKeys.ITEM, new Identifier(itemId));
+        var item = itemId.isBlank() ? null : Registry.ITEM.get(new Identifier(itemId));
+        var tag = itemId.isBlank() ? null : TagKey.of(Registry.ITEM_KEY, new Identifier(itemId));
         NbtPathArgumentType.NbtPath path;
         try {
             path = nbt.isBlank() ? null : NbtPathArgumentType.nbtPath().parse(new StringReader(nbt.trim()));
@@ -209,22 +207,29 @@ public class ItemCountNode extends InterfaceNode {
             addDrawableChild(modeButton);
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
-            idField.setPlaceholder(Text.literal("id").formatted(Formatting.GRAY));
+            if (itemId.isEmpty()) {
+                idField.setSuggestion("id");
+            }
             idField.setText(itemId);
-            idField.setChangedListener(newValue -> itemId = newValue);
+            idField.setChangedListener(newValue -> {
+                itemId = newValue;
+                idField.setSuggestion(newValue.isEmpty() ? "id" : "");
+            });
             addDrawableChild(idField);
 
             var nbtField = new TextFieldWidget(textRenderer, x, 145, 100, 20, Text.empty());
             nbtField.setMaxLength(200);
-            nbtField.setPlaceholder(Text.literal("nbt").formatted(Formatting.GRAY));
+            if (nbt.isEmpty()) {
+                nbtField.setSuggestion("nbt");
+            }
             nbtField.setText(nbt);
-            nbtField.setChangedListener(newValue -> nbt = newValue);
+            nbtField.setChangedListener(newValue -> {
+                nbt = newValue;
+                nbtField.setSuggestion(newValue.isEmpty() ? "nbt" : "");
+            });
             addDrawableChild(nbtField);
 
-            var chooseInterfaceButton = ButtonWidget.builder(Text.translatable("node.advanced_networking.item_count.choose_interface"), button -> client.setScreen(new InterfaceSelectionScreen(parent, this)))
-                    .width(100)
-                    .position(x, 175)
-                    .build();
+            var chooseInterfaceButton = new ButtonWidget(x, 175, 100, 20, Text.translatable("node.advanced_networking.item_count.choose_interface"), button -> client.setScreen(new InterfaceSelectionScreen(parent, this)));
             addDrawableChild(chooseInterfaceButton);
         }
     }

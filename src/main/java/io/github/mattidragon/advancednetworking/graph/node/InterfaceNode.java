@@ -196,8 +196,8 @@ public abstract class InterfaceNode extends Node {
 
                 @Override
                 public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-                    checkbox.setX(x);
-                    checkbox.setY(y);
+                    checkbox.x = x;
+                    checkbox.y = y;
                     checkbox.render(matrices, mouseX, mouseY, tickDelta);
                 }
 

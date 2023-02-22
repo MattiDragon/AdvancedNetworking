@@ -20,12 +20,11 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.command.argument.NbtPathArgumentType;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public class FilterItemsNode extends Node {
             var id = Identifier.tryParse(itemId.trim());
             if (id == null)
                 list.add(Text.translatable("node.advanced_networking.filter_items.invalid_id"));
-            else if (mode == Mode.ITEM && !Registries.ITEM.containsId(id))
+            else if (mode == Mode.ITEM && !Registry.ITEM.containsId(id))
                 list.add(Text.translatable("node.advanced_networking.filter_items.unknown_item", id));
         }
 
@@ -77,8 +76,8 @@ public class FilterItemsNode extends Node {
 
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        var item = itemId.isBlank() ? null : Registries.ITEM.get(new Identifier(itemId));
-        var tag = itemId.isBlank() ? null : TagKey.of(RegistryKeys.ITEM, new Identifier(itemId));
+        var item = itemId.isBlank() ? null : Registry.ITEM.get(new Identifier(itemId));
+        var tag = itemId.isBlank() ? null : TagKey.of(Registry.ITEM_KEY, new Identifier(itemId));
         NbtPathArgumentType.NbtPath path;
         try {
             path = nbt.isBlank() ? null : NbtPathArgumentType.nbtPath().parse(new StringReader(nbt.trim()));
@@ -168,16 +167,26 @@ public class FilterItemsNode extends Node {
             addDrawableChild(button);
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
-            idField.setPlaceholder(Text.literal("id").formatted(Formatting.GRAY));
+            if (itemId.isEmpty()) {
+                idField.setSuggestion("id");
+            }
             idField.setText(itemId);
-            idField.setChangedListener(newValue -> itemId = newValue);
+            idField.setChangedListener(newValue -> {
+                itemId = newValue;
+                idField.setSuggestion(newValue.isEmpty() ? "id" : "");
+            });
             addDrawableChild(idField);
 
             var nbtField = new TextFieldWidget(textRenderer, x, 145, 100, 20, Text.empty());
             nbtField.setMaxLength(200);
-            nbtField.setPlaceholder(Text.literal("nbt").formatted(Formatting.GRAY));
+            if (nbt.isEmpty()) {
+                nbtField.setSuggestion("nbt");
+            }
             nbtField.setText(nbt);
-            nbtField.setChangedListener(newValue -> nbt = newValue);
+            nbtField.setChangedListener(newValue -> {
+                nbt = newValue;
+                nbtField.setSuggestion(newValue.isEmpty() ? "nbt" : "");
+            });
             addDrawableChild(nbtField);
         }
     }

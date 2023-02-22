@@ -8,8 +8,7 @@ import io.github.mattidragon.advancednetworking.block.ControllerBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.util.registry.Registry;
 
 public final class ModBlocks {
     public static final ControllerBlock CONTROLLER = new ControllerBlock(FabricBlockSettings.of(Material.STONE).requiresTool().strength(3.5F));
@@ -20,9 +19,9 @@ public final class ModBlocks {
     private ModBlocks() { throw new UnsupportedOperationException(); }
 
     public static void register() {
-        Registry.register(Registries.BLOCK, AdvancedNetworking.id("controller"), CONTROLLER);
-        Registry.register(Registries.BLOCK, AdvancedNetworking.id("cable"), CABLE);
-        Registry.register(Registries.BLOCK_ENTITY_TYPE, AdvancedNetworking.id("controller"), CONTROLLER_BLOCK_ENTITY);
-        Registry.register(Registries.BLOCK_ENTITY_TYPE, AdvancedNetworking.id("cable"), CABLE_BLOCK_ENTITY);
+        Registry.register(Registry.BLOCK, AdvancedNetworking.id("controller"), CONTROLLER);
+        Registry.register(Registry.BLOCK, AdvancedNetworking.id("cable"), CABLE);
+        Registry.register(Registry.BLOCK_ENTITY_TYPE, AdvancedNetworking.id("controller"), CONTROLLER_BLOCK_ENTITY);
+        Registry.register(Registry.BLOCK_ENTITY_TYPE, AdvancedNetworking.id("cable"), CABLE_BLOCK_ENTITY);
     }
 }

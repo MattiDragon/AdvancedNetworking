@@ -47,7 +47,7 @@ public class ControllerBlock extends BlockWithEntity {
             boolean hasRedstone = world.isReceivingRedstonePower(pos);
 
             if (active && !hasRedstone) { // Extra tick in case ticking stopped
-                world.scheduleBlockTick(pos, this, 10);
+                world.createAndScheduleBlockTick(pos, this, 10);
             }
 
             if (!active && hasRedstone) {
@@ -65,7 +65,7 @@ public class ControllerBlock extends BlockWithEntity {
                 if (!(world.getBlockEntity(pos) instanceof ControllerBlockEntity controller))
                     return;
                 ControllerBlockEntity.tick(world, pos, state, controller);
-                world.scheduleBlockTick(pos, this, 10);
+                world.createAndScheduleBlockTick(pos, this, 10);
             } else {
                 world.setBlockState(pos, state.cycle(POWERED), Block.NOTIFY_LISTENERS);
             }

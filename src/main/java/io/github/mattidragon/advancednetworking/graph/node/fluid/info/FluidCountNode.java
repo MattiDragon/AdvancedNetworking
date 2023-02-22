@@ -24,12 +24,11 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.command.argument.NbtPathArgumentType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ public class FluidCountNode extends InterfaceNode {
             var id = Identifier.tryParse(fluidId.trim());
             if (id == null)
                 list.add(Text.translatable("node.advanced_networking.filter_fluid.invalid_id"));
-            else if (filterMode == FilterMode.FLUID && !Registries.FLUID.containsId(id))
+            else if (filterMode == FilterMode.FLUID && !Registry.FLUID.containsId(id))
                 list.add(Text.translatable("node.advanced_networking.filter_fluid.unknown_fluid", id));
         }
 
@@ -84,8 +83,8 @@ public class FluidCountNode extends InterfaceNode {
         var controller = context.get(NetworkControllerContext.TYPE);
         var world = context.get(ContextType.SERVER_WORLD);
 
-        var fluid = fluidId.isBlank() ? null : Registries.FLUID.get(new Identifier(fluidId));
-        var tag = fluidId.isBlank() ? null : TagKey.of(RegistryKeys.FLUID, new Identifier(fluidId));
+        var fluid = fluidId.isBlank() ? null : Registry.FLUID.get(new Identifier(fluidId));
+        var tag = fluidId.isBlank() ? null : TagKey.of(Registry.FLUID_KEY, new Identifier(fluidId));
         NbtPathArgumentType.NbtPath path;
         try {
             path = nbt.isBlank() ? null : NbtPathArgumentType.nbtPath().parse(new StringReader(nbt.trim()));
@@ -209,22 +208,29 @@ public class FluidCountNode extends InterfaceNode {
             addDrawableChild(modeButton);
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
-            idField.setPlaceholder(Text.literal("id").formatted(Formatting.GRAY));
+            if (fluidId.isEmpty()) {
+                idField.setSuggestion("id");
+            }
             idField.setText(fluidId);
-            idField.setChangedListener(newValue -> fluidId = newValue);
+            idField.setChangedListener(newValue -> {
+                fluidId = newValue;
+                idField.setSuggestion(newValue.isEmpty() ? "id" : "");
+            });
             addDrawableChild(idField);
 
             var nbtField = new TextFieldWidget(textRenderer, x, 145, 100, 20, Text.empty());
             nbtField.setMaxLength(200);
-            nbtField.setPlaceholder(Text.literal("nbt").formatted(Formatting.GRAY));
+            if (nbt.isEmpty()) {
+                nbtField.setSuggestion("nbt");
+            }
             nbtField.setText(nbt);
-            nbtField.setChangedListener(newValue -> nbt = newValue);
+            nbtField.setChangedListener(newValue -> {
+                nbt = newValue;
+                nbtField.setSuggestion(newValue.isEmpty() ? "nbt" : "");
+            });
             addDrawableChild(nbtField);
 
-            var chooseInterfaceButton = ButtonWidget.builder(Text.translatable("node.advanced_networking.fluid_count.choose_interface"), button -> client.setScreen(new InterfaceSelectionScreen(parent, this)))
-                    .width(100)
-                    .position(x, 175)
-                    .build();
+            var chooseInterfaceButton = new ButtonWidget(x, 175, 100, 20, Text.translatable("node.advanced_networking.fluid_count.choose_interface"), button -> client.setScreen(new InterfaceSelectionScreen(parent, this)));
             addDrawableChild(chooseInterfaceButton);
 
         }
