@@ -14,8 +14,8 @@ import static io.github.mattidragon.advancednetworking.registry.ModBlocks.CABLE;
 import static io.github.mattidragon.advancednetworking.registry.ModBlocks.CONTROLLER;
 
 public class ModelProvider extends FabricModelProvider {
-    public ModelProvider(FabricDataGenerator dataGenerator) {
-        super(dataGenerator);
+    public ModelProvider(FabricDataGenerator generator) {
+        super(generator);
     }
 
     @Override

@@ -12,12 +12,12 @@ import net.minecraft.tag.ItemTags;
 import java.util.function.Consumer;
 
 public class RecipeProvider extends FabricRecipeProvider {
-    public RecipeProvider(FabricDataGenerator dataGenerator) {
-        super(dataGenerator);
+    public RecipeProvider(FabricDataGenerator generator) {
+        super(generator);
     }
 
     @Override
-    protected void generateRecipes(Consumer<RecipeJsonProvider> exporter) {
+    public void generateRecipes(Consumer<RecipeJsonProvider> exporter) {
         ShapelessRecipeJsonBuilder.create(ModItems.COMPOUND)
                 .input(Items.AMETHYST_SHARD)
                 .input(Items.CLAY_BALL)

@@ -2,13 +2,16 @@ package io.github.mattidragon.advancednetworking.block;
 
 import com.kneelawk.graphlib.GraphLib;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
-import io.github.mattidragon.advancednetworking.client.screen.ControllerScreenHandler;
 import io.github.mattidragon.advancednetworking.config.Config;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
-import io.github.mattidragon.advancednetworking.graph.stream.ResourceStream;
-import io.github.mattidragon.advancednetworking.graph.stream.ResourceStreamEvaluator;
+import io.github.mattidragon.advancednetworking.graph.node.energy.EnergyLimitTransformer;
+import io.github.mattidragon.advancednetworking.graph.node.fluid.FluidTransformer;
+import io.github.mattidragon.advancednetworking.graph.node.item.ItemTransformer;
+import io.github.mattidragon.advancednetworking.graph.path.PathEnvironment;
 import io.github.mattidragon.advancednetworking.misc.NbtUtils;
+import io.github.mattidragon.advancednetworking.misc.StorageHelper;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
+import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.Context;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
@@ -17,7 +20,7 @@ import io.github.mattidragon.nodeflow.misc.GraphProvidingBlockEntity;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,11 +33,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
-import team.reborn.energy.api.EnergyStorageUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,29 +44,18 @@ import java.util.function.Function;
 
 public class ControllerBlockEntity extends GraphProvidingBlockEntity {
     private Graph graph = new Graph(AdvancedNetworking.ENVIRONMENT);
-    private final List<ResourceStream.Start<Storage<ItemVariant>>> itemStreams = new ArrayList<>();
-    private final List<ResourceStream.Start<Storage<FluidVariant>>> fluidStreams = new ArrayList<>();
-    private final List<ResourceStream.Start<EnergyStorage>> energyStreams = new ArrayList<>();
+
+    public final PathEnvironment<Storage<ItemVariant>, ItemTransformer> itemEnvironment = new PathEnvironment<>();
+    public final PathEnvironment<Storage<FluidVariant>, FluidTransformer> fluidEnvironment = new PathEnvironment<>();
+    public final PathEnvironment<EnergyStorage, EnergyLimitTransformer> energyEnvironment = new PathEnvironment<>();
+
     public double viewX = 0;
     public double viewY = 0;
     public int zoom = 0;
     private List<Text> errors = List.of();
-    public byte ticks = 0;
 
     public ControllerBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.CONTROLLER_BLOCK_ENTITY, pos, state);
-    }
-
-    public void addItemStream(ResourceStream.Start<Storage<ItemVariant>> stream) {
-        itemStreams.add(stream);
-    }
-
-    public void addFluidStream(ResourceStream.Start<Storage<FluidVariant>> stream) {
-        fluidStreams.add(stream);
-    }
-
-    public void addEnergyStream(ResourceStream.Start<EnergyStorage> stream) {
-        energyStreams.add(stream);
     }
 
     @Override
@@ -81,7 +71,6 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
         zoom = nbt.getInt("zoom");
 
         graph.readNbt(nbt.getCompound("graph"));
-        ticks = nbt.getByte("ticks");
         errors = NbtUtils.readStrings(nbt, "errors").stream()
                 .map((Function<String, Optional<Text>>) json -> Optional.ofNullable(Text.Serializer.fromJson(json)))
                 .flatMap(Optional::stream)
@@ -98,38 +87,38 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
         var graphNbt = new NbtCompound();
         graph.writeNbt(graphNbt);
         nbt.put("graph", graphNbt);
-        nbt.putByte("ticks", ticks);
         NbtUtils.writeStrings(nbt, "errors", errors.stream().map(Text.Serializer::toJson).toList());
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, ControllerBlockEntity controller) {
         if (world.isClient) return;
-        if (controller.ticks-- <= 0) {
-            if (state.get(ControllerBlock.POWERED)) {
-                var errors = controller.evaluate();
-                var itemSuccess = ResourceStreamEvaluator.evaluate(controller.itemStreams, Config.CONTROLLER_ITEM_TRANSFER_RATE.get(), (from, to, context) -> context <= 0 ? 0 : context - StorageUtil.move(from, to, variant -> true, context, null));
-                var fluidSuccess = ResourceStreamEvaluator.evaluate(controller.fluidStreams, Config.CONTROLLER_FLUID_TRANSFER_RATE.get(), (from, to, context) -> context <= 0 ? 0 : context - StorageUtil.move(from, to, variant -> true, context, null));
-                var energySuccess = ResourceStreamEvaluator.evaluate(controller.energyStreams, Config.CONTROLLER_ENERGY_TRANSFER_RATE.get(), (from, to, context) -> context <= 0 ? 0 : context - EnergyStorageUtil.move(from, to, context, null));
-                controller.itemStreams.clear();
-                controller.fluidStreams.clear();
-                controller.energyStreams.clear();
 
-                // Update error status in world
-                if ((errors.isEmpty() && itemSuccess && fluidSuccess && energySuccess) != state.get(ControllerBlock.SUCCESS))
-                    world.setBlockState(pos, state.cycle(ControllerBlock.SUCCESS), Block.NOTIFY_ALL);
+        controller.itemEnvironment.clear();
+        controller.fluidEnvironment.clear();
+        controller.energyEnvironment.clear();
 
-                // Set up error list for gui
-                controller.errors = new ArrayList<>(errors.stream().map(EvaluationError::getName).toList());
-                if (!itemSuccess)
-                    controller.errors.add(Text.translatable("block.advanced_networking.controller.item_sort_failed"));
-                if (!fluidSuccess)
-                    controller.errors.add(Text.translatable("block.advanced_networking.controller.fluid_sort_failed"));
-                if (!energySuccess)
-                    controller.errors.add(Text.translatable("block.advanced_networking.controller.energy_sort_failed"));
-
-                controller.ticks = (byte) MathHelper.clamp(Config.CONTROLLER_TICK_RATE.get(), 1, 125);
-            }
+        var errors = controller.evaluate();
+        boolean itemSuccess, fluidSuccess, energySuccess;
+        try (var transaction = Transaction.openOuter()) {
+            itemSuccess = controller.itemEnvironment.evaluate(Config.CONTROLLER_ITEM_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveItems(from, to, transformers, context, transaction));
+            fluidSuccess = controller.fluidEnvironment.evaluate(Config.CONTROLLER_FLUID_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveFluids(from, to, transformers, context, transaction));
+            energySuccess = controller.energyEnvironment.evaluate(Config.CONTROLLER_ENERGY_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveEnergy(from, to, transformers, context, transaction));
+            if (errors.isEmpty() && itemSuccess && fluidSuccess && energySuccess)
+                transaction.commit();
         }
+
+        // Update error status in world
+        if ((errors.isEmpty() && itemSuccess && fluidSuccess && energySuccess) != state.get(ControllerBlock.SUCCESS))
+            world.setBlockState(pos, state.cycle(ControllerBlock.SUCCESS), Block.NOTIFY_ALL);
+
+        // Set up error list for gui
+        controller.errors = new ArrayList<>(errors.stream().map(EvaluationError::getName).toList());
+        if (!itemSuccess)
+            controller.errors.add(Text.translatable("block.advanced_networking.controller.item_sort_failed"));
+        if (!fluidSuccess)
+            controller.errors.add(Text.translatable("block.advanced_networking.controller.fluid_sort_failed"));
+        if (!energySuccess)
+            controller.errors.add(Text.translatable("block.advanced_networking.controller.energy_sort_failed"));
     }
 
     public List<EvaluationError> evaluate() {

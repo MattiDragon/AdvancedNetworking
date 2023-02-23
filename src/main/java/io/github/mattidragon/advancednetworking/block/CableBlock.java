@@ -6,24 +6,27 @@ import com.google.common.primitives.Longs;
 import com.kneelawk.graphlib.GraphLib;
 import com.kneelawk.graphlib.graph.BlockNode;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
+import io.github.mattidragon.advancednetworking.client.screen.CableConfigScreen;
+import io.github.mattidragon.advancednetworking.misc.InterfaceType;
 import io.github.mattidragon.advancednetworking.network.UpdateScheduler;
 import io.github.mattidragon.advancednetworking.network.node.CableNode;
 import io.github.mattidragon.advancednetworking.network.node.InterfaceNode;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import io.github.mattidragon.advancednetworking.registry.ModTags;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Text;
-import net.minecraft.text.Texts;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -41,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 // Mojank
@@ -119,11 +123,11 @@ public class CableBlock extends BlockWithEntity {
         return getStrongRedstonePower(state, world, pos, direction);
     }
 
-    private boolean canConnect(BlockState state, BlockState other, Direction direction) {
+    private static boolean canConnect(BlockState state, BlockState other, Direction direction) {
         if (other.isOf(ModBlocks.CONTROLLER))
             return state.get(FACING_PROPERTIES.get(direction)).canConnect();
 
-        return other.isOf(this) && state.get(FACING_PROPERTIES.get(direction)).canConnect() && other.get(FACING_PROPERTIES.get(direction.getOpposite())).canConnect();
+        return other.isOf(ModBlocks.CABLE) && state.get(FACING_PROPERTIES.get(direction)).canConnect() && other.get(FACING_PROPERTIES.get(direction.getOpposite())).canConnect();
     }
 
     /**
@@ -218,46 +222,51 @@ public class CableBlock extends BlockWithEntity {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(ArrayUtils.add(Longs.toByteArray(id), (byte) dir.getId()));
     }
 
+    public static void changeMode(World world, BlockState state, BlockPos pos, Direction side, InterfaceType newType) {
+        var connectionType = switch (newType) {
+            case INTERFACE -> ConnectionType.INTERFACE;
+            case BLOCKED -> ConnectionType.DISABLED;
+            case DEFAULT -> ConnectionType.NONE;
+        };
+
+        var newState = state.with(FACING_PROPERTIES.get(side), connectionType);
+        world.setBlockState(pos, newState);
+
+        if (canConnect(newState, world.getBlockState(pos.offset(side)), side)) {
+            world.setBlockState(pos, state.with(FACING_PROPERTIES.get(side), ConnectionType.CONNECTED));
+        }
+
+        if (world instanceof ServerWorld serverWorld)
+            GraphLib.getController(serverWorld).updateConnections(pos);
+    }
+
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         var direction = calcHitDirection(hit.getPos().subtract(Vec3d.of(pos)));
         var property = FACING_PROPERTIES.get(direction);
 
         if (player.getStackInHand(hand).isIn(ModTags.Items.WRENCHES)) {
-            var newType = switch (state.get(property)) {
-                case NONE -> ConnectionType.INTERFACE;
-                case DISABLED -> ConnectionType.NONE;
-                case INTERFACE, INTERFACE_POWERED, CONNECTED -> ConnectionType.DISABLED;
-            };
-
-            var newState = state.with(property, newType);
-            world.setBlockState(pos, newState);
-
-            if (canConnect(newState, world.getBlockState(pos.offset(direction)), direction)) {
-                world.setBlockState(pos, state.with(property, ConnectionType.CONNECTED));
-            }
-
-            if (world instanceof ServerWorld serverWorld)
-                GraphLib.getController(serverWorld).updateConnections(pos);
+            changeMode(world, state, pos, direction, switch (state.get(property)) {
+                case NONE -> InterfaceType.INTERFACE;
+                case DISABLED -> InterfaceType.DEFAULT;
+                case INTERFACE, INTERFACE_POWERED, CONNECTED -> InterfaceType.BLOCKED;
+            });
 
             return ActionResult.SUCCESS;
         }
         if (hand == Hand.MAIN_HAND && player.isSneaking()) {
-            if (player instanceof ServerPlayerEntity serverPlayer) {
-                var id = calcInterfaceId(pos, direction);
-                var idText = Texts.bracketed(Text.literal(id))
-                        .styled(style ->
-                                style.withColor(Formatting.GREEN)
-                                        .withInsertion(id)
-                                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, id))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable("chat.copy.click"))));
-
-                serverPlayer.sendMessage(Text.translatable("block.advanced_networking.cable.info", direction, pos.getX(), pos.getY(), pos.getX(), idText));
+            if (world.isClient && world.getBlockEntity(pos) instanceof CableBlockEntity cable) {
+                openConfig(pos.toImmutable(), direction, (side) -> InterfaceType.ofConnectionType(world.getBlockState(pos).get(FACING_PROPERTIES.get(side))), cable::getName);
             }
             return ActionResult.SUCCESS;
         }
 
         return ActionResult.PASS;
+    }
+
+    @Environment(EnvType.CLIENT)
+    private void openConfig(BlockPos pos, Direction direction, Function<Direction, InterfaceType> typeSupplier, Function<Direction, String> nameSupplier) {
+        MinecraftClient.getInstance().setScreen(new CableConfigScreen(pos, direction, typeSupplier, nameSupplier));
     }
 
     private Direction calcHitDirection(Vec3d pos) {

@@ -7,6 +7,7 @@
     "RedstoneWireBlockMixin"
   ],
   "client": [
+    "CheckboxWidgetAccess"
   ],
   "injectors": {
     "defaultRequire": 1

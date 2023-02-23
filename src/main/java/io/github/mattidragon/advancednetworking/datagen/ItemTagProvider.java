@@ -5,11 +5,10 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 public class ItemTagProvider extends FabricTagProvider.ItemTagProvider {
-    public ItemTagProvider(FabricDataGenerator dataGenerator, @Nullable BlockTagProvider blockTagProvider) {
-        super(dataGenerator, blockTagProvider);
+    public ItemTagProvider(FabricDataGenerator generator) {
+        super(generator);
     }
 
     @Override
