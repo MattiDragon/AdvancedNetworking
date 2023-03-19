@@ -83,8 +83,8 @@ public class ControllerScreenHandler extends EditorScreenHandler {
     }
 
     @Override
-    public void close(PlayerEntity player) {
-        super.close(player);
+    public void onClosed(PlayerEntity player) {
+        super.onClosed(player);
         context.run((world, pos) -> {
             if (world.getBlockEntity(pos) instanceof ControllerBlockEntity controller) {
                 controller.viewX = viewX;

@@ -170,7 +170,7 @@ public abstract class InterfaceNode extends Node {
 
                 @Override
                 public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-                    drawCenteredText(matrices, InterfaceList.this.client.textRenderer, message, x + entryWidth / 2, y, 0xaaaaaa);
+                    drawCenteredTextWithShadow(matrices, InterfaceList.this.client.textRenderer, message, x + entryWidth / 2, y, 0xaaaaaa);
                 }
             }
 
