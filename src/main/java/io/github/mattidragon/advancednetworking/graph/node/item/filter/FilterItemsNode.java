@@ -168,6 +168,7 @@ public class FilterItemsNode extends Node {
             addDrawableChild(button);
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
+            idField.setMaxLength(100);
             idField.setPlaceholder(Text.literal("id").formatted(Formatting.GRAY));
             idField.setText(itemId);
             idField.setChangedListener(newValue -> itemId = newValue);

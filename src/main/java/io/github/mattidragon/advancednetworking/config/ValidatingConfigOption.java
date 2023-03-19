@@ -12,11 +12,6 @@ public class ValidatingConfigOption<T> extends ConfigOption<T>  {
         this.predicate = predicate;
     }
 
-    public ValidatingConfigOption(String title, String description, T defaultValue, Predicate<T> predicate) {
-        super(title, description, defaultValue);
-        this.predicate = predicate;
-    }
-
     @Override
     public void setValue(T value) {
         super.setValue(value != null && predicate.test(value) ? value : null);

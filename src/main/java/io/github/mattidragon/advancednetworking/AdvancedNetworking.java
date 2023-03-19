@@ -1,8 +1,8 @@
 package io.github.mattidragon.advancednetworking;
 
 import com.kneelawk.graphlib.GraphLib;
-import com.kyanite.paragon.api.ConfigRegistry;
-import io.github.mattidragon.advancednetworking.config.Config;
+import com.kyanite.paragon.api.ConfigManager;
+import io.github.mattidragon.advancednetworking.config.AdvancedNetworkingConfig;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
@@ -53,7 +53,7 @@ public class AdvancedNetworking implements ModInitializer {
     @Override
     public void onInitialize() {
         Registry.register(Registries.SCREEN_HANDLER, id("controller"), CONTROLLER_SCREEN);
-        ConfigRegistry.register(Config.INSTANCE);
+        ConfigManager.register(MOD_ID, AdvancedNetworkingConfig.INSTANCE);
 
         ModBlocks.register();
         ModItems.register();
