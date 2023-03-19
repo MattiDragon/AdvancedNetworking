@@ -63,7 +63,7 @@ dependencies {
     }
 
     // Config
-    modImplementation include("com.terraformersmc:modmenu:$modmenu_version")
+    modImplementation "com.terraformersmc:modmenu:$modmenu_version"
     modImplementation include("dev.isxander:yet-another-config-lib:$yacl_version")
     modImplementation include("maven.modrinth:paragon:$paragon_version")
     runtimeOnly("blue.endless:jankson:1.2.1") // required for paragon test config because JiJ doesn't work in dev :iritater:

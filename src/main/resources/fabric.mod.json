@@ -36,7 +36,7 @@
   "accessWidener": "advanced_networking.accesswidener",
   "depends": {
     "fabricloader": ">=0.14.9",
-    "fabric": "*",
+    "fabric-api": "*",
     "minecraft": "1.19.3",
     "nodeflow": "*",
     "graphlib": "*",
