@@ -2,7 +2,7 @@ package io.github.mattidragon.advancednetworking.block;
 
 import com.kneelawk.graphlib.GraphLib;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
-import io.github.mattidragon.advancednetworking.config.Config;
+import io.github.mattidragon.advancednetworking.config.AdvancedNetworkingConfig;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
 import io.github.mattidragon.advancednetworking.graph.node.energy.EnergyLimitTransformer;
 import io.github.mattidragon.advancednetworking.graph.node.fluid.FluidTransformer;
@@ -100,9 +100,9 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
         var errors = controller.evaluate();
         boolean itemSuccess, fluidSuccess, energySuccess;
         try (var transaction = Transaction.openOuter()) {
-            itemSuccess = controller.itemEnvironment.evaluate(Config.CONTROLLER_ITEM_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveItems(from, to, transformers, context, transaction));
-            fluidSuccess = controller.fluidEnvironment.evaluate(Config.CONTROLLER_FLUID_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveFluids(from, to, transformers, context, transaction));
-            energySuccess = controller.energyEnvironment.evaluate(Config.CONTROLLER_ENERGY_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveEnergy(from, to, transformers, context, transaction));
+            itemSuccess = controller.itemEnvironment.evaluate(AdvancedNetworkingConfig.CONTROLLER_ITEM_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveItems(from, to, transformers, context, transaction));
+            fluidSuccess = controller.fluidEnvironment.evaluate(AdvancedNetworkingConfig.CONTROLLER_FLUID_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveFluids(from, to, transformers, context, transaction));
+            energySuccess = controller.energyEnvironment.evaluate(AdvancedNetworkingConfig.CONTROLLER_ENERGY_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveEnergy(from, to, transformers, context, transaction));
             if (errors.isEmpty() && itemSuccess && fluidSuccess && energySuccess)
                 transaction.commit();
         }

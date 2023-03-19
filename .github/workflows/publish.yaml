@@ -37,7 +37,7 @@ jobs:
         uses: juliangruber/read-file-action@v1
         id: changelog
         with:
-          path: "./changelog/${{ steps.versions.outputs.mod_version }}/${{ steps.versions.outputs.minecraft_version }}.md"
+          path: "./changelog/${{ steps.versions.outputs.mod_version }}+${{ steps.versions.outputs.minecraft_version }}.md"
 
       - name: Publish
         uses: Kir-Antipov/mc-publish@v3.2

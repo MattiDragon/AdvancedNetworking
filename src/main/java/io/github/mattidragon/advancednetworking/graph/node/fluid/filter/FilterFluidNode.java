@@ -22,7 +22,6 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.tag.TagKey;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.NotNull;
@@ -167,6 +166,7 @@ public class FilterFluidNode extends Node {
             addDrawableChild(button);
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
+            idField.setMaxLength(100);
             if (fluidId.isEmpty()) {
                 idField.setSuggestion("id");
             }
