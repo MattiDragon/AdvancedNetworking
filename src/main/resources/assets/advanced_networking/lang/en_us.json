@@ -84,6 +84,8 @@
   "node.advanced_networking.interface.no_interfaces": "No interfaces found",
 
   "data_type.advanced_networking.item_stream": "Item Stream",
+  "data_type.advanced_networking.fluid_stream": "Fluid Stream",
+  "data_type.advanced_networking.energy_stream": "Energy Stream",
 
   "group.advanced_networking.redstone": "Redstone",
   "group.advanced_networking.item": "Item Transfer",
