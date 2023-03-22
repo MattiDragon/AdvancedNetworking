@@ -38,7 +38,7 @@ public class AdvancedNetworking implements ModInitializer {
     public static final ExtendedScreenHandlerType<ControllerScreenHandler> CONTROLLER_SCREEN = new ExtendedScreenHandlerType<>(ControllerScreenHandler::new);
     public static final GraphEnvironment ENVIRONMENT = GraphEnvironment.builder()
             .addContextTypes(ContextType.SERVER_WORLD, ContextType.BLOCK_POS, ContextType.SERVER, NetworkControllerContext.TYPE)
-            .addDataTypes(DataType.BOOLEAN, DataType.NUMBER, ModDataTypes.ITEM_STREAM, ModDataTypes.ENERGY_STREAM)
+            .addDataTypes(DataType.BOOLEAN, DataType.NUMBER, ModDataTypes.ITEM_STREAM, ModDataTypes.FLUID_STREAM, ModDataTypes.ENERGY_STREAM)
             .addNodeGroups(NodeGroup.MATH, NodeGroup.ADVANCED_MATH, NodeGroup.LOGIC, NodeGroup.FLOW, NodeGroup.COMPARE_NUMBER, NodeGroup.CONSTANTS)
             .addNodeGroups(ModNodeTypes.REDSTONE_GROUP, ModNodeTypes.ITEM_GROUP, ModNodeTypes.ENERGY_GROUP, ModNodeTypes.FLUID_GROUP)
             .addNodeTypes(NodeType.TIME)
