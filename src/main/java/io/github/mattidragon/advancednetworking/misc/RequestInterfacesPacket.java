@@ -1,7 +1,7 @@
 package io.github.mattidragon.advancednetworking.misc;
 
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
-import io.github.mattidragon.advancednetworking.graph.node.InterfaceNode;
+import io.github.mattidragon.advancednetworking.graph.node.base.InterfaceNode;
 import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
