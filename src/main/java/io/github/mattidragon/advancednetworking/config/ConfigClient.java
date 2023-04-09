@@ -5,6 +5,7 @@ import dev.isxander.yacl.api.Binding;
 import dev.isxander.yacl.api.ConfigCategory;
 import dev.isxander.yacl.api.Option;
 import dev.isxander.yacl.api.YetAnotherConfigLib;
+import dev.isxander.yacl.gui.controllers.TickBoxController;
 import dev.isxander.yacl.gui.controllers.string.number.IntegerFieldController;
 import dev.isxander.yacl.gui.controllers.string.number.LongFieldController;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
@@ -57,6 +58,12 @@ public class ConfigClient {
                                 .tooltip(Text.translatable("config.advanced_networking.option.controller_energy_transfer_rate.tooltip"))
                                 .binding(binding(AdvancedNetworkingConfig.CONTROLLER_ENERGY_TRANSFER_RATE))
                                 .controller(option -> new LongFieldController(option, 0, 100 * 256, LONG_FORMATTER))
+                                .build())
+                        .option(Option.createBuilder(Boolean.class)
+                                .name(Text.translatable("config.advanced_networking.option.disable_regex_filtering"))
+                                .tooltip(Text.translatable("config.advanced_networking.option.disable_regex_filtering.tooltip"))
+                                .binding(binding(AdvancedNetworkingConfig.DISABLE_REGEX_FILTERING))
+                                .controller(TickBoxController::new)
                                 .build())
                         .build())
                 .build()

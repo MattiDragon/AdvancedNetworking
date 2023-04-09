@@ -1,8 +1,8 @@
 package io.github.mattidragon.advancednetworking.graph;
 
 import io.github.mattidragon.advancednetworking.graph.node.energy.filter.LimitEnergyNode;
-import io.github.mattidragon.advancednetworking.graph.node.energy.info.EnergyCapacityNode;
 import io.github.mattidragon.advancednetworking.graph.node.energy.info.EnergyAmountNode;
+import io.github.mattidragon.advancednetworking.graph.node.energy.info.EnergyCapacityNode;
 import io.github.mattidragon.advancednetworking.graph.node.energy.route.MergeEnergyNode;
 import io.github.mattidragon.advancednetworking.graph.node.energy.route.SplitEnergyNode;
 import io.github.mattidragon.advancednetworking.graph.node.energy.storage.EmptyEnergyStreamNode;

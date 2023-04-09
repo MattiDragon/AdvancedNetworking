@@ -1,4 +1,4 @@
-package io.github.mattidragon.advancednetworking.graph.node;
+package io.github.mattidragon.advancednetworking.graph.node.base;
 
 import com.kneelawk.graphlib.GraphLib;
 import com.kneelawk.graphlib.graph.SidedBlockNode;
@@ -141,6 +141,11 @@ public abstract class InterfaceNode extends Node {
                 enableScissor(left, top, right, bottom);
                 super.renderList(matrices, mouseX, mouseY, delta);
                 disableScissor();
+            }
+
+            @Override
+            protected int getScrollbarPositionX() {
+                return left + width;
             }
 
             @Override
