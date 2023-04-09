@@ -16,18 +16,16 @@ import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.command.argument.NbtPathArgumentType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.tag.TagKey;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -214,10 +212,14 @@ public abstract class FilterResourceNode<R, T> extends Node {
 
             var regexButton = CyclingButtonWidget.onOffBuilder()
                     .initially(shouldUseRegex())
+                    .tooltip(value -> {
+                        if (AdvancedNetworkingConfig.DISABLE_REGEX_FILTERING.get()) {
+                            return List.of(Text.translatable("node.advanced_networking.filter.use_regex.disabled").asOrderedText());
+                        } else return List.of();
+                    })
                     .build(x, 45, 100, 20, Text.translatable("node.advanced_networking.filter.use_regex"), (button1, value) -> useRegex = value);
             if (AdvancedNetworkingConfig.DISABLE_REGEX_FILTERING.get()) {
                 regexButton.active = false;
-                regexButton.setTooltip(Tooltip.of(Text.translatable("node.advanced_networking.filter.use_regex.disabled")));
             }
             addDrawableChild(regexButton);
 
@@ -235,16 +237,22 @@ public abstract class FilterResourceNode<R, T> extends Node {
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
             idField.setMaxLength(100);
-            idField.setPlaceholder(Text.literal("id").formatted(Formatting.GRAY));
+            idField.setSuggestion(idFilter.isEmpty() ? "id" : "");
             idField.setText(idFilter);
-            idField.setChangedListener(newValue -> idFilter = newValue);
+            idField.setChangedListener(newValue -> {
+                idFilter = newValue;
+                idField.setSuggestion(newValue.isEmpty() ? "id" : "");
+            });
             addDrawableChild(idField);
 
             var nbtField = new TextFieldWidget(textRenderer, x, 145, 100, 20, Text.empty());
             nbtField.setMaxLength(200);
-            nbtField.setPlaceholder(Text.literal("nbt").formatted(Formatting.GRAY));
+            idField.setSuggestion(nbtFilter.isEmpty() ? "nbt" : "");
             nbtField.setText(nbtFilter);
-            nbtField.setChangedListener(newValue -> nbtFilter = newValue);
+            nbtField.setChangedListener(newValue -> {
+                nbtFilter = newValue;
+                idField.setSuggestion(newValue.isEmpty() ? "nbt" : "");
+            });
             addDrawableChild(nbtField);
         }
     }

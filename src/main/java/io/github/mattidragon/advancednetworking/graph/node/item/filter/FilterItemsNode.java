@@ -10,10 +10,9 @@ import io.github.mattidragon.nodeflow.graph.data.DataType;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
@@ -35,7 +34,7 @@ public class FilterItemsNode extends FilterResourceNode<ItemVariant, ItemTransfo
 
     @Override
     protected Identifier getId(ItemVariant resource) {
-        return Registries.ITEM.getId(resource.getItem());
+        return Registry.ITEM.getId(resource.getItem());
     }
 
     @Override
@@ -51,6 +50,6 @@ public class FilterItemsNode extends FilterResourceNode<ItemVariant, ItemTransfo
 
     @Override
     protected Registry<?> getRegistry() {
-        return Registries.ITEM;
+        return Registry.ITEM;
     }
 }
