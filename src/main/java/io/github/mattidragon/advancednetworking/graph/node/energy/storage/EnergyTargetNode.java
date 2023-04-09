@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
-import io.github.mattidragon.advancednetworking.graph.node.InterfaceNode;
+import io.github.mattidragon.advancednetworking.graph.node.base.InterfaceNode;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;

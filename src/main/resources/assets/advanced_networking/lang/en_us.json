@@ -83,6 +83,19 @@
   "node.advanced_networking.interface.loading": "Loading interfaces...",
   "node.advanced_networking.interface.no_interfaces": "No interfaces found",
 
+  "node.advanced_networking.filter.invalid_id": "Invalid identifier: %s",
+  "node.advanced_networking.filter.invalid_id_regex": "Invalid regex: %s near index %s",
+  "node.advanced_networking.filter.unknown_resource": "Unknown resource: %s",
+  "node.advanced_networking.filter.unknown_tag": "Unknown tag: #%s",
+  "node.advanced_networking.filter.invalid_nbt_path": "Invalid nbt filter: %s",
+  "node.advanced_networking.filter.use_regex": "Regex",
+  "node.advanced_networking.filter.use_regex.disabled": "Regex filter is disabled in the config",
+  "node.advanced_networking.filter.mode": "Mode",
+  "node.advanced_networking.filter.mode.resource": "Resource",
+  "node.advanced_networking.filter.mode.tag": "Tag",
+  "node.advanced_networking.filter.mode.whitelist": "Whitelist",
+  "node.advanced_networking.filter.mode.blacklist": "Blacklist",
+
   "data_type.advanced_networking.item_stream": "Item Stream",
   "data_type.advanced_networking.fluid_stream": "Fluid Stream",
   "data_type.advanced_networking.energy_stream": "Energy Stream",
@@ -109,5 +122,7 @@
   "config.advanced_networking.option.controller_fluid_transfer_rate": "Fluid Transfer Rate",
   "config.advanced_networking.option.controller_fluid_transfer_rate.tooltip": "Defines how much fluid a controller can move in a action.",
   "config.advanced_networking.option.controller_energy_transfer_rate": "Item Transfer Rate",
-  "config.advanced_networking.option.controller_energy_transfer_rate.tooltip": "Defines how much energy a controller can move in a action."
+  "config.advanced_networking.option.controller_energy_transfer_rate.tooltip": "Defines how much energy a controller can move in a action.",
+  "config.advanced_networking.option.disable_regex_filtering": "Disable Regex Filtering",
+  "config.advanced_networking.option.disable_regex_filtering.tooltip": "Disables regex filtering for filter nodes. This is recommended for public servers because regex can be used to cause major lag."
 }
