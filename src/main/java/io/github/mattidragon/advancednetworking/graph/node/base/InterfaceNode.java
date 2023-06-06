@@ -137,13 +137,6 @@ public abstract class InterfaceNode extends Node {
             }
 
             @Override
-            protected void renderList(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-                enableScissor(left, top, right, bottom);
-                super.renderList(matrices, mouseX, mouseY, delta);
-                disableScissor();
-            }
-
-            @Override
             protected int getScrollbarPositionX() {
                 return left + width;
             }
