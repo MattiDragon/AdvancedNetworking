@@ -1,6 +1,7 @@
 package io.github.mattidragon.advancednetworking.block;
 
 import com.kneelawk.graphlib.GraphLib;
+import io.github.mattidragon.advancednetworking.config.AdvancedNetworkingConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -47,7 +48,7 @@ public class ControllerBlock extends BlockWithEntity {
             boolean hasRedstone = world.isReceivingRedstonePower(pos);
 
             if (active && !hasRedstone) { // Extra tick in case ticking stopped
-                world.createAndScheduleBlockTick(pos, this, 10);
+                world.createAndScheduleBlockTick(pos, this, AdvancedNetworkingConfig.CONTROLLER_TICK_RATE.get());
             }
 
             if (!active && hasRedstone) {
@@ -65,7 +66,7 @@ public class ControllerBlock extends BlockWithEntity {
                 if (!(world.getBlockEntity(pos) instanceof ControllerBlockEntity controller))
                     return;
                 ControllerBlockEntity.tick(world, pos, state, controller);
-                world.createAndScheduleBlockTick(pos, this, 10);
+                world.createAndScheduleBlockTick(pos, this, AdvancedNetworkingConfig.CONTROLLER_TICK_RATE.get());
             } else {
                 world.setBlockState(pos, state.cycle(POWERED), Block.NOTIFY_LISTENERS);
             }
