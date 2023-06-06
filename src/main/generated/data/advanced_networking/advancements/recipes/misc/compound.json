@@ -43,5 +43,6 @@
     "recipes": [
       "advanced_networking:compound"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

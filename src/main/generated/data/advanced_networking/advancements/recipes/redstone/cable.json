@@ -43,5 +43,6 @@
     "recipes": [
       "advanced_networking:cable"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

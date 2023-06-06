@@ -19,5 +19,6 @@
   ],
   "result": {
     "item": "advanced_networking:controller"
-  }
+  },
+  "show_notification": true
 }

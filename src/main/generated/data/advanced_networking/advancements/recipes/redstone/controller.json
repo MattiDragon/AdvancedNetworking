@@ -43,5 +43,6 @@
     "recipes": [
       "advanced_networking:controller"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }
