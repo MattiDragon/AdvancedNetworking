@@ -10,6 +10,6 @@ import net.minecraft.util.registry.Registry;
 
 public class FluidCountNode extends CountNode<Fluid, FluidVariant> {
     public FluidCountNode(Graph graph) {
-        super(ModNodeTypes.ITEM_COUNT, graph, Registry.FLUID, FluidStorage.SIDED);
+        super(ModNodeTypes.FLUID_COUNT, graph, Registry.FLUID, FluidStorage.SIDED);
     }
 }

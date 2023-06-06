@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "redstone",
   "key": {
     "#": {
       "item": "advanced_networking:compound"
@@ -19,6 +18,5 @@
   ],
   "result": {
     "item": "advanced_networking:controller"
-  },
-  "show_notification": true
+  }
 }
