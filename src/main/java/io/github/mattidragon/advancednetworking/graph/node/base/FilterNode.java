@@ -1,8 +1,8 @@
 package io.github.mattidragon.advancednetworking.graph.node.base;
 
 import com.mojang.datafixers.util.Either;
-import io.github.mattidragon.advancednetworking.client.screen.SliderConfigScreen;
 import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
+import io.github.mattidragon.advancednetworking.misc.ResourceFilter;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.data.DataType;
@@ -13,34 +13,27 @@ import io.github.mattidragon.nodeflow.ui.screen.EditorScreen;
 import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
-public abstract class LimitNode<S, T> extends Node {
-    private final DataType<PathBundle<S, T>> dataType;
-    private final int max;
-    private int limit;
+public abstract class FilterNode<R, V extends TransferVariant<R>, T> extends Node {
+    private final ResourceFilter<R, V> filter;
 
-    public LimitNode(NodeType<? extends LimitNode<S, T>> type, Graph graph, DataType<PathBundle<S, T>> dataType, int max) {
+    public FilterNode(NodeType<? extends FilterNode<R, V, T>> type, Graph graph, Registry<R> registry) {
         super(type, List.of(), graph);
-        this.dataType = dataType;
-        this.max = max;
-        this.limit = max;
+        this.filter = new ResourceFilter<>(registry);
     }
 
-    protected final DataType<PathBundle<S, T>> getDataType() {
-        return dataType;
-    }
+    protected abstract DataType<PathBundle<Storage<V>, T>> getDataType();
 
-    protected abstract T createLimiter(int limit);
-
-    protected int getStepSize() {
-        return 1;
-    }
+    protected abstract T createTransformer(Predicate<V> predicate);
 
     @Override
     public Connector<?>[] getOutputs() {
@@ -53,34 +46,36 @@ public abstract class LimitNode<S, T> extends Node {
     }
 
     @Override
+    public List<Text> validate() {
+        var list = new ArrayList<Text>();
+        list.addAll(filter.validate());
+        list.addAll(super.validate());
+        return list;
+    }
+
+    @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
         var stream = inputs[0].getAs(getDataType());
-        stream.transform(createLimiter(limit));
+        stream.transform(createTransformer(filter::isAllowed));
         return Either.left(new DataValue<?>[]{ getDataType().makeValue(stream) });
     }
 
     @Override
     public void readNbt(NbtCompound data) {
         super.readNbt(data);
-        limit = MathHelper.clamp(data.getInt("limit"), 1, (int) FluidConstants.BUCKET);
+        filter.readNbt(data);
     }
 
     @Override
     public void writeNbt(NbtCompound data) {
         super.writeNbt(data);
-        data.putInt("limit", limit);
+        filter.writeNbt(data);
     }
 
     @Environment(EnvType.CLIENT)
     @Override
     public NodeConfigScreen createConfigScreen(EditorScreen parent) {
-        return new SliderConfigScreen(this,
-                parent,
-                value -> limit = (int) (Math.round(value / (double) getStepSize()) * getStepSize()),
-                () -> limit,
-                Text.translatable("node.advanced_networking.limit"),
-                1,
-                max);
+        return filter.createScreen(this, parent);
     }
 
     @Override

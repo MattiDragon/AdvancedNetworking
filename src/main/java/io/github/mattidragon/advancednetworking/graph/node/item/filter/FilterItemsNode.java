@@ -2,25 +2,21 @@ package io.github.mattidragon.advancednetworking.graph.node.item.filter;
 
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
-import io.github.mattidragon.advancednetworking.graph.node.base.FilterResourceNode;
+import io.github.mattidragon.advancednetworking.graph.node.base.FilterNode;
 import io.github.mattidragon.advancednetworking.graph.node.item.ItemTransformer;
 import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.data.DataType;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-public class FilterItemsNode extends FilterResourceNode<ItemVariant, ItemTransformer> {
+public class FilterItemsNode extends FilterNode<Item, ItemVariant, ItemTransformer> {
     public FilterItemsNode(Graph graph) {
-        super(ModNodeTypes.FILTER_ITEMS, graph);
+        super(ModNodeTypes.FILTER_ITEMS, graph, Registries.ITEM);
     }
 
     @Override
@@ -29,28 +25,7 @@ public class FilterItemsNode extends FilterResourceNode<ItemVariant, ItemTransfo
     }
 
     @Override
-    protected @Nullable NbtCompound getNbt(ItemVariant resource) {
-        return resource.getNbt();
-    }
-
-    @Override
-    protected Identifier getId(ItemVariant resource) {
-        return Registries.ITEM.getId(resource.getItem());
-    }
-
-    @Override
     protected ItemTransformer createTransformer(Predicate<ItemVariant> predicate) {
         return new ItemTransformer.Filter(predicate);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    protected RegistryEntry<?> getRegistryEntry(ItemVariant resource) {
-        return resource.getItem().getRegistryEntry();
-    }
-
-    @Override
-    protected Registry<?> getRegistry() {
-        return Registries.ITEM;
     }
 }
