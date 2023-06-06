@@ -1,11 +1,11 @@
 package io.github.mattidragon.advancednetworking.graph.node.base;
 
-import com.kneelawk.graphlib.GraphLib;
-import com.kneelawk.graphlib.graph.SidedBlockNode;
-import com.kneelawk.graphlib.util.SidedPos;
+import com.kneelawk.graphlib.api.graph.user.SidedBlockNode;
+import com.kneelawk.graphlib.api.util.SidedPos;
 import io.github.mattidragon.advancednetworking.block.CableBlock;
 import io.github.mattidragon.advancednetworking.misc.RequestInterfacesPacket;
 import io.github.mattidragon.advancednetworking.mixin.CheckboxWidgetAccess;
+import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.graph.node.Node;
@@ -16,11 +16,11 @@ import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.gui.widget.ElementListWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -37,14 +37,13 @@ public abstract class InterfaceNode extends Node {
     }
 
     protected final Optional<SidedPos> findInterface(ServerWorld world, long graphId) {
-        var graph = GraphLib.getController(world).getGraph(graphId);
+        var graph = NetworkRegistry.UNIVERSE.getGraphWorld(world).getGraph(graphId);
         if (graph == null)
             return Optional.empty();
 
         return graph.getNodes()
-                .map(com.kneelawk.graphlib.graph.struct.Node::data)
                 .filter(node -> node.getNode() instanceof SidedBlockNode)
-                .map(node -> new SidedPos(node.getPos(), ((SidedBlockNode) node.getNode()).getSide()))
+                .map(node -> new SidedPos(node.getPos(), node.cast(SidedBlockNode.class).getNode().getSide()))
                 .filter(pos -> interfaceId.equals(CableBlock.calcInterfaceId(pos.pos(), pos.side())))
                 .findFirst();
     }
@@ -137,13 +136,6 @@ public abstract class InterfaceNode extends Node {
             }
 
             @Override
-            protected void renderList(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-                enableScissor(left, top, right, bottom);
-                super.renderList(matrices, mouseX, mouseY, delta);
-                disableScissor();
-            }
-
-            @Override
             protected int getScrollbarPositionX() {
                 return left + width;
             }
@@ -174,8 +166,8 @@ public abstract class InterfaceNode extends Node {
                 }
 
                 @Override
-                public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-                    drawCenteredTextWithShadow(matrices, InterfaceList.this.client.textRenderer, message, x + entryWidth / 2, y, 0xaaaaaa);
+                public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+                    context.drawCenteredTextWithShadow(InterfaceList.this.client.textRenderer, message, x + entryWidth / 2, y, 0xaaaaaa);
                 }
             }
 
@@ -200,10 +192,10 @@ public abstract class InterfaceNode extends Node {
                 }
 
                 @Override
-                public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+                public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
                     checkbox.setX(x);
                     checkbox.setY(y);
-                    checkbox.render(matrices, mouseX, mouseY, tickDelta);
+                    checkbox.render(context, mouseX, mouseY, tickDelta);
                 }
 
                 private class CheckBox extends CheckboxWidget {

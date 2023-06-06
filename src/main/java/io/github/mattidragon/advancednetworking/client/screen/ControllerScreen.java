@@ -3,7 +3,7 @@ package io.github.mattidragon.advancednetworking.client.screen;
 import io.github.mattidragon.advancednetworking.misc.ScreenPosSyncPacket;
 import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import io.github.mattidragon.nodeflow.ui.screen.HandledEditorScreen;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
@@ -44,8 +44,8 @@ public class ControllerScreen extends HandledEditorScreen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.render(context, mouseX, mouseY, delta);
 
         var isGray = new MutableBoolean(false);
 
@@ -65,11 +65,11 @@ public class ControllerScreen extends HandledEditorScreen {
 
         if (!errors.isEmpty()) {
             var text = Text.translatable("advanced_networking.editor.errors");
-            textRenderer.draw(matrices, text, x, y, 0xff5555);
+            context.drawText(textRenderer, text, x, y, 0xff5555, false);
             if (mouseX > x && mouseX < x + textRenderer.getWidth(text) && mouseY > y && mouseY < y + 9)
-                renderTextHoverEffect(matrices, Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, texts.stream().collect(Text::empty, MutableText::append, MutableText::append))), mouseX, mouseY);
+                context.drawHoverEvent(textRenderer, Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, texts.stream().collect(Text::empty, MutableText::append, MutableText::append))), mouseX, mouseY);
         } else {
-            textRenderer.draw(matrices, Text.translatable("advanced_networking.editor.no_errors"), x, y, 0x55ff55);
+            context.drawText(textRenderer, Text.translatable("advanced_networking.editor.no_errors"), x, y, 0x55ff55, false);
         }
     }
 }

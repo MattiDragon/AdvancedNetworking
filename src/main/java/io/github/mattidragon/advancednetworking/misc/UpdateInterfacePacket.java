@@ -25,13 +25,13 @@ public class UpdateInterfacePacket {
             server.execute(() -> {
                 if (player.squaredDistanceTo(pos.toCenterPos()) > 64.0)
                     return; // Player too far away
-                if (!player.world.getBlockState(pos).isOf(ModBlocks.CABLE))
+                if (!player.getWorld().getBlockState(pos).isOf(ModBlocks.CABLE))
                     return; // Block changed
-                if (!(player.world.getBlockEntity(pos) instanceof CableBlockEntity cable))
+                if (!(player.getWorld().getBlockEntity(pos) instanceof CableBlockEntity cable))
                     return;
 
                 cable.setName(side, name.trim());
-                CableBlock.changeMode(player.world, player.world.getBlockState(pos), pos, side, type);
+                CableBlock.changeMode(player.getWorld(), player.getWorld().getBlockState(pos), pos, side, type);
             });
         }));
     }

@@ -1,8 +1,7 @@
 package io.github.mattidragon.advancednetworking.block;
 
-import com.kneelawk.graphlib.GraphLib;
+import com.kneelawk.graphlib.api.util.NodePos;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
-import io.github.mattidragon.advancednetworking.config.AdvancedNetworkingConfig;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
 import io.github.mattidragon.advancednetworking.graph.node.energy.EnergyLimitTransformer;
 import io.github.mattidragon.advancednetworking.graph.node.fluid.FluidTransformer;
@@ -10,6 +9,8 @@ import io.github.mattidragon.advancednetworking.graph.node.item.ItemTransformer;
 import io.github.mattidragon.advancednetworking.graph.path.PathEnvironment;
 import io.github.mattidragon.advancednetworking.misc.NbtUtils;
 import io.github.mattidragon.advancednetworking.misc.StorageHelper;
+import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
+import io.github.mattidragon.advancednetworking.network.node.ControllerNode;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import io.github.mattidragon.nodeflow.graph.Graph;
@@ -100,9 +101,9 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
         var errors = controller.evaluate();
         boolean itemSuccess, fluidSuccess, energySuccess;
         try (var transaction = Transaction.openOuter()) {
-            itemSuccess = controller.itemEnvironment.evaluate(AdvancedNetworkingConfig.CONTROLLER_ITEM_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveItems(from, to, transformers, context, transaction));
-            fluidSuccess = controller.fluidEnvironment.evaluate(AdvancedNetworkingConfig.CONTROLLER_FLUID_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveFluids(from, to, transformers, context, transaction));
-            energySuccess = controller.energyEnvironment.evaluate(AdvancedNetworkingConfig.CONTROLLER_ENERGY_TRANSFER_RATE.get(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveEnergy(from, to, transformers, context, transaction));
+            itemSuccess = controller.itemEnvironment.evaluate(AdvancedNetworking.CONFIG.get().controllerItemTransferRate(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveItems(from, to, transformers, context, transaction));
+            fluidSuccess = controller.fluidEnvironment.evaluate(AdvancedNetworking.CONFIG.get().controllerFluidTransferRate(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveFluids(from, to, transformers, context, transaction));
+            energySuccess = controller.energyEnvironment.evaluate(AdvancedNetworking.CONFIG.get().controllerEnergyTransferRate(), (from, to, transformers, context) -> context <= 0 ? 0 : context - StorageHelper.moveEnergy(from, to, transformers, context, transaction));
             if (errors.isEmpty() && itemSuccess && fluidSuccess && energySuccess)
                 transaction.commit();
         }
@@ -122,22 +123,20 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
     }
 
     public List<EvaluationError> evaluate() {
-        var graphs = GraphLib.getController((ServerWorld) world).getGraphsAt(pos).toArray();
-        if (graphs.length == 0) {
+        if (world == null) return List.of(EvaluationError.Type.MISSING_CONTEXTS.error("World missing (something went very wrong)"));
+
+        var graph = NetworkRegistry.UNIVERSE.getGraphWorld((ServerWorld) world).getGraphForNode(new NodePos(pos, ControllerNode.INSTANCE));
+        if (graph == null) {
             AdvancedNetworking.LOGGER.warn("Controller missing graph at {}", pos);
             return List.of(EvaluationError.Type.MISSING_CONTEXTS.error("Controller missing"));
         }
-        if (graphs.length > 1) {
-            AdvancedNetworking.LOGGER.warn("Controller at {} has multiple graphs", pos);
-            return List.of(EvaluationError.Type.MISSING_CONTEXTS.error("Multiple graphs"));
-        }
 
-        return graph.evaluate(Context.builder()
-                        .put(ContextType.SERVER_WORLD, (ServerWorld) world)
-                        .put(ContextType.SERVER, ((ServerWorld) world).getServer())
-                        .put(ContextType.BLOCK_POS, pos)
-                        .put(NetworkControllerContext.TYPE, new NetworkControllerContext(this, graphs[0]))
-                        .build());
+        return this.graph.evaluate(Context.builder()
+                .put(ContextType.SERVER_WORLD, (ServerWorld) world)
+                .put(ContextType.SERVER, ((ServerWorld) world).getServer())
+                .put(ContextType.BLOCK_POS, pos)
+                .put(NetworkControllerContext.TYPE, new NetworkControllerContext(this, graph.getId()))
+                .build());
     }
 
     @Override

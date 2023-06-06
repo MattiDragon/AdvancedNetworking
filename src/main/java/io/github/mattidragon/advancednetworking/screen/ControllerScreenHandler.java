@@ -1,12 +1,11 @@
 package io.github.mattidragon.advancednetworking.screen;
 
-import com.kneelawk.graphlib.GraphLib;
-import com.kneelawk.graphlib.graph.BlockGraph;
-import com.kneelawk.graphlib.graph.struct.Node;
+import com.kneelawk.graphlib.api.graph.BlockGraph;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.block.CableBlock;
 import io.github.mattidragon.advancednetworking.block.CableBlockEntity;
 import io.github.mattidragon.advancednetworking.block.ControllerBlockEntity;
+import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import io.github.mattidragon.advancednetworking.network.node.InterfaceNode;
 import io.github.mattidragon.nodeflow.ui.screen.EditorScreenHandler;
 import net.minecraft.entity.player.PlayerEntity;
@@ -49,12 +48,9 @@ public class ControllerScreenHandler extends EditorScreenHandler {
             if (!(world instanceof ServerWorld serverWorld))
                 return Optional.empty();
 
-            var graphController = GraphLib.getController(serverWorld);
-            var nodes = graphController.getGraphsAt(pos)
-                    .mapToObj(graphController::getGraph)
-                    .filter(Objects::nonNull)
+            var graphWorld = NetworkRegistry.UNIVERSE.getGraphWorld(serverWorld);
+            var nodes = graphWorld.getLoadedGraphsAt(pos)
                     .flatMap(BlockGraph::getNodes)
-                    .map(Node::data)
                     .toList();
 
             var map = new HashMap<String, String>();

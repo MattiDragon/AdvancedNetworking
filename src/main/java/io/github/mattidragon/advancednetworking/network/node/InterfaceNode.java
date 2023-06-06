@@ -1,25 +1,28 @@
 package io.github.mattidragon.advancednetworking.network.node;
 
 import com.google.common.collect.ImmutableMap;
-import com.kneelawk.graphlib.graph.BlockNodeHolder;
-import com.kneelawk.graphlib.graph.NodeView;
-import com.kneelawk.graphlib.graph.SidedBlockNode;
-import com.kneelawk.graphlib.graph.struct.Node;
+import com.kneelawk.graphlib.api.graph.NodeHolder;
+import com.kneelawk.graphlib.api.graph.user.BlockNode;
+import com.kneelawk.graphlib.api.util.EmptyLinkKey;
+import com.kneelawk.graphlib.api.util.HalfLink;
+import com.kneelawk.graphlib.api.util.NodePos;
+import com.kneelawk.graphlib.api.wire.SidedFaceBlockNode;
+import com.kneelawk.graphlib.api.wire.WireConnectionDiscoverers;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-public class InterfaceNode implements AdvancedNetworkingNode, SidedBlockNode {
+public class InterfaceNode implements SidedFaceBlockNode, AdvancedNetworkingNode {
     public static final Identifier ID = AdvancedNetworking.id("interface");
     public static final Map<Direction, InterfaceNode> INSTANCES = Util.<ImmutableMap.Builder<Direction, InterfaceNode>>make(ImmutableMap.builder(), (builder) -> {
         for (var dir : Direction.values()) {
@@ -45,17 +48,17 @@ public class InterfaceNode implements AdvancedNetworkingNode, SidedBlockNode {
     }
 
     @Override
-    public @NotNull Collection<Node<BlockNodeHolder>> findConnections(@NotNull ServerWorld world, @NotNull NodeView nodeView, @NotNull BlockPos pos, @NotNull Node<BlockNodeHolder> self) {
-        return nodeView.getNodesAt(pos).filter(other -> canConnect(world, nodeView, pos, self, other)).toList();
+    public @NotNull Collection<HalfLink> findConnections(@NotNull NodeHolder<BlockNode> self) {
+        return WireConnectionDiscoverers.sidedFaceFindConnections(this, self);
     }
 
     @Override
-    public boolean canConnect(@NotNull ServerWorld world, @NotNull NodeView nodeView, @NotNull BlockPos pos, @NotNull Node<BlockNodeHolder> self, @NotNull Node<BlockNodeHolder> other) {
-        return other.data().getNode() instanceof CableNode && other.data().getPos().equals(pos);
+    public boolean canConnect(@NotNull NodeHolder<BlockNode> self, @NotNull HalfLink other) {
+        return WireConnectionDiscoverers.sidedFaceCanConnect(this, self, other);
     }
 
     @Override
-    public void onConnectionsChanged(@NotNull ServerWorld world, @NotNull BlockPos pos, @NotNull Node<BlockNodeHolder> self) {
+    public void onConnectionsChanged(@NotNull NodeHolder<BlockNode> self) {
 
     }
 

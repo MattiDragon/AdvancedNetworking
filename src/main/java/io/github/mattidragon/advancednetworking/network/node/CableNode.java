@@ -1,25 +1,22 @@
 package io.github.mattidragon.advancednetworking.network.node;
 
-import com.kneelawk.graphlib.graph.BlockNode;
-import com.kneelawk.graphlib.graph.BlockNodeHolder;
-import com.kneelawk.graphlib.graph.NodeView;
-import com.kneelawk.graphlib.graph.struct.Node;
+import com.kneelawk.graphlib.api.graph.NodeHolder;
+import com.kneelawk.graphlib.api.graph.user.BlockNode;
+import com.kneelawk.graphlib.api.util.HalfLink;
+import com.kneelawk.graphlib.api.wire.CenterWireBlockNode;
+import com.kneelawk.graphlib.api.wire.WireConnectionDiscoverers;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.block.CableBlock;
-import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
-public class CableNode implements AdvancedNetworkingNode, BlockNode {
+public class CableNode implements CenterWireBlockNode, AdvancedNetworkingNode {
     public static final Identifier ID = AdvancedNetworking.id("cable");
     public static final CableNode INSTANCE = new CableNode();
 
@@ -36,31 +33,29 @@ public class CableNode implements AdvancedNetworkingNode, BlockNode {
     }
 
     @Override
-    public @NotNull Collection<Node<BlockNodeHolder>> findConnections(@NotNull ServerWorld world, @NotNull NodeView nodeView, @NotNull BlockPos pos, @NotNull Node<BlockNodeHolder> self) {
-        var list = nodeView.getNodesAt(pos).filter(node -> node.data().getNode() instanceof InterfaceNode).collect(Collectors.toCollection(ArrayList::new));
-
-        for (var dir : Direction.values()) {
-            nodeView.getNodesAt(pos.offset(dir)).filter(node -> node.data().getNode() instanceof CableNode || node.data().getNode() instanceof ControllerNode)
-                    .forEach(list::add);
-        }
-        return list;
+    public @NotNull Collection<HalfLink> findConnections(@NotNull NodeHolder<BlockNode> self) {
+        return WireConnectionDiscoverers.centerWireFindConnections(this, self);
     }
 
     @Override
-    public boolean canConnect(@NotNull ServerWorld world, @NotNull NodeView nodeView, @NotNull BlockPos pos, @NotNull Node<BlockNodeHolder> self, @NotNull Node<BlockNodeHolder> other) {
-        if (!world.getBlockState(pos).isOf(ModBlocks.CABLE)) return false;
-
-        var node = other.data().getNode();
-        if (node instanceof InterfaceNode)
-            return pos.equals(other.data().getPos());
-
-        if (node instanceof CableNode || node instanceof ControllerNode)
-            return world.getBlockState(pos).get(CableBlock.FACING_PROPERTIES.get(Direction.fromVector(other.data().getPos().subtract(pos)))) == CableBlock.ConnectionType.CONNECTED;
-        return false;
+    public boolean canConnect(@NotNull NodeHolder<BlockNode> self, @NotNull HalfLink other) {
+        return (other.other().getNode() instanceof InterfaceNode && other.other().getPos().equals(self.getPos())) || WireConnectionDiscoverers.centerWireCanConnect(this, self, other);
     }
 
     @Override
-    public void onConnectionsChanged(@NotNull ServerWorld world, @NotNull BlockPos pos, @NotNull Node<BlockNodeHolder> self) {
+    public boolean canConnect(@NotNull NodeHolder<BlockNode> self, @NotNull Direction onSide, @NotNull HalfLink link) {
+        var world = self.getBlockWorld();
+        var pos = self.getPos();
+        var posDiff = link.other().getPos().subtract(pos);
+        if (posDiff.equals(BlockPos.ORIGIN))
+            return true; // Connections to interface nodes are always valid
+
+        // We only connect to cables if the block state is connected
+        return world.getBlockState(pos).get(CableBlock.FACING_PROPERTIES.get(Direction.fromVector(posDiff.getX(), posDiff.getY(), posDiff.getZ()))) == CableBlock.ConnectionType.CONNECTED;
+    }
+
+    @Override
+    public void onConnectionsChanged(@NotNull NodeHolder<BlockNode> self) {
 
     }
 

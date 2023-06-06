@@ -1,91 +1,67 @@
 package io.github.mattidragon.advancednetworking.config;
 
-import com.kyanite.paragon.api.ConfigOption;
-import dev.isxander.yacl.api.Binding;
-import dev.isxander.yacl.api.ConfigCategory;
-import dev.isxander.yacl.api.Option;
-import dev.isxander.yacl.api.YetAnotherConfigLib;
-import dev.isxander.yacl.gui.controllers.TickBoxController;
-import dev.isxander.yacl.gui.controllers.string.number.IntegerFieldController;
-import dev.isxander.yacl.gui.controllers.string.number.LongFieldController;
-import io.github.mattidragon.advancednetworking.AdvancedNetworking;
-import io.github.mattidragon.nodeflow.ui.MessageToast;
+import dev.isxander.yacl3.api.ConfigCategory;
+import dev.isxander.yacl3.api.Option;
+import dev.isxander.yacl3.api.OptionDescription;
+import dev.isxander.yacl3.api.YetAnotherConfigLib;
+import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
+import dev.isxander.yacl3.api.controller.LongFieldControllerBuilder;
+import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
-import java.io.IOException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ConfigClient {
     private static final Function<Integer, Text> INT_FORMATTER = (value) -> Text.of(String.format("%d", value));
     private static final Function<Long, Text> LONG_FORMATTER = (value) -> Text.of(String.format("%d", value));
 
-    public static Screen createConfigScreen(Screen parent) {
+    public static Screen createScreen(Screen parent, ConfigData config, Consumer<ConfigData> saveConsumer) {
+        var data = config.toMutable();
+
         return YetAnotherConfigLib.createBuilder()
-                .save(() -> {
-                    try {
-                        AdvancedNetworkingConfig.INSTANCE.getSerializer().save();
-                    } catch (IOException e) {
-                        AdvancedNetworking.LOGGER.warn("Failed to save config", e);
-                        MinecraftClient.getInstance().getToastManager().add(new MessageToast(Text.translatable("config.advanced_networking.save.fail")));
-                    }
-                })
                 .title(Text.of("Advanced Networking"))
-                .category(ConfigCategory.createBuilder()
-                        .name(Text.translatable("config.advanced_networking.category.controller"))
-                        .option(Option.createBuilder(Integer.class)
-                                .name(Text.translatable("config.advanced_networking.option.controller_tick_rate"))
-                                .tooltip(Text.translatable("config.advanced_networking.option.controller_tick_rate.tooltip"))
-                                .binding(binding(AdvancedNetworkingConfig.CONTROLLER_TICK_RATE))
-                                .controller(option -> new IntegerFieldController(option, 0, 125, INT_FORMATTER))
-                                .build())
-                        .option(Option.createBuilder(Long.class)
-                                .name(Text.translatable("config.advanced_networking.option.controller_item_transfer_rate"))
-                                .tooltip(Text.translatable("config.advanced_networking.option.controller_item_transfer_rate.tooltip"))
-                                .binding(binding(AdvancedNetworkingConfig.CONTROLLER_ITEM_TRANSFER_RATE))
-                                .controller(option -> new LongFieldController(option, 0, 10 * 64, LONG_FORMATTER))
-                                .build())
-                        .option(Option.createBuilder(Long.class)
-                                .name(Text.translatable("config.advanced_networking.option.controller_fluid_transfer_rate"))
-                                .tooltip(Text.translatable("config.advanced_networking.option.controller_fluid_transfer_rate.tooltip"))
-                                .binding(binding(AdvancedNetworkingConfig.CONTROLLER_FLUID_TRANSFER_RATE))
-                                .controller(option -> new LongFieldController(option, 0, 100 * FluidConstants.BUCKET, LONG_FORMATTER))
-                                .build())
-                        .option(Option.createBuilder(Long.class)
-                                .name(Text.translatable("config.advanced_networking.option.controller_energy_transfer_rate"))
-                                .tooltip(Text.translatable("config.advanced_networking.option.controller_energy_transfer_rate.tooltip"))
-                                .binding(binding(AdvancedNetworkingConfig.CONTROLLER_ENERGY_TRANSFER_RATE))
-                                .controller(option -> new LongFieldController(option, 0, 100 * 256, LONG_FORMATTER))
-                                .build())
-                        .option(Option.createBuilder(Boolean.class)
-                                .name(Text.translatable("config.advanced_networking.option.disable_regex_filtering"))
-                                .tooltip(Text.translatable("config.advanced_networking.option.disable_regex_filtering.tooltip"))
-                                .binding(binding(AdvancedNetworkingConfig.DISABLE_REGEX_FILTERING))
-                                .controller(TickBoxController::new)
-                                .build())
-                        .build())
+                .category(createCategory(data))
+                .save(() -> saveConsumer.accept(data.toImmutable()))
                 .build()
                 .generateScreen(parent);
     }
 
-    private static <T> Binding<T> binding(ConfigOption<T> option) {
-        return new Binding<>() {
-            @Override
-            public void setValue(T value) {
-                option.setValue(value);
-            }
-
-            @Override
-            public T getValue() {
-                return option.get();
-            }
-
-            @Override
-            public T defaultValue() {
-                return option.getDefaultValue();
-            }
-        };
+    private static ConfigCategory createCategory(MutableConfigData instance) {
+        return ConfigCategory.createBuilder()
+                .name(Text.translatable("config.advanced_networking.category.controller"))
+                .option(Option.<Integer>createBuilder()
+                        .name(Text.translatable("config.advanced_networking.option.controller_tick_rate"))
+                        .description(OptionDescription.of(Text.translatable("config.advanced_networking.option.controller_tick_rate.tooltip")))
+                        .binding(ConfigData.DEFAULT.controllerTickRate(), () -> instance.controllerTickRate, value -> instance.controllerTickRate = value)
+                        .controller(option -> IntegerFieldControllerBuilder.create(option).range(0, 125).valueFormatter(INT_FORMATTER))
+                        .build())
+                .option(Option.<Long>createBuilder()
+                        .name(Text.translatable("config.advanced_networking.option.controller_item_transfer_rate"))
+                        .description(OptionDescription.of(Text.translatable("config.advanced_networking.option.controller_item_transfer_rate.tooltip")))
+                        .binding(ConfigData.DEFAULT.controllerItemTransferRate(), () -> instance.controllerItemTransferRate, value -> instance.controllerItemTransferRate = value)
+                        .controller(option -> LongFieldControllerBuilder.create(option).range(0L, 10 * 64L).valueFormatter(LONG_FORMATTER))
+                        .build())
+                .option(Option.<Long>createBuilder()
+                        .name(Text.translatable("config.advanced_networking.option.controller_fluid_transfer_rate"))
+                        .description(OptionDescription.of(Text.translatable("config.advanced_networking.option.controller_fluid_transfer_rate.tooltip")))
+                        .binding(ConfigData.DEFAULT.controllerFluidTransferRate(), () -> instance.controllerFluidTransferRate, value -> instance.controllerFluidTransferRate = value)
+                        .controller(option -> LongFieldControllerBuilder.create(option).range(0L, 100 * FluidConstants.BUCKET).valueFormatter(LONG_FORMATTER))
+                        .build())
+                .option(Option.<Long>createBuilder()
+                        .name(Text.translatable("config.advanced_networking.option.controller_energy_transfer_rate"))
+                        .description(OptionDescription.of(Text.translatable("config.advanced_networking.option.controller_energy_transfer_rate.tooltip")))
+                        .binding(ConfigData.DEFAULT.controllerEnergyTransferRate(), () -> instance.controllerEnergyTransferRate, value -> instance.controllerEnergyTransferRate = value)
+                        .controller(option -> LongFieldControllerBuilder.create(option).range(0L, 100 * 256L).valueFormatter(LONG_FORMATTER))
+                        .build())
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.translatable("config.advanced_networking.option.disable_regex_filtering"))
+                        .description(OptionDescription.of(Text.translatable("config.advanced_networking.option.disable_regex_filtering.tooltip")))
+                        .binding(ConfigData.DEFAULT.disableRegexFilter(), () -> instance.disableRegexFilter, value -> instance.disableRegexFilter = value)
+                        .controller(TickBoxControllerBuilder::create)
+                        .build())
+                .build();
     }
 }

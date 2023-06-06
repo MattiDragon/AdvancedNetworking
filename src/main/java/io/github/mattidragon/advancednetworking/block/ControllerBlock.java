@@ -1,13 +1,12 @@
 package io.github.mattidragon.advancednetworking.block;
 
-import com.kneelawk.graphlib.GraphLib;
+import io.github.mattidragon.advancednetworking.AdvancedNetworking;
+import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -47,7 +46,7 @@ public class ControllerBlock extends BlockWithEntity {
             boolean hasRedstone = world.isReceivingRedstonePower(pos);
 
             if (active && !hasRedstone) { // Extra tick in case ticking stopped
-                world.scheduleBlockTick(pos, this, 10);
+                world.scheduleBlockTick(pos, this, AdvancedNetworking.CONFIG.get().controllerTickRate());
             }
 
             if (!active && hasRedstone) {
@@ -65,7 +64,7 @@ public class ControllerBlock extends BlockWithEntity {
                 if (!(world.getBlockEntity(pos) instanceof ControllerBlockEntity controller))
                     return;
                 ControllerBlockEntity.tick(world, pos, state, controller);
-                world.scheduleBlockTick(pos, this, 10);
+                world.scheduleBlockTick(pos, this, AdvancedNetworking.CONFIG.get().controllerTickRate());
             } else {
                 world.setBlockState(pos, state.cycle(POWERED), Block.NOTIFY_LISTENERS);
             }
@@ -103,14 +102,7 @@ public class ControllerBlock extends BlockWithEntity {
     @Override
     public void prepare(BlockState state, WorldAccess world, BlockPos pos, int flags, int maxUpdateDepth) {
         if (world instanceof ServerWorld serverWorld) {
-            GraphLib.getController(serverWorld).updateNodes(pos);
+            NetworkRegistry.UNIVERSE.getGraphWorld(serverWorld).updateNodes(pos);
         }
-    }
-
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return null;
-//        return checkType(type, ModBlocks.CONTROLLER_BLOCK_ENTITY, ControllerBlockEntity::tick);
     }
 }

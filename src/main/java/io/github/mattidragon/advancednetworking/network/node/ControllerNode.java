@@ -1,22 +1,19 @@
 package io.github.mattidragon.advancednetworking.network.node;
 
-import com.kneelawk.graphlib.graph.BlockNode;
-import com.kneelawk.graphlib.graph.BlockNodeHolder;
-import com.kneelawk.graphlib.graph.NodeView;
-import com.kneelawk.graphlib.graph.struct.Node;
+import com.kneelawk.graphlib.api.graph.NodeHolder;
+import com.kneelawk.graphlib.api.graph.user.BlockNode;
+import com.kneelawk.graphlib.api.util.HalfLink;
+import com.kneelawk.graphlib.api.wire.FullWireBlockNode;
+import com.kneelawk.graphlib.api.wire.WireConnectionDiscoverers;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
-public class ControllerNode implements BlockNode, AdvancedNetworkingNode {
+public class ControllerNode implements FullWireBlockNode, AdvancedNetworkingNode {
     public static final Identifier ID = AdvancedNetworking.id("controller");
     public static final ControllerNode INSTANCE = new ControllerNode();
 
@@ -33,25 +30,17 @@ public class ControllerNode implements BlockNode, AdvancedNetworkingNode {
     }
 
     @Override
-    public @NotNull Collection<Node<BlockNodeHolder>> findConnections(@NotNull ServerWorld world, @NotNull NodeView nodeView, @NotNull BlockPos pos, @NotNull Node<BlockNodeHolder> self) {
-        var list = new ArrayList<Node<BlockNodeHolder>>();
-
-        for (var dir : Direction.values()) {
-            nodeView.getNodesAt(pos.offset(dir)).filter(node -> node.data().getNode() instanceof CableNode || node.data().getNode() instanceof ControllerNode)
-                    .forEach(list::add);
-        }
-        return list;
+    public @NotNull Collection<HalfLink> findConnections(@NotNull NodeHolder<BlockNode> self) {
+        return WireConnectionDiscoverers.fullBlockFindConnections(this, self);
     }
 
     @Override
-    public boolean canConnect(@NotNull ServerWorld world, @NotNull NodeView nodeView, @NotNull BlockPos pos, @NotNull Node<BlockNodeHolder> self, @NotNull Node<BlockNodeHolder> other) {
-        var node = other.data().getNode();
-
-        return node instanceof CableNode || node instanceof ControllerNode;
+    public boolean canConnect(@NotNull NodeHolder<BlockNode> self, @NotNull HalfLink other) {
+        return WireConnectionDiscoverers.fullBlockCanConnect(this, self, other);
     }
 
     @Override
-    public void onConnectionsChanged(@NotNull ServerWorld world, @NotNull BlockPos pos, @NotNull Node<BlockNodeHolder> self) {
+    public void onConnectionsChanged(@NotNull NodeHolder<BlockNode> self) {
 
     }
 

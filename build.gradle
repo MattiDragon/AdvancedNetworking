@@ -19,12 +19,13 @@ repositories {
         url 'https://jitpack.io'
         content {
             includeGroup "com.github.mattidragon"
+            includeGroup "com.github.llamalad7.mixinextras"
         }
     }
     maven {
         url "https://maven.isxander.dev/releases"
         content {
-            includeGroup "dev.isxander"
+            includeGroup "dev.isxander.yacl"
         }
     }
     maven {
@@ -45,6 +46,7 @@ repositories {
             includeGroup "com.terraformersmc"
         }
     }
+    mavenLocal()
     mavenCentral()
 }
 
@@ -64,8 +66,8 @@ dependencies {
 
     // Config
     modImplementation "com.terraformersmc:modmenu:$modmenu_version"
-    modImplementation include("dev.isxander:yet-another-config-lib:$yacl_version")
-    modImplementation include("maven.modrinth:paragon:$paragon_version")
+    modImplementation include("dev.isxander.yacl:yet-another-config-lib-fabric:$yacl_version")
+    modImplementation annotationProcessor(include("io.github.mattidragon.configtoolkit:configtoolkit:1.0.0-alpha.4"))
     runtimeOnly("blue.endless:jankson:1.2.1") // required for paragon test config because JiJ doesn't work in dev :iritater:
 
     modImplementation include("me.luligabi:NoIndium:1.1.0+1.19")

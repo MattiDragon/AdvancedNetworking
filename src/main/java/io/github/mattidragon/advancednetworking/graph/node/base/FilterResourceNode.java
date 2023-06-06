@@ -3,7 +3,7 @@ package io.github.mattidragon.advancednetworking.graph.node.base;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
-import io.github.mattidragon.advancednetworking.config.AdvancedNetworkingConfig;
+import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
@@ -146,7 +146,7 @@ public abstract class FilterResourceNode<R, T> extends Node {
     }
 
     private boolean shouldUseRegex() {
-        return useRegex && !AdvancedNetworkingConfig.DISABLE_REGEX_FILTERING.get();
+        return useRegex && !AdvancedNetworking.CONFIG.get().disableRegexFilter();
     }
 
     @Override
@@ -215,7 +215,7 @@ public abstract class FilterResourceNode<R, T> extends Node {
             var regexButton = CyclingButtonWidget.onOffBuilder()
                     .initially(shouldUseRegex())
                     .build(x, 45, 100, 20, Text.translatable("node.advanced_networking.filter.use_regex"), (button1, value) -> useRegex = value);
-            if (AdvancedNetworkingConfig.DISABLE_REGEX_FILTERING.get()) {
+            if (AdvancedNetworking.CONFIG.get().disableRegexFilter()) {
                 regexButton.active = false;
                 regexButton.setTooltip(Tooltip.of(Text.translatable("node.advanced_networking.filter.use_regex.disabled")));
             }

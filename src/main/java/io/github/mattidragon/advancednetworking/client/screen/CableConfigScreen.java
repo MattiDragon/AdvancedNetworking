@@ -3,11 +3,11 @@ package io.github.mattidragon.advancednetworking.client.screen;
 import io.github.mattidragon.advancednetworking.block.CableBlock;
 import io.github.mattidragon.advancednetworking.misc.InterfaceType;
 import io.github.mattidragon.advancednetworking.misc.UpdateInterfacePacket;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -83,19 +83,19 @@ public class CableConfigScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        super.renderBackground(matrices);
-        super.render(matrices, mouseX, mouseY, delta);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.renderBackground(context);
+        super.render(context, mouseX, mouseY, delta);
 
         // Title
-        textRenderer.draw(matrices, title, (width - textRenderer.getWidth(title.asOrderedText())) / 2f, 10, 0xffffff);
+        context.drawText(textRenderer, title, (width - textRenderer.getWidth(title.asOrderedText())) / 2, 10, 0xffffff, false);
 
         // Info rows
-        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.pos", pos.getX(), pos.getY(), pos.getZ()), calcRightX() - 150, 100, 0xffffff);
-        textRenderer.draw(matrices, Text.translatable("screen.advanced_networking.cable_config.id", CableBlock.calcInterfaceId(pos, side)), calcRightX() - 150, 110, 0xffffff);
+        context.drawText(textRenderer, Text.translatable("screen.advanced_networking.cable_config.pos", pos.getX(), pos.getY(), pos.getZ()), calcRightX() - 150, 100, 0xffffff, false);
+        context.drawText(textRenderer, Text.translatable("screen.advanced_networking.cable_config.id", CableBlock.calcInterfaceId(pos, side)), calcRightX() - 150, 110, 0xffffff, false);
 
         // Name field tag
         var nameText = Text.translatable("screen.advanced_networking.cable_config.name");
-        textRenderer.draw(matrices, nameText, calcRightX() - 110 - textRenderer.getWidth(nameText), 75, 0xffffff);
+        context.drawText(textRenderer, nameText, calcRightX() - 110 - textRenderer.getWidth(nameText), 75, 0xffffff, false);
     }
 }
