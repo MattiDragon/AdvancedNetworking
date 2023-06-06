@@ -1,21 +1,14 @@
-package io.github.mattidragon.advancednetworking.graph.node.base;
+package io.github.mattidragon.advancednetworking.misc;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.config.AdvancedNetworkingConfig;
-import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
-import io.github.mattidragon.nodeflow.graph.Connector;
-import io.github.mattidragon.nodeflow.graph.Graph;
-import io.github.mattidragon.nodeflow.graph.data.DataType;
-import io.github.mattidragon.nodeflow.graph.data.DataValue;
 import io.github.mattidragon.nodeflow.graph.node.Node;
-import io.github.mattidragon.nodeflow.graph.node.NodeType;
 import io.github.mattidragon.nodeflow.ui.screen.EditorScreen;
 import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -23,54 +16,29 @@ import net.minecraft.command.argument.NbtPathArgumentType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public abstract class FilterResourceNode<R, T> extends Node {
+public class ResourceFilter<R, V extends TransferVariant<R>> {
+    private final Registry<R> registry;
+
     private String idFilter = "";
     private String nbtFilter = "";
     private Mode mode = Mode.RESOURCE;
     private boolean useRegex = false;
     private boolean isWhitelist = true;
 
-    public FilterResourceNode(NodeType<? extends FilterResourceNode<R, T>> type, Graph graph) {
-        super(type, List.of(), graph);
+    public ResourceFilter(Registry<R> registry) {
+        this.registry = registry;
     }
 
-    protected abstract DataType<PathBundle<Storage<R>, T>> getDataType();
-
-    @Nullable
-    protected abstract NbtCompound getNbt(R resource);
-
-    protected abstract Identifier getId(R resource);
-
-    protected abstract T createTransformer(Predicate<R> predicate);
-
-    protected abstract RegistryEntry<?> getRegistryEntry(R resource);
-
-    protected abstract Registry<?> getRegistry();
-
-    @Override
-    public Connector<?>[] getOutputs() {
-        return new Connector[] { getDataType().makeRequiredOutput("out", this) };
-    }
-
-    @Override
-    public Connector<?>[] getInputs() {
-        return new Connector[] { getDataType().makeRequiredInput("in", this) };
-    }
-
-    @Override
     public List<Text> validate() {
         var list = new ArrayList<Text>();
         if (!idFilter.isBlank()) {
@@ -85,9 +53,9 @@ public abstract class FilterResourceNode<R, T> extends Node {
                 if (id == null) {
                     list.add(Text.translatable("node.advanced_networking.filter.invalid_id", idFilter));
                 } else {
-                    if (mode == Mode.RESOURCE && !getRegistry().containsId(id))
+                    if (mode == Mode.RESOURCE && !registry.containsId(id))
                         list.add(Text.translatable("node.advanced_networking.filter.unknown_resource", id));
-                    if (mode == Mode.TAG && getRegistry().streamTags().map(TagKey::id).noneMatch(id::equals))
+                    if (mode == Mode.TAG && registry.streamTags().map(TagKey::id).noneMatch(id::equals))
                         list.add(Text.translatable("node.advanced_networking.filter.unknown_tag", id));
                 }
             }
@@ -99,20 +67,10 @@ public abstract class FilterResourceNode<R, T> extends Node {
         } catch (CommandSyntaxException | StringIndexOutOfBoundsException e) {
             list.add(Text.translatable("node.advanced_networking.filter.invalid_nbt_path", e.getMessage()));
         }
-
-        list.addAll(super.validate());
-
         return list;
     }
 
-    @Override
-    protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
-        var stream = inputs[0].getAs(getDataType());
-        stream.transform(createTransformer(this::isAllowed));
-        return Either.left(new DataValue<?>[]{ getDataType().makeValue(stream) });
-    }
-
-    private boolean isAllowed(R resource) {
+    public boolean isAllowed(V resource) {
         NbtPathArgumentType.NbtPath nbtPath;
         try {
             nbtPath = nbtFilter.isBlank() ? null : NbtPathArgumentType.nbtPath().parse(new StringReader(nbtFilter.trim()));
@@ -121,13 +79,13 @@ public abstract class FilterResourceNode<R, T> extends Node {
         }
 
         var idMatches = idFilter.isBlank() || switch (mode) {
-            case RESOURCE -> checkId(getId(resource));
-            case TAG -> getRegistryEntry(resource)
-                        .streamTags()
-                        .map(TagKey::id)
-                        .anyMatch(this::checkId);
+            case RESOURCE -> checkId(registry.getId(resource.getObject()));
+            case TAG -> registry.getEntry(resource.getObject())
+                    .streamTags()
+                    .map(TagKey::id)
+                    .anyMatch(this::checkId);
         };
-        var nbtMatches = nbtPath == null || nbtPath.count(getNbt(resource)) > 0;
+        var nbtMatches = nbtPath == null || nbtPath.count(resource.getNbt()) > 0;
         var matches = idMatches && nbtMatches;
 
         if (isWhitelist) {
@@ -145,14 +103,7 @@ public abstract class FilterResourceNode<R, T> extends Node {
         }
     }
 
-    private boolean shouldUseRegex() {
-        return useRegex && !AdvancedNetworkingConfig.DISABLE_REGEX_FILTERING.get();
-    }
-
-    @Override
     public void readNbt(NbtCompound data) {
-        super.readNbt(data);
-
         // Can't go breaking old saves
         if (data.contains("itemId", NbtElement.STRING_TYPE)) {
             idFilter = data.getString("itemId");
@@ -174,9 +125,7 @@ public abstract class FilterResourceNode<R, T> extends Node {
         useRegex = data.getBoolean("regex");
     }
 
-    @Override
     public void writeNbt(NbtCompound data) {
-        super.writeNbt(data);
         data.putString("idFilter", idFilter);
         data.putString("nbtFilter", nbtFilter);
         data.putInt("mode", mode.ordinal());
@@ -185,14 +134,12 @@ public abstract class FilterResourceNode<R, T> extends Node {
     }
 
     @Environment(EnvType.CLIENT)
-    @Override
-    public NodeConfigScreen createConfigScreen(EditorScreen parent) {
-        return new ConfigScreen(parent);
+    public NodeConfigScreen createScreen(Node owner, EditorScreen parent) {
+        return new ConfigScreen<>(owner, parent, this);
     }
 
-    @Override
-    public boolean hasConfig() {
-        return true;
+    private boolean shouldUseRegex() {
+        return useRegex && !AdvancedNetworkingConfig.DISABLE_REGEX_FILTERING.get();
     }
 
     private enum Mode {
@@ -203,9 +150,12 @@ public abstract class FilterResourceNode<R, T> extends Node {
         }
     }
 
-    protected class ConfigScreen extends NodeConfigScreen {
-        public ConfigScreen(EditorScreen parent) {
-            super(FilterResourceNode.this, parent);
+    public static class ConfigScreen<R, V extends TransferVariant<R>> extends NodeConfigScreen {
+        private final ResourceFilter<R, V> filter;
+
+        protected ConfigScreen(Node owner, EditorScreen parent, ResourceFilter<R, V> filter) {
+            super(owner, parent);
+            this.filter = filter;
         }
 
         @Override
@@ -213,8 +163,8 @@ public abstract class FilterResourceNode<R, T> extends Node {
             var x = ((width - 200) / 2) - 50;
 
             var regexButton = CyclingButtonWidget.onOffBuilder()
-                    .initially(shouldUseRegex())
-                    .build(x, 45, 100, 20, Text.translatable("node.advanced_networking.filter.use_regex"), (button1, value) -> useRegex = value);
+                    .initially(filter.shouldUseRegex())
+                    .build(x, 45, 100, 20, Text.translatable("node.advanced_networking.filter.use_regex"), (button1, value) -> filter.useRegex = value);
             if (AdvancedNetworkingConfig.DISABLE_REGEX_FILTERING.get()) {
                 regexButton.active = false;
                 regexButton.setTooltip(Tooltip.of(Text.translatable("node.advanced_networking.filter.use_regex.disabled")));
@@ -222,29 +172,29 @@ public abstract class FilterResourceNode<R, T> extends Node {
             addDrawableChild(regexButton);
 
             var whitelistButton = CyclingButtonWidget.onOffBuilder(Text.translatable("node.advanced_networking.filter.mode.whitelist"), Text.translatable("node.advanced_networking.filter.mode.blacklist"))
-                    .initially(isWhitelist)
+                    .initially(filter.isWhitelist)
                     .omitKeyText()
-                    .build(x, 70, 100, 20, Text.empty(), (button1, value) -> isWhitelist = value);
+                    .build(x, 70, 100, 20, Text.empty(), (button1, value) -> filter.isWhitelist = value);
             addDrawableChild(whitelistButton);
 
             var button = CyclingButtonWidget.<Mode>builder(mode -> mode == Mode.RESOURCE ? Text.translatable("node.advanced_networking.filter.mode.resource") : Text.translatable("node.advanced_networking.filter.mode.tag"))
                     .values(Mode.values())
-                    .initially(mode)
-                    .build(x, 95, 100, 20, Text.translatable("node.advanced_networking.filter.mode"), (button1, value) -> mode = value);
+                    .initially(filter.mode)
+                    .build(x, 95, 100, 20, Text.translatable("node.advanced_networking.filter.mode"), (button1, value) -> filter.mode = value);
             addDrawableChild(button);
 
             var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
             idField.setMaxLength(100);
             idField.setPlaceholder(Text.literal("id").formatted(Formatting.GRAY));
-            idField.setText(idFilter);
-            idField.setChangedListener(newValue -> idFilter = newValue);
+            idField.setText(filter.idFilter);
+            idField.setChangedListener(newValue -> filter.idFilter = newValue);
             addDrawableChild(idField);
 
             var nbtField = new TextFieldWidget(textRenderer, x, 145, 100, 20, Text.empty());
             nbtField.setMaxLength(200);
             nbtField.setPlaceholder(Text.literal("nbt").formatted(Formatting.GRAY));
-            nbtField.setText(nbtFilter);
-            nbtField.setChangedListener(newValue -> nbtFilter = newValue);
+            nbtField.setText(filter.nbtFilter);
+            nbtField.setChangedListener(newValue -> filter.nbtFilter = newValue);
             addDrawableChild(nbtField);
         }
     }
