@@ -5,7 +5,8 @@
   "name": "Advanced Networking Test Mod",
   "entrypoints": {
     "fabric-gametest" : [
-      "io.github.mattidragon.advancednetworking.test.StreamSortTests"
+      "io.github.mattidragon.advancednetworking.test.SimpleMoveTests",
+      "io.github.mattidragon.advancednetworking.test.RedstoneTests"
     ]
   }
 }

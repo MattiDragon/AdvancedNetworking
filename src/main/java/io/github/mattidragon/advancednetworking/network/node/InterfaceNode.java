@@ -3,11 +3,8 @@ package io.github.mattidragon.advancednetworking.network.node;
 import com.google.common.collect.ImmutableMap;
 import com.kneelawk.graphlib.api.graph.NodeHolder;
 import com.kneelawk.graphlib.api.graph.user.BlockNode;
-import com.kneelawk.graphlib.api.util.EmptyLinkKey;
-import com.kneelawk.graphlib.api.util.HalfLink;
-import com.kneelawk.graphlib.api.util.NodePos;
+import com.kneelawk.graphlib.api.graph.user.BlockNodeType;
 import com.kneelawk.graphlib.api.wire.SidedFaceBlockNode;
-import com.kneelawk.graphlib.api.wire.WireConnectionDiscoverers;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -17,18 +14,18 @@ import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-public class InterfaceNode implements SidedFaceBlockNode, AdvancedNetworkingNode {
+public class InterfaceNode implements SidedFaceBlockNode {
     public static final Identifier ID = AdvancedNetworking.id("interface");
     public static final Map<Direction, InterfaceNode> INSTANCES = Util.<ImmutableMap.Builder<Direction, InterfaceNode>>make(ImmutableMap.builder(), (builder) -> {
         for (var dir : Direction.values()) {
             builder.put(dir, new InterfaceNode(dir));
         }
     }).build();
+    public static final BlockNodeType TYPE = BlockNodeType.of(ID,
+            tag -> tag == null ? null : InterfaceNode.INSTANCES.get(Direction.byName(((NbtCompound)tag).getString("direction"))),
+            (buf, ctx) -> Objects.requireNonNull(InterfaceNode.INSTANCES.get(buf.readEnumConstant(Direction.class))));
     private final Direction direction;
 
     private InterfaceNode(Direction direction) {
@@ -36,8 +33,8 @@ public class InterfaceNode implements SidedFaceBlockNode, AdvancedNetworkingNode
     }
 
     @Override
-    public @NotNull Identifier getTypeId() {
-        return ID;
+    public @NotNull BlockNodeType getType() {
+        return TYPE;
     }
 
     @Override
@@ -45,16 +42,6 @@ public class InterfaceNode implements SidedFaceBlockNode, AdvancedNetworkingNode
         var nbt = new NbtCompound();
         nbt.putString("direction", direction.asString());
         return nbt;
-    }
-
-    @Override
-    public @NotNull Collection<HalfLink> findConnections(@NotNull NodeHolder<BlockNode> self) {
-        return WireConnectionDiscoverers.sidedFaceFindConnections(this, self);
-    }
-
-    @Override
-    public boolean canConnect(@NotNull NodeHolder<BlockNode> self, @NotNull HalfLink other) {
-        return WireConnectionDiscoverers.sidedFaceCanConnect(this, self, other);
     }
 
     @Override

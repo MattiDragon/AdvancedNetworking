@@ -48,7 +48,7 @@ public class ControllerScreenHandler extends EditorScreenHandler {
             if (!(world instanceof ServerWorld serverWorld))
                 return Optional.empty();
 
-            var graphWorld = NetworkRegistry.UNIVERSE.getGraphWorld(serverWorld);
+            var graphWorld = NetworkRegistry.UNIVERSE.getServerGraphWorld(serverWorld);
             var nodes = graphWorld.getLoadedGraphsAt(pos)
                     .flatMap(BlockGraph::getNodes)
                     .toList();
@@ -58,10 +58,10 @@ public class ControllerScreenHandler extends EditorScreenHandler {
             for (var node : nodes) {
                 if (!(node.getNode() instanceof InterfaceNode interfaceNode))
                     continue;
-                if (!(world.getBlockEntity(node.getPos()) instanceof CableBlockEntity cable))
+                if (!(world.getBlockEntity(node.getBlockPos()) instanceof CableBlockEntity cable))
                     continue;
 
-                var interfaceId = CableBlock.calcInterfaceId(node.getPos(), interfaceNode.getSide());
+                var interfaceId = CableBlock.calcInterfaceId(node.getBlockPos(), interfaceNode.getSide());
                 var name = cable.getName(interfaceNode.getSide());
                 map.put(interfaceId, name);
             }

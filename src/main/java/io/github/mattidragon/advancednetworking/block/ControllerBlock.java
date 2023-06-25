@@ -102,7 +102,7 @@ public class ControllerBlock extends BlockWithEntity {
     @Override
     public void prepare(BlockState state, WorldAccess world, BlockPos pos, int flags, int maxUpdateDepth) {
         if (world instanceof ServerWorld serverWorld) {
-            NetworkRegistry.UNIVERSE.getGraphWorld(serverWorld).updateNodes(pos);
+            NetworkRegistry.UNIVERSE.getServerGraphWorld(serverWorld).updateNodes(pos);
         }
     }
 }

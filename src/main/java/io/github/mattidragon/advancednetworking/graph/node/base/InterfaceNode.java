@@ -30,20 +30,20 @@ import java.util.Map;
 import java.util.Optional;
 
 public abstract class InterfaceNode extends Node {
-    protected String interfaceId = "";
+    public String interfaceId = "";
 
     protected InterfaceNode(NodeType<?> type, List<ContextType<?>> contexts, Graph graph) {
         super(type, contexts, graph);
     }
 
     protected final Optional<SidedPos> findInterface(ServerWorld world, long graphId) {
-        var graph = NetworkRegistry.UNIVERSE.getGraphWorld(world).getGraph(graphId);
+        var graph = NetworkRegistry.UNIVERSE.getServerGraphWorld(world).getGraph(graphId);
         if (graph == null)
             return Optional.empty();
 
         return graph.getNodes()
                 .filter(node -> node.getNode() instanceof SidedBlockNode)
-                .map(node -> new SidedPos(node.getPos(), node.cast(SidedBlockNode.class).getNode().getSide()))
+                .map(node -> new SidedPos(node.getBlockPos(), node.cast(SidedBlockNode.class).getNode().getSide()))
                 .filter(pos -> interfaceId.equals(CableBlock.calcInterfaceId(pos.pos(), pos.side())))
                 .findFirst();
     }

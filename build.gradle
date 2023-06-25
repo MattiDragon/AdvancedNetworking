@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
     id 'io.github.juuxel.loom-quiltflower' version '1.7.1'
     id 'maven-publish'
 }
@@ -13,6 +13,12 @@ repositories {
         url "https://kneelawk.com/maven/"
         content {
             includeGroup "com.kneelawk"
+        }
+    }
+    maven {
+        url "https://maven.alexiil.uk/"
+        content {
+            includeGroup "alexiil.mc.lib"
         }
     }
     maven {
@@ -130,6 +136,8 @@ loom {
 
     accessWidenerPath = file("src/main/resources/advanced_networking.accesswidener")
 }
+
+test.dependsOn(tasks.runGametest)
 
 // Delete datagen on clean
 clean.delete("src/main/generated")

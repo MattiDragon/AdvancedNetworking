@@ -199,7 +199,7 @@ public class CableBlock extends BlockWithEntity {
     @Override
     public void prepare(BlockState state, WorldAccess world, BlockPos pos, int flags, int maxUpdateDepth) {
         if (world instanceof ServerWorld serverWorld) {
-            NetworkRegistry.UNIVERSE.getGraphWorld(serverWorld).updateNodes(pos);
+            NetworkRegistry.UNIVERSE.getServerGraphWorld(serverWorld).updateNodes(pos);
         }
 
         // Zero power for non-interface faces to be safe
@@ -236,7 +236,7 @@ public class CableBlock extends BlockWithEntity {
         }
 
         if (world instanceof ServerWorld serverWorld)
-            NetworkRegistry.UNIVERSE.getGraphWorld(serverWorld).updateConnections(pos);
+            NetworkRegistry.UNIVERSE.getServerGraphWorld(serverWorld).updateConnections(pos);
     }
 
     @Override

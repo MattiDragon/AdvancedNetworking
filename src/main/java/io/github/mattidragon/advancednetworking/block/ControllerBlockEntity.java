@@ -125,7 +125,7 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
     public List<EvaluationError> evaluate() {
         if (world == null) return List.of(EvaluationError.Type.MISSING_CONTEXTS.error("World missing (something went very wrong)"));
 
-        var graph = NetworkRegistry.UNIVERSE.getGraphWorld((ServerWorld) world).getGraphForNode(new NodePos(pos, ControllerNode.INSTANCE));
+        var graph = NetworkRegistry.UNIVERSE.getServerGraphWorld((ServerWorld) world).getGraphForNode(new NodePos(pos, ControllerNode.INSTANCE));
         if (graph == null) {
             AdvancedNetworking.LOGGER.warn("Controller missing graph at {}", pos);
             return List.of(EvaluationError.Type.MISSING_CONTEXTS.error("Controller missing"));

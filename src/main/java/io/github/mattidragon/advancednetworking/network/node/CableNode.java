@@ -2,6 +2,7 @@ package io.github.mattidragon.advancednetworking.network.node;
 
 import com.kneelawk.graphlib.api.graph.NodeHolder;
 import com.kneelawk.graphlib.api.graph.user.BlockNode;
+import com.kneelawk.graphlib.api.graph.user.BlockNodeType;
 import com.kneelawk.graphlib.api.util.HalfLink;
 import com.kneelawk.graphlib.api.wire.CenterWireBlockNode;
 import com.kneelawk.graphlib.api.wire.WireConnectionDiscoverers;
@@ -14,27 +15,21 @@ import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-
-public class CableNode implements CenterWireBlockNode, AdvancedNetworkingNode {
+public class CableNode implements CenterWireBlockNode {
     public static final Identifier ID = AdvancedNetworking.id("cable");
     public static final CableNode INSTANCE = new CableNode();
+    public static final BlockNodeType TYPE = BlockNodeType.of(ID, () -> INSTANCE);
 
     private CableNode() {}
 
     @Override
-    public @NotNull Identifier getTypeId() {
-        return ID;
+    public @NotNull BlockNodeType getType() {
+        return TYPE;
     }
 
     @Override
     public @Nullable NbtElement toTag() {
         return null;
-    }
-
-    @Override
-    public @NotNull Collection<HalfLink> findConnections(@NotNull NodeHolder<BlockNode> self) {
-        return WireConnectionDiscoverers.centerWireFindConnections(this, self);
     }
 
     @Override
@@ -45,8 +40,8 @@ public class CableNode implements CenterWireBlockNode, AdvancedNetworkingNode {
     @Override
     public boolean canConnect(@NotNull NodeHolder<BlockNode> self, @NotNull Direction onSide, @NotNull HalfLink link) {
         var world = self.getBlockWorld();
-        var pos = self.getPos();
-        var posDiff = link.other().getPos().subtract(pos);
+        var pos = self.getBlockPos();
+        var posDiff = link.other().getBlockPos().subtract(pos);
         if (posDiff.equals(BlockPos.ORIGIN))
             return true; // Connections to interface nodes are always valid
 

@@ -64,30 +64,5 @@ public class AdvancedNetworking implements ModInitializer {
         UpdateInterfacePacket.register();
         RequestInterfacesPacket.register();
         NetworkControllerContext.register();
-
-        CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) ->
-                dispatcher.register(CommandManager.literal("advanced_networking")
-                        .then(CommandManager.literal("info")
-                                .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
-                                        .executes(context -> {
-                                            var pos = BlockPosArgumentType.getBlockPos(context, "pos");
-                                            var controller = NetworkRegistry.UNIVERSE.getGraphWorld(context.getSource().getWorld());
-                                            var message = new StringBuilder();
-                                            for (long graphId : controller.getLoadedGraphsAt(pos).mapToLong(BlockGraph::getId).toArray()) {
-                                                message.append(graphId).append("\n");
-                                                var graph = controller.getGraph(graphId);
-                                                if (graph == null)
-                                                    continue;
-                                                for (var node : graph.getNodes().sorted(Comparator.comparing(node -> node.getNode().getTypeId())).toList()) {
-                                                    message.append("  ")
-                                                            .append(node.getPos().toShortString())
-                                                            .append(" | ")
-                                                            .append(node.getNode())
-                                                            .append("\n");
-                                                }
-                                            }
-                                            context.getSource().sendMessage(Text.literal(message.toString()));
-                                            return 1;
-                                        }))))));
     }
 }
