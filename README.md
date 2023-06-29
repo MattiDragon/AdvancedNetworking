@@ -50,16 +50,14 @@ You can use this mod in any modpack as long as you don't reupload the mod. You c
 This mod is only officially available on [curseforge](https://www.curseforge.com/minecraft/mc-mods/advanced-networking), [modrinth](https://modrinth.com/mod/advanced-networking) and [github](https://github.com/mattidragon/advancednetworking). 
 Any other sites are third-party reuploads and should not be trusted.
 
-### Version support
-I only support the versions of minecraft I'm interested in modding. Old versions may receive important patches, but I will not be backporting the mod. I might consider PRs porting the mod to different versions.
-
 ### Incompatibilities
 I intend to try and stay compatible with as many mods as possible, but might abandon support for some if it becomes too hard.
 * **Sodium** compatibility is only guaranteed if [indium](https://modrinth.com/mod/indium) is installed.
 * **Optifine** will never be officially supported. Might work, might not.
 
-### Forge?
-No, I will not port to forge and probably won't accept any port as official. I can't and won't try to stop unofficial ports due to my license so go on if you want. 
+### Porting and Forking
+You can read my policy on [forking and porting mods](https://gist.github.com/MattiDragon/6b9e71e8516447f53f0d5fb296ab8868).
+This mod will not be ported to anything older than 1.19.4 due to that version adding necessary client features.
 
 ## Licencing
 The mod is licensed under the Apache License, Version 2.0. 
