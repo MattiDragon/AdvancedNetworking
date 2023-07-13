@@ -101,7 +101,7 @@ public abstract class CountNode<R, V extends TransferVariant<R>> extends Interfa
     @Environment(EnvType.CLIENT)
     @Override
     public NodeConfigScreen createConfigScreen(EditorScreen parent) {
-        return filter.createScreen(this, parent);
+        return new ConfigScreen(parent);
     }
 
     private class InterfaceSelectionScreen extends InterfaceNode.ConfigScreen {

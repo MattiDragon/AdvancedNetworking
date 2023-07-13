@@ -1,6 +1,5 @@
 package io.github.mattidragon.advancednetworking;
 
-import com.kneelawk.graphlib.api.graph.BlockGraph;
 import io.github.mattidragon.advancednetworking.config.ConfigData;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
@@ -19,18 +18,12 @@ import io.github.mattidragon.nodeflow.graph.data.DataType;
 import io.github.mattidragon.nodeflow.graph.node.NodeGroup;
 import io.github.mattidragon.nodeflow.graph.node.NodeType;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
-import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Comparator;
 
 public class AdvancedNetworking implements ModInitializer {
     public static final String MOD_ID = "advanced_networking";
