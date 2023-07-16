@@ -241,6 +241,9 @@ public class CableBlock extends BlockWithEntity {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        if (!(world.getBlockEntity(pos) instanceof CableBlockEntity cable)) return ActionResult.PASS;
+        if (!player.getAbilities().allowModifyWorld && !cable.isAdventureModeAccessAllowed()) return ActionResult.PASS;
+
         var direction = calcHitDirection(hit.getPos().subtract(Vec3d.of(pos)));
         var property = FACING_PROPERTIES.get(direction);
 
@@ -254,8 +257,8 @@ public class CableBlock extends BlockWithEntity {
             return ActionResult.SUCCESS;
         }
         if (hand == Hand.MAIN_HAND && player.isSneaking()) {
-            if (world.isClient && world.getBlockEntity(pos) instanceof CableBlockEntity cable) {
-                openConfig(pos.toImmutable(), direction, (side) -> InterfaceType.ofConnectionType(world.getBlockState(pos).get(FACING_PROPERTIES.get(side))), cable::getName);
+            if (world.isClient) {
+                openConfig(pos.toImmutable(), direction, (side) -> InterfaceType.ofConnectionType(world.getBlockState(pos).get(FACING_PROPERTIES.get(side))), cable::getName, cable.isAdventureModeAccessAllowed());
             }
             return ActionResult.SUCCESS;
         }
@@ -264,8 +267,8 @@ public class CableBlock extends BlockWithEntity {
     }
 
     @Environment(EnvType.CLIENT)
-    private void openConfig(BlockPos pos, Direction direction, Function<Direction, InterfaceType> typeSupplier, Function<Direction, String> nameSupplier) {
-        MinecraftClient.getInstance().setScreen(new CableConfigScreen(pos, direction, typeSupplier, nameSupplier));
+    private void openConfig(BlockPos pos, Direction direction, Function<Direction, InterfaceType> typeSupplier, Function<Direction, String> nameSupplier, boolean allowAdventureModeAccess) {
+        MinecraftClient.getInstance().setScreen(new CableConfigScreen(pos, direction, typeSupplier, nameSupplier, allowAdventureModeAccess));
     }
 
     private Direction calcHitDirection(Vec3d pos) {

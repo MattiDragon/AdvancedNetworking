@@ -6,6 +6,7 @@ import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
 import io.github.mattidragon.advancednetworking.misc.RequestInterfacesPacket;
 import io.github.mattidragon.advancednetworking.misc.ScreenPosSyncPacket;
+import io.github.mattidragon.advancednetworking.misc.SetAdventureModeAccessPacket;
 import io.github.mattidragon.advancednetworking.misc.UpdateInterfacePacket;
 import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
@@ -56,6 +57,7 @@ public class AdvancedNetworking implements ModInitializer {
         ScreenPosSyncPacket.register();
         UpdateInterfacePacket.register();
         RequestInterfacesPacket.register();
+        SetAdventureModeAccessPacket.register();
         NetworkControllerContext.register();
     }
 }

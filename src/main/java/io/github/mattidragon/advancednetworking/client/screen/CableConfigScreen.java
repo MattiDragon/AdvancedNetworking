@@ -2,7 +2,9 @@ package io.github.mattidragon.advancednetworking.client.screen;
 
 import io.github.mattidragon.advancednetworking.block.CableBlock;
 import io.github.mattidragon.advancednetworking.misc.InterfaceType;
+import io.github.mattidragon.advancednetworking.misc.SetAdventureModeAccessPacket;
 import io.github.mattidragon.advancednetworking.misc.UpdateInterfacePacket;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -21,13 +23,15 @@ public class CableConfigScreen extends Screen {
     private Direction side;
     private InterfaceType type;
     private String name;
+    private boolean adventureModeAccessAllowed;
 
-    public CableConfigScreen(BlockPos pos, Direction side, Function<Direction, InterfaceType> typeSupplier, Function<Direction, String> nameSupplier) {
+    public CableConfigScreen(BlockPos pos, Direction side, Function<Direction, InterfaceType> typeSupplier, Function<Direction, String> nameSupplier, boolean adventureModeAccessAllowed) {
         super(Text.translatable("screen.advanced_networking.cable_config"));
         this.pos = pos;
         this.typeSupplier = typeSupplier;
         this.nameSupplier = nameSupplier;
         this.side = side;
+        this.adventureModeAccessAllowed = adventureModeAccessAllowed;
         this.type = typeSupplier.apply(side);
         this.name = nameSupplier.apply(side);
     }
@@ -50,7 +54,7 @@ public class CableConfigScreen extends Screen {
                 button1.active = false;
                 buttons[side.getId()].active = true;
 
-                UpdateInterfacePacket.send(pos, side, type, name);
+                ClientPlayNetworking.send(new UpdateInterfacePacket(pos, side, type, name));
                 side = direction;
                 type = typeSupplier.apply(side);
                 name = nameSupplier.apply(side);
@@ -61,6 +65,15 @@ public class CableConfigScreen extends Screen {
             buttons[i] = button;
         }
         buttons[side.getId()].active = false;
+
+        if (client != null && client.player != null && client.player.isCreativeLevelTwoOp()) {
+            addDrawableChild(CyclingButtonWidget.onOffBuilder()
+                    .initially(adventureModeAccessAllowed)
+                    .build(calcLeftX(), 170, 150, 20, Text.translatable("screen.advanced_networking.adventure_mode_access"), (button, value) -> {
+                        adventureModeAccessAllowed = value;
+                        ClientPlayNetworking.send(new SetAdventureModeAccessPacket(pos, adventureModeAccessAllowed));
+                    }));
+        }
     }
 
     @Override
@@ -71,7 +84,7 @@ public class CableConfigScreen extends Screen {
     @Override
     public void close() {
         super.close();
-        UpdateInterfacePacket.send(pos, side, type, name);
+        ClientPlayNetworking.send(new UpdateInterfacePacket(pos, side, type, name));
     }
 
     private int calcLeftX() {

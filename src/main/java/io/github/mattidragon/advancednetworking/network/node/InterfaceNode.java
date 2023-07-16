@@ -14,7 +14,8 @@ import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 
 public class InterfaceNode implements SidedFaceBlockNode {
     public static final Identifier ID = AdvancedNetworking.id("interface");

@@ -43,8 +43,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class ControllerBlockEntity extends GraphProvidingBlockEntity {
+public class ControllerBlockEntity extends GraphProvidingBlockEntity implements AdventureModeAccessBlockEntity {
     private Graph graph = new Graph(AdvancedNetworking.ENVIRONMENT);
+    private boolean allowAdventureModeAccess = false;
 
     public final PathEnvironment<Storage<ItemVariant>, ItemTransformer> itemEnvironment = new PathEnvironment<>();
     public final PathEnvironment<Storage<FluidVariant>, FluidTransformer> fluidEnvironment = new PathEnvironment<>();
@@ -67,6 +68,7 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
+        allowAdventureModeAccess = nbt.getBoolean("allowAdventureModeAccess");
         viewX = nbt.getDouble("viewX");
         viewY = nbt.getDouble("viewY");
         zoom = nbt.getInt("zoom");
@@ -81,6 +83,7 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
     @Override
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
+        nbt.putBoolean("allowAdventureModeAccess", allowAdventureModeAccess);
         nbt.putDouble("viewX", viewX);
         nbt.putDouble("viewY", viewY);
         nbt.putInt("zoom", zoom);
@@ -146,6 +149,7 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
         buf.writeDouble(viewX);
         buf.writeDouble(viewY);
         buf.writeCollection(errors, PacketByteBuf::writeText);
+        buf.writeBoolean(allowAdventureModeAccess);
     }
 
     @Override
@@ -161,5 +165,13 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity {
     @Override
     public Graph getGraph(World world, BlockPos pos) {
         return graph;
+    }
+
+    public boolean isAdventureModeAccessAllowed() {
+        return allowAdventureModeAccess;
+    }
+
+    public void setAdventureModeAccessAllowed(boolean allowed) {
+        this.allowAdventureModeAccess = allowed;
     }
 }

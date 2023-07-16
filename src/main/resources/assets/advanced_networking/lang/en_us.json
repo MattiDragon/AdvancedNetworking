@@ -10,6 +10,7 @@
   "screen.advanced_networking.cable_config.interface_type.default": "Default",
   "screen.advanced_networking.cable_config.interface_type.interface": "Interface",
   "screen.advanced_networking.cable_config.interface_type.blocked": "Blocked",
+  "screen.advanced_networking.adventure_mode_access": "Adventure mode access",
 
   "side.advanced_networking.north": "North",
   "side.advanced_networking.south": "South",

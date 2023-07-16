@@ -3,7 +3,9 @@ package io.github.mattidragon.advancednetworking.client.screen;
 import io.github.mattidragon.advancednetworking.misc.ScreenPosSyncPacket;
 import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import io.github.mattidragon.nodeflow.ui.screen.HandledEditorScreen;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
@@ -29,12 +31,22 @@ public class ControllerScreen extends HandledEditorScreen {
         area.setViewX(handler.viewX);
         area.setViewY(handler.viewY);
         area.setZoom(handler.zoom);
+
+        if (client != null && client.player != null && client.player.isCreativeLevelTwoOp()) {
+            addDrawableChild(CyclingButtonWidget.onOffBuilder()
+                    .initially(handler.adventureModeAccessAllowed)
+                    .build(GRID_OFFSET, GRID_OFFSET + getBoxHeight() + BORDER_SIZE, 150, 20, Text.translatable("screen.advanced_networking.adventure_mode_access"), (button, value) -> {
+                        if (client.interactionManager == null) return;
+                        handler.adventureModeAccessAllowed = !handler.adventureModeAccessAllowed;
+                        client.interactionManager.clickButton(handler.syncId, 0);
+                    }));
+        }
     }
 
     @Override
     public void syncGraph() {
         super.syncGraph();
-        ScreenPosSyncPacket.send(getScreenHandler().syncId, area.getViewX(), area.getViewY(), area.getZoom());
+        ClientPlayNetworking.send(new ScreenPosSyncPacket(getScreenHandler().syncId, area.getViewX(), area.getViewY(), area.getZoom()));
     }
 
     @Override

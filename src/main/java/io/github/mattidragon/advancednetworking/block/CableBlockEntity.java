@@ -17,9 +17,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-public class CableBlockEntity extends BlockEntity {
+public class CableBlockEntity extends BlockEntity implements AdventureModeAccessBlockEntity {
     private final int[] power = new int[6];
     private final String[] names = new String[6];
+    private boolean allowAdventureModeAccess = false;
 
     public CableBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.CABLE_BLOCK_ENTITY, pos, state);
@@ -64,6 +65,7 @@ public class CableBlockEntity extends BlockEntity {
         super.readNbt(nbt);
         var power = nbt.getIntArray("power");
         System.arraycopy(power, 0, this.power, 0, Math.min(power.length, 6));
+        allowAdventureModeAccess = nbt.getBoolean("allowAdventureModeAccess");
 
         var names = nbt.getList("names", NbtElement.STRING_TYPE);
         for (int i = 0; i < Math.min(names.size(), 6); i++) {
@@ -75,11 +77,20 @@ public class CableBlockEntity extends BlockEntity {
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         nbt.putIntArray("power", power);
+        nbt.putBoolean("allowAdventureModeAccess", allowAdventureModeAccess);
 
         var names = new NbtList();
         for (var name : this.names) {
             names.add(NbtString.of(name));
         }
         nbt.put("names", names);
+    }
+
+    public boolean isAdventureModeAccessAllowed() {
+        return allowAdventureModeAccess;
+    }
+
+    public void setAdventureModeAccessAllowed(boolean allowed) {
+        this.allowAdventureModeAccess = allowed;
     }
 }

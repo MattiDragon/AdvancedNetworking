@@ -21,17 +21,19 @@ import java.util.*;
 public class ControllerScreenHandler extends EditorScreenHandler {
     private final List<Text> errors;
     private final ScreenHandlerContext context;
+    public boolean adventureModeAccessAllowed;
     public double viewX;
     public double viewY;
     public int zoom;
 
-    public ControllerScreenHandler(int syncId, ControllerBlockEntity provider, ScreenHandlerContext context) {
-        super(syncId, provider, context);
+    public ControllerScreenHandler(int syncId, ControllerBlockEntity controller, ScreenHandlerContext context) {
+        super(syncId, controller, context);
         this.context = context;
         errors = new ArrayList<>();
-        viewX = provider.viewX;
-        viewY = provider.viewY;
-        zoom = provider.zoom;
+        viewX = controller.viewX;
+        viewY = controller.viewY;
+        zoom = controller.zoom;
+        adventureModeAccessAllowed = controller.isAdventureModeAccessAllowed();
     }
 
     public ControllerScreenHandler(int syncId, PlayerInventory inv, PacketByteBuf buf) {
@@ -41,6 +43,15 @@ public class ControllerScreenHandler extends EditorScreenHandler {
         viewX = buf.readDouble();
         viewY = buf.readDouble();
         errors = buf.readList(PacketByteBuf::readText);
+        adventureModeAccessAllowed = buf.readBoolean();
+    }
+
+    @Override
+    public boolean onButtonClick(PlayerEntity player, int id) {
+        if (id == 0 && player.isCreativeLevelTwoOp()) {
+            adventureModeAccessAllowed = !adventureModeAccessAllowed;
+        }
+        return false;
     }
 
     public Optional<Map<String, String>> getInterfaces() {
@@ -86,6 +97,7 @@ public class ControllerScreenHandler extends EditorScreenHandler {
                 controller.viewX = viewX;
                 controller.viewY = viewY;
                 controller.zoom = zoom;
+                controller.setAdventureModeAccessAllowed(adventureModeAccessAllowed);
                 controller.markDirty();
             }
         });

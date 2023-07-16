@@ -89,12 +89,13 @@ public class ControllerBlock extends BlockWithEntity {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!world.isClient) {
-            NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
+        if (!(world.getBlockEntity(pos) instanceof ControllerBlockEntity controller)) return ActionResult.PASS;
+        if (!controller.isAdventureModeAccessAllowed() && !player.getAbilities().allowModifyWorld) return ActionResult.PASS;
+        if (world.isClient) return ActionResult.SUCCESS;
+        NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
 
-            if (screenHandlerFactory != null) {
-                player.openHandledScreen(screenHandlerFactory);
-            }
+        if (screenHandlerFactory != null) {
+            player.openHandledScreen(screenHandlerFactory);
         }
         return ActionResult.SUCCESS;
     }
