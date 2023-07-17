@@ -75,7 +75,7 @@ dependencies {
     modImplementation include("dev.isxander.yacl:yet-another-config-lib-fabric:$yacl_version")
     modImplementation annotationProcessor(include("com.github.mattidragon:configtoolkit:$configtoolkit_version"))
 
-    modImplementation include("me.luligabi:NoIndium:1.1.0+1.19")
+    modImplementation include("me.luligabi:NoIndium:$noindium_version")
 
     // Add generated data to runtime classpath (slightly hacky)
     runtimeOnly files("src/main/generated")
@@ -171,10 +171,8 @@ jar {
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
+    publications.register("mavenJava", MavenPublication) {
+        from components.java
     }
 
     repositories {
