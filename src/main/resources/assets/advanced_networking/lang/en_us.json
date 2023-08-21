@@ -126,6 +126,8 @@
   "config.advanced_networking.option.controller_energy_transfer_rate.tooltip": "Defines how much energy a controller can move in a action.",
   "config.advanced_networking.option.disable_regex_filtering": "Disable Regex Filtering",
   "config.advanced_networking.option.disable_regex_filtering.tooltip": "Disables regex filtering for filter nodes. This is recommended for public servers because regex can be used to cause major lag.",
+  "config.advanced_networking.option.show_adventure_mode_toggles": "Show Adventure Mode Toggle",
+  "config.advanced_networking.option.show_adventure_mode_toggles.tooltip": "If enabled, there will be a button in the controller ui that allows toggling of adventure mode access. This is only available to creative players with level 2 op. Useful for map-making or public showcases.",
 
   "__comment": "These should be in nodeflow, but I don't want to release another version right now",
   "controlify.binding.nodeflow.editor_up": "Editor Up",

@@ -19,5 +19,9 @@ final class Ordering {
         public Ordering getOwner() {
             return Ordering.this;
         }
+
+        public Marker getOther() {
+            return isBefore ? after : before;
+        }
     }
 }

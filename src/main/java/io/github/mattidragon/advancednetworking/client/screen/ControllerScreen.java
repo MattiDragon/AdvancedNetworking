@@ -1,5 +1,6 @@
 package io.github.mattidragon.advancednetworking.client.screen;
 
+import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.misc.ScreenPosSyncPacket;
 import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import io.github.mattidragon.nodeflow.ui.screen.HandledEditorScreen;
@@ -32,7 +33,7 @@ public class ControllerScreen extends HandledEditorScreen {
         area.setViewY(handler.viewY);
         area.setZoom(handler.zoom);
 
-        if (client != null && client.player != null && client.player.isCreativeLevelTwoOp()) {
+        if (client != null && client.player != null && client.player.isCreativeLevelTwoOp() && AdvancedNetworking.CONFIG.get().showAdventureModeToggles()) {
             addDrawableChild(CyclingButtonWidget.onOffBuilder()
                     .initially(handler.adventureModeAccessAllowed)
                     .build(GRID_OFFSET, GRID_OFFSET + getBoxHeight() + BORDER_SIZE, 150, 20, Text.translatable("screen.advanced_networking.adventure_mode_access"), (button, value) -> {

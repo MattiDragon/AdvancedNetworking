@@ -1,11 +1,8 @@
 package io.github.mattidragon.advancednetworking.graph.path;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public final class Path<S, T> {
+final class Path<S, T> {
     private final S start;
     private final List<T> transformers;
     private final Set<Ordering.Marker> markers;
@@ -15,13 +12,6 @@ public final class Path<S, T> {
         this.start = start;
         this.transformers = new ArrayList<>();
         this.markers = new HashSet<>();
-    }
-
-    Path(Path<S, T> other) {
-        this.start = other.start;
-        this.transformers = new ArrayList<>(other.transformers);
-        this.end = other.end;
-        this.markers = new HashSet<>(other.markers);
     }
 
     Set<Ordering.Marker> getMarkers() {
@@ -48,7 +38,15 @@ public final class Path<S, T> {
         return start;
     }
 
-    public List<T> getTransformers() {
+    Path<S, T> copy(Map<Ordering.Marker, Ordering.Marker> markerLookup) {
+        var path = new Path<S, T>(start);
+        path.transformers.addAll(transformers);
+        path.end = end;
+        markers.stream().map(markerLookup::get).forEach(path.markers::add);
+        return path;
+    }
+
+    List<T> getTransformers() {
         return transformers;
     }
 }

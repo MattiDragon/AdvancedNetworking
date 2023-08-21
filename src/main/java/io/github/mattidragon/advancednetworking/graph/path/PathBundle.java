@@ -1,7 +1,7 @@
 package io.github.mattidragon.advancednetworking.graph.path;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class PathBundle<S, T> {
     private final List<Path<S, T>> paths = new ArrayList<>();
@@ -27,14 +27,42 @@ public final class PathBundle<S, T> {
      * @return The copied bundle
      */
     public PathBundle<S, T> split() {
+        var markerLookup = generateMarkerLookup();
         var split = new PathBundle<S, T>();
         for (var path : paths) {
-            split.paths.add(new Path<>(path));
+            split.paths.add(path.copy(markerLookup));
         }
         var ordering = new Ordering();
         this.mark(ordering.before);
         split.mark(ordering.after);
         return split;
+    }
+
+    /**
+     * Generates a map converting the order markers on current paths into new markers.
+     * If only one half of an ordering is present in the current path it is allowed to stay.
+     * This is used when copying paths to ensure that each split gets its own set of internal order markers.
+     */
+    private Map<Ordering.Marker, Ordering.Marker> generateMarkerLookup() {
+        var lookup = new HashMap<Ordering.Marker, Ordering.Marker>();
+        var markers = paths.stream().map(Path::getMarkers).flatMap(Set::stream).collect(Collectors.toCollection(HashSet::new));
+
+        // Add markers where only one half exists to lookup as themselves
+        for (var iterator = markers.iterator(); iterator.hasNext(); ) {
+            var marker = iterator.next();
+            if (!markers.contains(marker.getOther())) {
+                lookup.put(marker, marker);
+                iterator.remove();
+            }
+        }
+
+        markers.stream().map(Ordering.Marker::getOwner).distinct().forEach(ordering -> {
+            var newOrdering = new Ordering();
+            lookup.put(ordering.before, newOrdering.before);
+            lookup.put(ordering.after, newOrdering.after);
+        });
+
+        return lookup;
     }
 
     /**

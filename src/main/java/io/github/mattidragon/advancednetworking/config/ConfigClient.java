@@ -62,6 +62,12 @@ public class ConfigClient {
                         .binding(ConfigData.DEFAULT.disableRegexFilter(), instance::disableRegexFilter, instance::disableRegexFilter)
                         .controller(TickBoxControllerBuilder::create)
                         .build())
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.translatable("config.advanced_networking.option.show_adventure_mode_toggles"))
+                        .description(OptionDescription.of(Text.translatable("config.advanced_networking.option.show_adventure_mode_toggles.tooltip")))
+                        .binding(ConfigData.DEFAULT.showAdventureModeToggles(), instance::showAdventureModeToggles, instance::showAdventureModeToggles)
+                        .controller(TickBoxControllerBuilder::create)
+                        .build())
                 .build();
     }
 }

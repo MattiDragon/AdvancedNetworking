@@ -10,14 +10,15 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import java.util.function.Function;
 
 @GenerateMutable
-public record ConfigData(int controllerTickRate, long controllerFluidTransferRate, long controllerItemTransferRate, long controllerEnergyTransferRate, boolean disableRegexFilter) implements MutableConfigData.Source {
-    public static final ConfigData DEFAULT = new ConfigData(10, FluidConstants.BUCKET, 64, 256, false);
+public record ConfigData(int controllerTickRate, long controllerFluidTransferRate, long controllerItemTransferRate, long controllerEnergyTransferRate, boolean disableRegexFilter, boolean showAdventureModeToggles) implements MutableConfigData.Source {
+    public static final ConfigData DEFAULT = new ConfigData(10, FluidConstants.BUCKET, 64, 256, false, false);
     public static final Codec<ConfigData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             DefaultedFieldCodec.of(Codec.intRange(0, 120), "controller_tick_rate", DEFAULT.controllerTickRate).forGetter(ConfigData::controllerTickRate),
             DefaultedFieldCodec.of(longRange(FluidConstants.BUCKET * 100), "controller_fluid_transfer_rate", DEFAULT.controllerFluidTransferRate).forGetter(ConfigData::controllerFluidTransferRate),
             DefaultedFieldCodec.of(longRange(64 * 10), "controller_item_transfer_rate", DEFAULT.controllerItemTransferRate).forGetter(ConfigData::controllerItemTransferRate),
             DefaultedFieldCodec.of(longRange(256 * 100), "controller_energy_transfer_rate", DEFAULT.controllerEnergyTransferRate).forGetter(ConfigData::controllerEnergyTransferRate),
-            DefaultedFieldCodec.of(Codec.BOOL, "disable_regex_filtering", DEFAULT.disableRegexFilter).forGetter(ConfigData::disableRegexFilter)
+            DefaultedFieldCodec.of(Codec.BOOL, "disable_regex_filtering", DEFAULT.disableRegexFilter).forGetter(ConfigData::disableRegexFilter),
+            DefaultedFieldCodec.of(Codec.BOOL, "show_adventure_mode_toggles", DEFAULT.showAdventureModeToggles).forGetter(ConfigData::showAdventureModeToggles)
     ).apply(instance, ConfigData::new));
 
     private static Codec<Long> longRange(long maxInclusive) {
