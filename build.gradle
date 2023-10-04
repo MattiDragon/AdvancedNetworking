@@ -79,7 +79,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:$fabric_version"
 
     // Core apis
-    modImplementation include("io.github.mattidragon:nodeflow:$nodeflow_version")
+    modImplementation include("com.github.mattidragon:nodeflow:$nodeflow_version")
     modImplementation include("com.kneelawk:graphlib:$graphlib_version")
     include modApi("teamreborn:energy:$energy_version") {
         exclude(group: "net.fabricmc.fabric-api")
