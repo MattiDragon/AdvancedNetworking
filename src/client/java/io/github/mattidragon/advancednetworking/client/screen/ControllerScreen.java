@@ -3,7 +3,7 @@ package io.github.mattidragon.advancednetworking.client.screen;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.misc.ScreenPosSyncPacket;
 import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
-import io.github.mattidragon.nodeflow.ui.screen.HandledEditorScreen;
+import io.github.mattidragon.nodeflow.client.ui.screen.HandledEditorScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;

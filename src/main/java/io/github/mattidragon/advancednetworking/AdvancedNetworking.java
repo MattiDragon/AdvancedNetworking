@@ -16,8 +16,10 @@ import io.github.mattidragon.configloader.api.ConfigManager;
 import io.github.mattidragon.nodeflow.graph.GraphEnvironment;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.graph.data.DataType;
-import io.github.mattidragon.nodeflow.graph.node.NodeGroup;
 import io.github.mattidragon.nodeflow.graph.node.NodeType;
+import io.github.mattidragon.nodeflow.graph.node.NodeTypeTags;
+import io.github.mattidragon.nodeflow.graph.node.group.DirectNodeGroup;
+import io.github.mattidragon.nodeflow.graph.node.group.TagNodeGroup;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.registry.Registries;
@@ -34,10 +36,17 @@ public class AdvancedNetworking implements ModInitializer {
     public static final GraphEnvironment ENVIRONMENT = GraphEnvironment.builder()
             .addContextTypes(ContextType.SERVER_WORLD, ContextType.BLOCK_POS, ContextType.SERVER, NetworkControllerContext.TYPE)
             .addDataTypes(DataType.BOOLEAN, DataType.NUMBER, ModDataTypes.ITEM_STREAM, ModDataTypes.FLUID_STREAM, ModDataTypes.ENERGY_STREAM)
-            .addNodeGroups(NodeGroup.MATH, NodeGroup.ADVANCED_MATH, NodeGroup.LOGIC, NodeGroup.FLOW, NodeGroup.COMPARE_NUMBER, NodeGroup.CONSTANTS)
-            .addNodeGroups(ModNodeTypes.REDSTONE_GROUP, ModNodeTypes.ITEM_GROUP, ModNodeTypes.ENERGY_GROUP, ModNodeTypes.FLUID_GROUP)
-            .addNodeTypes(NodeType.TIME)
-            //.printDisableReasons()
+            .addNodeGroups(new TagNodeGroup(NodeTypeTags.MATH),
+                    new TagNodeGroup(NodeTypeTags.ADVANCED_MATH),
+                    new TagNodeGroup(NodeTypeTags.LOGIC),
+                    new TagNodeGroup(NodeTypeTags.FLOW),
+                    new TagNodeGroup(NodeTypeTags.COMPARE_NUMBER),
+                    new TagNodeGroup(NodeTypeTags.CONSTANTS))
+            .addNodeGroups(new TagNodeGroup(ModNodeTypes.REDSTONE_GROUP),
+                    new TagNodeGroup(ModNodeTypes.ITEM_GROUP),
+                    new TagNodeGroup(ModNodeTypes.ENERGY_GROUP),
+                    new TagNodeGroup(ModNodeTypes.FLUID_GROUP))
+            .addNodeGroups(DirectNodeGroup.misc(NodeType.TIME))
             .build();
 
     public static Identifier id(String path) {

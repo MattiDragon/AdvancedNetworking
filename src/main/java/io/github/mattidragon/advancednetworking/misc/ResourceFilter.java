@@ -3,22 +3,13 @@ package io.github.mattidragon.advancednetworking.misc;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
-import io.github.mattidragon.nodeflow.graph.node.Node;
-import io.github.mattidragon.nodeflow.ui.screen.EditorScreen;
-import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.command.argument.NbtPathArgumentType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -133,16 +124,47 @@ public class ResourceFilter<R, V extends TransferVariant<R>> {
         data.putBoolean("regex", useRegex);
     }
 
-    @Environment(EnvType.CLIENT)
-    public NodeConfigScreen createScreen(Node owner, EditorScreen parent) {
-        return new ConfigScreen<>(owner, parent, this);
+    public String getIdFilter() {
+        return idFilter;
     }
 
-    private boolean shouldUseRegex() {
+    public void setIdFilter(String idFilter) {
+        this.idFilter = idFilter;
+    }
+
+    public String getNbtFilter() {
+        return nbtFilter;
+    }
+
+    public void setNbtFilter(String nbtFilter) {
+        this.nbtFilter = nbtFilter;
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
+    public void setUseRegex(boolean useRegex) {
+        this.useRegex = useRegex;
+    }
+
+    public boolean isWhitelist() {
+        return isWhitelist;
+    }
+
+    public void setWhitelist(boolean whitelist) {
+        isWhitelist = whitelist;
+    }
+
+    public boolean shouldUseRegex() {
         return useRegex && !AdvancedNetworking.CONFIG.get().disableRegexFilter();
     }
 
-    private enum Mode {
+    public enum Mode {
         RESOURCE, TAG;
 
         private static Mode byOrdinal(int ordinal) {
@@ -150,52 +172,4 @@ public class ResourceFilter<R, V extends TransferVariant<R>> {
         }
     }
 
-    public static class ConfigScreen<R, V extends TransferVariant<R>> extends NodeConfigScreen {
-        private final ResourceFilter<R, V> filter;
-
-        protected ConfigScreen(Node owner, EditorScreen parent, ResourceFilter<R, V> filter) {
-            super(owner, parent);
-            this.filter = filter;
-        }
-
-        @Override
-        protected void init() {
-            var x = ((width - 200) / 2) - 50;
-
-            var regexButton = CyclingButtonWidget.onOffBuilder()
-                    .initially(filter.shouldUseRegex())
-                    .build(x, 45, 100, 20, Text.translatable("node.advanced_networking.filter.use_regex"), (button1, value) -> filter.useRegex = value);
-            if (AdvancedNetworking.CONFIG.get().disableRegexFilter()) {
-                regexButton.active = false;
-                regexButton.setTooltip(Tooltip.of(Text.translatable("node.advanced_networking.filter.use_regex.disabled")));
-            }
-            addDrawableChild(regexButton);
-
-            var whitelistButton = CyclingButtonWidget.onOffBuilder(Text.translatable("node.advanced_networking.filter.mode.whitelist"), Text.translatable("node.advanced_networking.filter.mode.blacklist"))
-                    .initially(filter.isWhitelist)
-                    .omitKeyText()
-                    .build(x, 70, 100, 20, Text.empty(), (button1, value) -> filter.isWhitelist = value);
-            addDrawableChild(whitelistButton);
-
-            var button = CyclingButtonWidget.<Mode>builder(mode -> mode == Mode.RESOURCE ? Text.translatable("node.advanced_networking.filter.mode.resource") : Text.translatable("node.advanced_networking.filter.mode.tag"))
-                    .values(Mode.values())
-                    .initially(filter.mode)
-                    .build(x, 95, 100, 20, Text.translatable("node.advanced_networking.filter.mode"), (button1, value) -> filter.mode = value);
-            addDrawableChild(button);
-
-            var idField = new TextFieldWidget(textRenderer, x, 120, 100, 20, Text.empty());
-            idField.setMaxLength(100);
-            idField.setPlaceholder(Text.literal("id").formatted(Formatting.GRAY));
-            idField.setText(filter.idFilter);
-            idField.setChangedListener(newValue -> filter.idFilter = newValue);
-            addDrawableChild(idField);
-
-            var nbtField = new TextFieldWidget(textRenderer, x, 145, 100, 20, Text.empty());
-            nbtField.setMaxLength(200);
-            nbtField.setPlaceholder(Text.literal("nbt").formatted(Formatting.GRAY));
-            nbtField.setText(filter.nbtFilter);
-            nbtField.setChangedListener(newValue -> filter.nbtFilter = newValue);
-            addDrawableChild(nbtField);
-        }
-    }
 }

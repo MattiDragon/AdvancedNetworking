@@ -34,9 +34,9 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_cable",
-      "has_compound",
-      "has_the_recipe"
+      "has_compound"
     ]
   ],
   "rewards": {

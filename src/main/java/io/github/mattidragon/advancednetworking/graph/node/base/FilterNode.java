@@ -9,10 +9,6 @@ import io.github.mattidragon.nodeflow.graph.data.DataType;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
 import io.github.mattidragon.nodeflow.graph.node.Node;
 import io.github.mattidragon.nodeflow.graph.node.NodeType;
-import io.github.mattidragon.nodeflow.ui.screen.EditorScreen;
-import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.nbt.NbtCompound;
@@ -72,14 +68,7 @@ public abstract class FilterNode<R, V extends TransferVariant<R>, T> extends Nod
         filter.writeNbt(data);
     }
 
-    @Environment(EnvType.CLIENT)
-    @Override
-    public NodeConfigScreen createConfigScreen(EditorScreen parent) {
-        return filter.createScreen(this, parent);
-    }
-
-    @Override
-    public boolean hasConfig() {
-        return true;
+    public ResourceFilter<R, V> getFilter() {
+        return filter;
     }
 }

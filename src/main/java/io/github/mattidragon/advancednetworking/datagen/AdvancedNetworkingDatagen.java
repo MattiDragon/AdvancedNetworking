@@ -12,6 +12,7 @@ public class AdvancedNetworkingDatagen implements DataGeneratorEntrypoint {
         pack.addProvider(ModelProvider::new);
         pack.addProvider(RecipeProvider::new);
         pack.addProvider(BlockLootTableProvider::new);
+        pack.addProvider(NodeTypeTagProvider::new);
         var blockTagProvider = pack.addProvider(BlockTagProvider::new);
         pack.addProvider((output, registriesFuture) ->  new ItemTagProvider(output, registriesFuture, blockTagProvider));
     }

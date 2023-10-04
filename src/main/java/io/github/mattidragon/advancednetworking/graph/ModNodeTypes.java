@@ -29,9 +29,8 @@ import io.github.mattidragon.advancednetworking.graph.node.item.storage.ItemTarg
 import io.github.mattidragon.advancednetworking.graph.node.redstone.ReadRedstoneNode;
 import io.github.mattidragon.advancednetworking.graph.node.redstone.SetRedstoneNode;
 import io.github.mattidragon.advancednetworking.graph.node.redstone.WriteRedstoneNode;
-import io.github.mattidragon.nodeflow.graph.node.NodeGroup;
 import io.github.mattidragon.nodeflow.graph.node.NodeType;
-import net.minecraft.text.Text;
+import net.minecraft.registry.tag.TagKey;
 
 import static io.github.mattidragon.advancednetworking.AdvancedNetworking.id;
 
@@ -39,7 +38,7 @@ public class ModNodeTypes {
     public static final NodeType<ReadRedstoneNode> READ_REDSTONE = new NodeType<>(ReadRedstoneNode::new);
     public static final NodeType<WriteRedstoneNode> WRITE_REDSTONE = new NodeType<>(WriteRedstoneNode::new);
     public static final NodeType<SetRedstoneNode> SET_REDSTONE = new NodeType<>(SetRedstoneNode::new);
-    public static final NodeGroup REDSTONE_GROUP = new NodeGroup(Text.translatable("group.advanced_networking.redstone"), READ_REDSTONE, WRITE_REDSTONE, SET_REDSTONE);
+    public static final TagKey<NodeType<?>> REDSTONE_GROUP = TagKey.of(NodeType.KEY, id("redstone"));
 
     public static final NodeType<ItemSourceNode> ITEM_SOURCE = new NodeType<>(ItemSourceNode::new);
     public static final NodeType<ItemTargetNode> ITEM_TARGET = new NodeType<>(ItemTargetNode::new);
@@ -50,7 +49,7 @@ public class ModNodeTypes {
     public static final NodeType<FilterItemsNode> FILTER_ITEMS = new NodeType<>(FilterItemsNode::new);
     public static final NodeType<ItemCountNode> ITEM_COUNT = new NodeType<>(ItemCountNode::new);
     public static final NodeType<ItemCapacityNode> ITEM_CAPACITY = new NodeType<>(ItemCapacityNode::new);
-    public static final NodeGroup ITEM_GROUP = new NodeGroup(Text.translatable("group.advanced_networking.item"), ITEM_SOURCE, ITEM_TARGET, SPLIT_ITEMS, MERGE_ITEMS, EMPTY_ITEM_STREAM, LIMIT_ITEMS, FILTER_ITEMS, ITEM_COUNT, ITEM_CAPACITY);
+    public static final TagKey<NodeType<?>> ITEM_GROUP = TagKey.of(NodeType.KEY, id("item"));
 
     public static final NodeType<EnergySourceNode> ENERGY_SOURCE = new NodeType<>(EnergySourceNode::new);
     public static final NodeType<EnergyTargetNode> ENERGY_TARGET = new NodeType<>(EnergyTargetNode::new);
@@ -60,7 +59,7 @@ public class ModNodeTypes {
     public static final NodeType<LimitEnergyNode> LIMIT_ENERGY = new NodeType<>(LimitEnergyNode::new);
     public static final NodeType<EnergyCapacityNode> ENERGY_CAPACITY = new NodeType<>(EnergyCapacityNode::new);
     public static final NodeType<EnergyAmountNode> ENERGY_AMOUNT = new NodeType<>(EnergyAmountNode::new);
-    public static final NodeGroup ENERGY_GROUP = new NodeGroup(Text.translatable("group.advanced_networking.energy"), ENERGY_SOURCE, ENERGY_TARGET, SPLIT_ENERGY, MERGE_ENERGY, EMPTY_ENERGY_STREAM, LIMIT_ENERGY, ENERGY_AMOUNT, ENERGY_CAPACITY);
+    public static final TagKey<NodeType<?>> ENERGY_GROUP = TagKey.of(NodeType.KEY, id("energy"));
 
     public static final NodeType<FluidSourceNode> FLUID_SOURCE = new NodeType<>(FluidSourceNode::new);
     public static final NodeType<FluidTargetNode> FLUID_TARGET = new NodeType<>(FluidTargetNode::new);
@@ -71,7 +70,7 @@ public class ModNodeTypes {
     public static final NodeType<FilterFluidNode> FILTER_FLUID = new NodeType<>(FilterFluidNode::new);
     public static final NodeType<FluidCountNode> FLUID_COUNT = new NodeType<>(FluidCountNode::new);
     public static final NodeType<FluidCapacityNode> FLUID_CAPACITY = new NodeType<>(FluidCapacityNode::new);
-    public static final NodeGroup FLUID_GROUP = new NodeGroup(Text.translatable("group.advanced_networking.fluid"), FLUID_SOURCE, FLUID_TARGET, SPLIT_FLUID, MERGE_FLUID, EMPTY_FLUID_STREAM, LIMIT_FLUID, FILTER_FLUID, FLUID_COUNT, FLUID_CAPACITY);
+    public static final TagKey<NodeType<?>> FLUID_GROUP = TagKey.of(NodeType.KEY, id("fluid"));
 
     public static void register() {
         NodeType.register(READ_REDSTONE, id("read_redstone"));

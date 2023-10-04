@@ -1,4 +1,4 @@
-package io.github.mattidragon.advancednetworking.config;
+package io.github.mattidragon.advancednetworking.client.config;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;

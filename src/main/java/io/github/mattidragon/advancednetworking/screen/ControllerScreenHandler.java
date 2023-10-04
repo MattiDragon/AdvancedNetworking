@@ -7,7 +7,7 @@ import io.github.mattidragon.advancednetworking.block.CableBlockEntity;
 import io.github.mattidragon.advancednetworking.block.ControllerBlockEntity;
 import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import io.github.mattidragon.advancednetworking.network.node.InterfaceNode;
-import io.github.mattidragon.nodeflow.ui.screen.EditorScreenHandler;
+import io.github.mattidragon.nodeflow.screen.EditorScreenHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;

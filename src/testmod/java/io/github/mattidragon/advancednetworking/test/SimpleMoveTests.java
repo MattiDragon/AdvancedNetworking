@@ -9,11 +9,10 @@ import io.github.mattidragon.advancednetworking.graph.node.item.storage.ItemTarg
 import io.github.mattidragon.advancednetworking.test.util.AdvancedNetworkingGameTest;
 import io.github.mattidragon.advancednetworking.test.util.AdvancedNetworkingTestContext;
 import io.github.mattidragon.nodeflow.graph.Graph;
-import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LeverBlock;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.block.enums.WallMountLocation;
+import net.minecraft.block.enums.BlockFace;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.test.GameTest;
@@ -29,7 +28,7 @@ public class SimpleMoveTests implements AdvancedNetworkingGameTest {
         var endCablePos = controllerPos.east(2);
         context.cable(controllerPos.east(2), CableBlock.SOUTH, CableBlock.NORTH);
 
-        context.setBlockState(controllerPos.up(), Blocks.LEVER.getDefaultState().with(LeverBlock.FACE, WallMountLocation.FLOOR));
+        context.setBlockState(controllerPos.up(), Blocks.LEVER.getDefaultState().with(LeverBlock.FACE, BlockFace.FLOOR));
 
         var inputPos = endCablePos.south();
         var outputPos = endCablePos.north();
@@ -67,7 +66,7 @@ public class SimpleMoveTests implements AdvancedNetworkingGameTest {
         var endCablePos = controllerPos.east(2);
         context.cable(endCablePos, CableBlock.SOUTH, CableBlock.NORTH);
 
-        context.setBlockState(controllerPos.up(), Blocks.LEVER.getDefaultState().with(LeverBlock.FACE, WallMountLocation.FLOOR));
+        context.setBlockState(controllerPos.up(), Blocks.LEVER.getDefaultState().with(LeverBlock.FACE, BlockFace.FLOOR));
 
         var inputPos = endCablePos.south();
         var outputPos = endCablePos.north();

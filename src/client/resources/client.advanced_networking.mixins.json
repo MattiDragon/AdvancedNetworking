@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.mattidragon.advancednetworking.client.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "CheckboxWidgetAccess",
+    "ClientPlayerEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

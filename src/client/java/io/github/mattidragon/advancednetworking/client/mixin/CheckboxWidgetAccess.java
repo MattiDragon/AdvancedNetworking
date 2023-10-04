@@ -1,4 +1,4 @@
-package io.github.mattidragon.advancednetworking.mixin;
+package io.github.mattidragon.advancednetworking.client.mixin;
 
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "advanced_networking:fluid_source",
+    "advanced_networking:fluid_target",
+    "advanced_networking:split_fluid",
+    "advanced_networking:merge_fluid",
+    "advanced_networking:empty_fluid_stream",
+    "advanced_networking:limit_fluid",
+    "advanced_networking:filter_fluid",
+    "advanced_networking:fluid_count",
+    "advanced_networking:fluid_capacity"
+  ]
+}

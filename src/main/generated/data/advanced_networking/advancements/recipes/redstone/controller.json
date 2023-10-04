@@ -34,9 +34,9 @@
   },
   "requirements": [
     [
+      "has_the_recipe",
       "has_controller",
-      "has_compound",
-      "has_the_recipe"
+      "has_compound"
     ]
   ],
   "rewards": {

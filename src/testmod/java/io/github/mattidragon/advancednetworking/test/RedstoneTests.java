@@ -9,7 +9,7 @@ import io.github.mattidragon.nodeflow.graph.Graph;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LeverBlock;
 import net.minecraft.block.RedstoneLampBlock;
-import net.minecraft.block.enums.WallMountLocation;
+import net.minecraft.block.enums.BlockFace;
 import net.minecraft.test.GameTest;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -22,7 +22,7 @@ public class RedstoneTests implements AdvancedNetworkingGameTest {
         var cablePos = controllerPos.north();
         context.cable(cablePos, CableBlock.UP);
         context.setBlockState(cablePos.up(), Blocks.REDSTONE_LAMP);
-        context.setBlockState(controllerPos.up(), Blocks.LEVER.getDefaultState().with(LeverBlock.FACE, WallMountLocation.FLOOR));
+        context.setBlockState(controllerPos.up(), Blocks.LEVER.getDefaultState().with(LeverBlock.FACE, BlockFace.FLOOR));
 
         var graph = new Graph(AdvancedNetworking.ENVIRONMENT);
 

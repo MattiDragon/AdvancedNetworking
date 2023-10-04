@@ -1,4 +1,4 @@
-package io.github.mattidragon.advancednetworking.config;
+package io.github.mattidragon.advancednetworking.client.config;
 
 import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
@@ -7,16 +7,18 @@ import dev.isxander.yacl3.api.YetAnotherConfigLib;
 import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.LongFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
+import dev.isxander.yacl3.api.controller.ValueFormatter;
+import io.github.mattidragon.advancednetworking.config.ConfigData;
+import io.github.mattidragon.advancednetworking.config.MutableConfigData;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class ConfigClient {
-    private static final Function<Integer, Text> INT_FORMATTER = (value) -> Text.of(String.format("%d", value));
-    private static final Function<Long, Text> LONG_FORMATTER = (value) -> Text.of(String.format("%d", value));
+    private static final ValueFormatter<Integer> INT_FORMATTER = (value) -> Text.of(String.format("%d", value));
+    private static final ValueFormatter<Long> LONG_FORMATTER = (value) -> Text.of(String.format("%d", value));
 
     public static Screen createScreen(Screen parent, ConfigData config, Consumer<ConfigData> saveConsumer) {
         var data = config.toMutable();
@@ -36,25 +38,25 @@ public class ConfigClient {
                         .name(Text.translatable("config.advanced_networking.option.controller_tick_rate"))
                         .description(OptionDescription.of(Text.translatable("config.advanced_networking.option.controller_tick_rate.tooltip")))
                         .binding(ConfigData.DEFAULT.controllerTickRate(), instance::controllerTickRate, instance::controllerTickRate)
-                        .controller(option -> IntegerFieldControllerBuilder.create(option).range(0, 125).valueFormatter(INT_FORMATTER))
+                        .controller(option -> IntegerFieldControllerBuilder.create(option).range(0, 125).formatValue(INT_FORMATTER))
                         .build())
                 .option(Option.<Long>createBuilder()
                         .name(Text.translatable("config.advanced_networking.option.controller_item_transfer_rate"))
                         .description(OptionDescription.of(Text.translatable("config.advanced_networking.option.controller_item_transfer_rate.tooltip")))
                         .binding(ConfigData.DEFAULT.controllerItemTransferRate(), instance::controllerItemTransferRate, instance::controllerItemTransferRate)
-                        .controller(option -> LongFieldControllerBuilder.create(option).range(0L, 10 * 64L).valueFormatter(LONG_FORMATTER))
+                        .controller(option -> LongFieldControllerBuilder.create(option).range(0L, 10 * 64L).formatValue(LONG_FORMATTER))
                         .build())
                 .option(Option.<Long>createBuilder()
                         .name(Text.translatable("config.advanced_networking.option.controller_fluid_transfer_rate"))
                         .description(OptionDescription.of(Text.translatable("config.advanced_networking.option.controller_fluid_transfer_rate.tooltip")))
                         .binding(ConfigData.DEFAULT.controllerFluidTransferRate(), instance::controllerFluidTransferRate, instance::controllerFluidTransferRate)
-                        .controller(option -> LongFieldControllerBuilder.create(option).range(0L, 100 * FluidConstants.BUCKET).valueFormatter(LONG_FORMATTER))
+                        .controller(option -> LongFieldControllerBuilder.create(option).range(0L, 100 * FluidConstants.BUCKET).formatValue(LONG_FORMATTER))
                         .build())
                 .option(Option.<Long>createBuilder()
                         .name(Text.translatable("config.advanced_networking.option.controller_energy_transfer_rate"))
                         .description(OptionDescription.of(Text.translatable("config.advanced_networking.option.controller_energy_transfer_rate.tooltip")))
                         .binding(ConfigData.DEFAULT.controllerEnergyTransferRate(), instance::controllerEnergyTransferRate, instance::controllerEnergyTransferRate)
-                        .controller(option -> LongFieldControllerBuilder.create(option).range(0L, 100 * 256L).valueFormatter(LONG_FORMATTER))
+                        .controller(option -> LongFieldControllerBuilder.create(option).range(0L, 100 * 256L).formatValue(LONG_FORMATTER))
                         .build())
                 .option(Option.<Boolean>createBuilder()
                         .name(Text.translatable("config.advanced_networking.option.disable_regex_filtering"))

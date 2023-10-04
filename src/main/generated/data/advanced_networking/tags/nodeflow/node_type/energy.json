@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "advanced_networking:energy_source",
+    "advanced_networking:energy_target",
+    "advanced_networking:split_energy",
+    "advanced_networking:merge_energy",
+    "advanced_networking:empty_energy_stream",
+    "advanced_networking:limit_energy",
+    "advanced_networking:energy_amount",
+    "advanced_networking:energy_capacity"
+  ]
+}

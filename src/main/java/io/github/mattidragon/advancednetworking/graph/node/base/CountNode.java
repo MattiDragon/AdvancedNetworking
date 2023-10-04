@@ -9,15 +9,10 @@ import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.graph.data.DataType;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
 import io.github.mattidragon.nodeflow.graph.node.NodeType;
-import io.github.mattidragon.nodeflow.ui.screen.EditorScreen;
-import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
@@ -98,44 +93,7 @@ public abstract class CountNode<R, V extends TransferVariant<R>> extends Interfa
         filter.writeNbt(data);
     }
 
-    @Environment(EnvType.CLIENT)
-    @Override
-    public NodeConfigScreen createConfigScreen(EditorScreen parent) {
-        return new ConfigScreen(parent);
-    }
-
-    private class InterfaceSelectionScreen extends InterfaceNode.ConfigScreen {
-        private final ConfigScreen configScreen;
-
-        public InterfaceSelectionScreen(EditorScreen parent, ConfigScreen configScreen) {
-            super(parent);
-            this.configScreen = configScreen;
-        }
-
-        @Override
-        public void close() {
-            client.setScreen(this.configScreen);
-        }
-    }
-
-    private class ConfigScreen extends ResourceFilter.ConfigScreen<R, V> {
-        private final EditorScreen parent;
-
-        public ConfigScreen(EditorScreen parent) {
-            super(CountNode.this, parent, filter);
-            this.parent = parent;
-        }
-
-        @Override
-        protected void init() {
-            super.init();
-
-            var x = ((width - 200) / 2) - 50;
-            var chooseInterfaceButton = ButtonWidget.builder(Text.translatable("node.advanced_networking.item_count.choose_interface"), button -> client.setScreen(new InterfaceSelectionScreen(parent, this)))
-                    .width(100)
-                    .position(x, 175)
-                    .build();
-            addDrawableChild(chooseInterfaceButton);
-        }
+    public ResourceFilter<R,V> getFilter() {
+        return filter;
     }
 }

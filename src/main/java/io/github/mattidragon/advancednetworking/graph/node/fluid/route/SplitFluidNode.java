@@ -1,24 +1,19 @@
 package io.github.mattidragon.advancednetworking.graph.node.fluid.route;
 
 import com.mojang.datafixers.util.Either;
-import io.github.mattidragon.advancednetworking.client.screen.SliderConfigScreen;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
+import io.github.mattidragon.advancednetworking.graph.node.base.SingleSliderNode;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
-import io.github.mattidragon.nodeflow.graph.node.Node;
-import io.github.mattidragon.nodeflow.ui.screen.EditorScreen;
-import io.github.mattidragon.nodeflow.ui.screen.NodeConfigScreen;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
 
-public class SplitFluidNode extends Node {
+public class SplitFluidNode extends SingleSliderNode {
     private int count = 2;
 
     public SplitFluidNode(Graph graph) {
@@ -67,14 +62,28 @@ public class SplitFluidNode extends Node {
         data.putInt("count", count);
     }
 
-    @Environment(EnvType.CLIENT)
     @Override
-    public NodeConfigScreen createConfigScreen(EditorScreen parent) {
-        return new SliderConfigScreen(this, parent, value -> count = value, () -> count, Text.translatable("node.advanced_networking.streams"), 2, 8);
+    public Text getSliderText() {
+        return Text.translatable("node.advanced_networking.streams");
     }
 
     @Override
-    public boolean hasConfig() {
-        return true;
+    public int getMin() {
+        return 2;
+    }
+
+    @Override
+    public int getMax() {
+        return 8;
+    }
+
+    @Override
+    public int getValue() {
+        return count;
+    }
+
+    @Override
+    public void setValue(int value) {
+        count = value;
     }
 }

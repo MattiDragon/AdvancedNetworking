@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "advanced_networking:item_source",
+    "advanced_networking:item_target",
+    "advanced_networking:split_items",
+    "advanced_networking:merge_items",
+    "advanced_networking:empty_item_stream",
+    "advanced_networking:limit_items",
+    "advanced_networking:filter_items",
+    "advanced_networking:item_count",
+    "advanced_networking:item_capacity"
+  ]
+}

@@ -5,18 +5,15 @@ import com.google.common.collect.Maps;
 import com.google.common.primitives.Longs;
 import com.kneelawk.graphlib.api.graph.user.BlockNode;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
-import io.github.mattidragon.advancednetworking.client.screen.CableConfigScreen;
+import io.github.mattidragon.advancednetworking.misc.ClientScreenOpener;
 import io.github.mattidragon.advancednetworking.misc.InterfaceType;
 import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import io.github.mattidragon.advancednetworking.network.node.CableNode;
 import io.github.mattidragon.advancednetworking.network.node.InterfaceNode;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import io.github.mattidragon.advancednetworking.registry.ModTags;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.server.world.ServerWorld;
@@ -43,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 // Mojank
@@ -257,18 +253,17 @@ public class CableBlock extends BlockWithEntity {
             return ActionResult.SUCCESS;
         }
         if (hand == Hand.MAIN_HAND && player.isSneaking()) {
-            if (world.isClient) {
-                openConfig(pos.toImmutable(), direction, (side) -> InterfaceType.ofConnectionType(world.getBlockState(pos).get(FACING_PROPERTIES.get(side))), cable::getName, cable.isAdventureModeAccessAllowed());
-            }
+            ((ClientScreenOpener)player).advancednetworking$openCableConfigScreen(
+                    pos.toImmutable(),
+                    direction,
+                    (side) -> InterfaceType.ofConnectionType(world.getBlockState(pos).get(FACING_PROPERTIES.get(side))),
+                    cable::getName,
+                    cable.isAdventureModeAccessAllowed());
+
             return ActionResult.SUCCESS;
         }
 
         return ActionResult.PASS;
-    }
-
-    @Environment(EnvType.CLIENT)
-    private void openConfig(BlockPos pos, Direction direction, Function<Direction, InterfaceType> typeSupplier, Function<Direction, String> nameSupplier, boolean allowAdventureModeAccess) {
-        MinecraftClient.getInstance().setScreen(new CableConfigScreen(pos, direction, typeSupplier, nameSupplier, allowAdventureModeAccess));
     }
 
     private Direction calcHitDirection(Vec3d pos) {
