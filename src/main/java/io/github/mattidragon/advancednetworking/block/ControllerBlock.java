@@ -1,5 +1,6 @@
 package io.github.mattidragon.advancednetworking.block;
 
+import com.mojang.serialization.MapCodec;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import net.minecraft.block.Block;
@@ -31,6 +32,11 @@ public class ControllerBlock extends BlockWithEntity {
     public ControllerBlock(Settings settings) {
         super(settings);
         this.setDefaultState(this.getDefaultState().with(POWERED, false).with(SUCCESS, true));
+    }
+
+    @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return createCodec(ControllerBlock::new);
     }
 
     @Nullable

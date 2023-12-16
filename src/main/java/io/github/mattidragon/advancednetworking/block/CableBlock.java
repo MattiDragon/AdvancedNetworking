@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Longs;
 import com.kneelawk.graphlib.api.graph.user.BlockNode;
+import com.mojang.serialization.MapCodec;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.misc.ClientScreenOpener;
 import io.github.mattidragon.advancednetworking.misc.InterfaceType;
@@ -64,6 +65,11 @@ public class CableBlock extends BlockWithEntity {
     public CableBlock(AbstractBlock.Settings settings) {
         super(settings);
         this.connectionsToShape = this.generateShapeMap(2 / 16f);
+    }
+
+    @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return createCodec(CableBlock::new);
     }
 
     @Override

@@ -75,7 +75,7 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity implements 
 
         graph.readNbt(nbt.getCompound("graph"));
         errors = NbtUtils.readStrings(nbt, "errors").stream()
-                .map((Function<String, Optional<Text>>) json -> Optional.ofNullable(Text.Serializer.fromJson(json)))
+                .map((Function<String, Optional<Text>>) json -> Optional.ofNullable(Text.Serialization.fromJson(json)))
                 .flatMap(Optional::stream)
                 .toList();
     }
@@ -91,7 +91,7 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity implements 
         var graphNbt = new NbtCompound();
         graph.writeNbt(graphNbt);
         nbt.put("graph", graphNbt);
-        NbtUtils.writeStrings(nbt, "errors", errors.stream().map(Text.Serializer::toJson).toList());
+        NbtUtils.writeStrings(nbt, "errors", errors.stream().map(Text.Serialization::toJsonString).toList());
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, ControllerBlockEntity controller) {

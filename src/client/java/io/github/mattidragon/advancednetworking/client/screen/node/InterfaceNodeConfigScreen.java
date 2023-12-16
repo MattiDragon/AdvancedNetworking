@@ -72,17 +72,17 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
 
     private class InterfaceList extends ElementListWidget<InterfaceList.Entry> {
         public InterfaceList(MinecraftClient minecraftClient, int screenWidth, int screenHeight) {
-            super(minecraftClient, 150, screenHeight - 50, 30, screenHeight - 20, 25);
+            super(minecraftClient, 150, screenHeight - 50, 30, 25);
             setRenderBackground(false);
 
-            setLeftPos(((screenWidth - 200) / 2) - this.width / 2);
+            setX(((screenWidth - 200) / 2) - this.width / 2);
 
             addEntry(new InterfaceList.MessageEntry(Text.translatable("node.advanced_networking.interface.loading")));
         }
 
         @Override
         protected int getScrollbarPositionX() {
-            return left + width;
+            return getX() + width;
         }
 
         @Override
@@ -118,12 +118,24 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
 
         private class InterfaceEntry extends InterfaceList.Entry {
             private final Interface value;
-            private final InterfaceList.InterfaceEntry.CheckBox checkbox;
+            private final CheckboxWidget checkbox;
 
             private InterfaceEntry(Interface value) {
                 this.value = value;
                 var text = value.name.isBlank() ? value.id : value.name;
-                this.checkbox = new InterfaceList.InterfaceEntry.CheckBox(0, 0, 150, 20, Text.literal(text), false);
+                this.checkbox = CheckboxWidget.builder(Text.literal(text), textRenderer)
+                        .callback((clickedBox, checked) -> {
+                            for (int i = 0; i < getEntryCount(); i++) {
+                                if (getEntry(i) instanceof InterfaceList.InterfaceEntry entry && entry.checkbox != clickedBox) {
+                                    ((CheckboxWidgetAccess) entry.checkbox).setChecked(false);
+                                }
+                            }
+
+                            owner.interfaceId = value.id;
+                        })
+                        .build();
+                checkbox.setWidth(150);
+                checkbox.setHeight(20);
             }
 
             @Override
@@ -141,24 +153,6 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
                 checkbox.setX(x);
                 checkbox.setY(y);
                 checkbox.render(context, mouseX, mouseY, tickDelta);
-            }
-
-            private class CheckBox extends CheckboxWidget {
-                public CheckBox(int x, int y, int width, int height, Text message, boolean checked) {
-                    super(x, y, width, height, message, checked);
-                }
-
-                @Override
-                public void onPress() {
-                    for (int i = 0; i < getEntryCount(); i++) {
-                        if (getEntry(i) instanceof InterfaceList.InterfaceEntry entry)
-                            ((CheckboxWidgetAccess) entry.checkbox).setChecked(false);
-                    }
-
-                    owner.interfaceId = value.id;
-
-                    super.onPress();
-                }
             }
         }
     }
