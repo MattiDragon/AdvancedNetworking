@@ -1,6 +1,7 @@
 package io.github.mattidragon.advancednetworking.client.screen;
 
 import io.github.mattidragon.advancednetworking.block.CableBlock;
+import io.github.mattidragon.advancednetworking.block.CableBlockEntity;
 import io.github.mattidragon.advancednetworking.misc.InterfaceType;
 import io.github.mattidragon.advancednetworking.misc.SetAdventureModeAccessPacket;
 import io.github.mattidragon.advancednetworking.misc.UpdateInterfacePacket;
@@ -11,29 +12,37 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-
-import java.util.function.Function;
+import net.minecraft.world.World;
 
 public class CableConfigScreen extends Screen {
     private final BlockPos pos;
-    private final Function<Direction, InterfaceType> typeSupplier;
-    private final Function<Direction, String> nameSupplier;
+    private final CableBlockEntity cable;
+    private final World world;
     private Direction side;
     private InterfaceType type;
     private String name;
     private boolean adventureModeAccessAllowed;
 
-    public CableConfigScreen(BlockPos pos, Direction side, Function<Direction, InterfaceType> typeSupplier, Function<Direction, String> nameSupplier, boolean adventureModeAccessAllowed) {
+    public CableConfigScreen(BlockPos pos, Direction side, CableBlockEntity cable) {
         super(Text.translatable("screen.advanced_networking.cable_config"));
         this.pos = pos;
-        this.typeSupplier = typeSupplier;
-        this.nameSupplier = nameSupplier;
         this.side = side;
-        this.adventureModeAccessAllowed = adventureModeAccessAllowed;
-        this.type = typeSupplier.apply(side);
-        this.name = nameSupplier.apply(side);
+        this.world = cable.getWorld();
+        if (world == null) throw new IllegalStateException("Cable block entity has no world");
+        this.cable = cable;
+        this.type = getType();
+        this.name = getName();
+    }
+
+    private InterfaceType getType() {
+        return InterfaceType.ofConnectionType(world.getBlockState(this.pos).getOrEmpty(CableBlock.FACING_PROPERTIES.get(this.side)).orElse(CableBlock.ConnectionType.NONE));
+    }
+
+    private String getName() {
+        return this.cable.getName(this.side);
     }
 
     @Override
@@ -45,6 +54,7 @@ public class CableConfigScreen extends Screen {
 
         var nameField = addDrawableChild(new TextFieldWidget(textRenderer, calcRightX() - 100, 70, 100, 20, Text.empty()));
         nameField.setText(name);
+        nameField.setPlaceholder(cable.getBackupName(side).copy().formatted(Formatting.GRAY));
         nameField.setChangedListener(value -> name = value.trim());
 
         var buttons = new ButtonWidget[6];
@@ -56,10 +66,11 @@ public class CableConfigScreen extends Screen {
 
                 ClientPlayNetworking.send(new UpdateInterfacePacket(pos, side, type, name));
                 side = direction;
-                type = typeSupplier.apply(side);
-                name = nameSupplier.apply(side);
+                type = getType();
+                name = getName();
                 interfaceTypeButton.setValue(type);
                 nameField.setText(name);
+                nameField.setPlaceholder(cable.getBackupName(side).copy().formatted(Formatting.GRAY));
             }).width(100).position(calcLeftX(), 40 + 20 * i).build();
             addDrawableChild(button);
             buttons[i] = button;

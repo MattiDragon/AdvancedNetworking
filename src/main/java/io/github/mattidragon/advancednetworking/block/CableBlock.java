@@ -262,9 +262,7 @@ public class CableBlock extends BlockWithEntity {
             ((ClientScreenOpener)player).advancednetworking$openCableConfigScreen(
                     pos.toImmutable(),
                     direction,
-                    (side) -> InterfaceType.ofConnectionType(world.getBlockState(pos).get(FACING_PROPERTIES.get(side))),
-                    cable::getName,
-                    cable.isAdventureModeAccessAllowed());
+                    cable);
 
             return ActionResult.SUCCESS;
         }

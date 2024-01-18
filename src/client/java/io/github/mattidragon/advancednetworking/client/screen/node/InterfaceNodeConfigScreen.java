@@ -39,7 +39,7 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
         ClientPlayNetworking.send(RequestInterfacesPacket.ID, buf);
     }
 
-    public void setInterfaces(Map<String, String> interfaces) {
+    public void setInterfaces(Map<String, Text> interfaces) {
         interfaceList.children().clear();
         if (interfaces.isEmpty())
             this.interfaceList.children().add(interfaceList.new MessageEntry(Text.translatable("node.advanced_networking.interface.no_interfaces")));
@@ -53,13 +53,7 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
         interfaceList.children().sort((first, second) -> {
             if (first instanceof InterfaceList.InterfaceEntry firstInterface) {
                 if (second instanceof InterfaceList.InterfaceEntry secondInterface) {
-                    if (firstInterface.value.name.isBlank() && secondInterface.value.name.isBlank())
-                        return firstInterface.value.id.compareTo(secondInterface.value.id);
-                    if (firstInterface.value.name.isBlank())
-                        return 1;
-                    if (secondInterface.value.name.isBlank())
-                        return -1;
-                    return firstInterface.value.name.compareTo(secondInterface.value.name);
+                    return firstInterface.value.name.getString().compareTo(secondInterface.value.name.getString());
                 }
                 return -1;
             }
@@ -67,7 +61,7 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
         });
     }
 
-    record Interface(String id, String name) {
+    record Interface(String id, Text name) {
     }
 
     private class InterfaceList extends ElementListWidget<InterfaceList.Entry> {
@@ -122,8 +116,7 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
 
             private InterfaceEntry(Interface value) {
                 this.value = value;
-                var text = value.name.isBlank() ? value.id : value.name;
-                this.checkbox = CheckboxWidget.builder(Text.literal(text), textRenderer)
+                this.checkbox = CheckboxWidget.builder(value.name, textRenderer)
                         .callback((clickedBox, checked) -> {
                             for (int i = 0; i < getEntryCount(); i++) {
                                 if (getEntry(i) instanceof InterfaceList.InterfaceEntry entry && entry.checkbox != clickedBox) {

@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.Map;
@@ -33,10 +34,10 @@ public class RequestInterfacesPacket {
         });
     }
 
-    private static void respond(Map<String, String> interfaces, int syncId, PacketSender responseSender) {
+    private static void respond(Map<String, Text> interfaces, int syncId, PacketSender responseSender) {
         var buf = PacketByteBufs.create();
         buf.writeByte(syncId);
-        buf.writeMap(interfaces, PacketByteBuf::writeString, PacketByteBuf::writeString);
+        buf.writeMap(interfaces, PacketByteBuf::writeString, PacketByteBuf::writeText);
 
         responseSender.sendPacket(RESPONSE_ID, buf);
     }

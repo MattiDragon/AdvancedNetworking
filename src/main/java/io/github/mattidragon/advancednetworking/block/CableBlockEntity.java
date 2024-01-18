@@ -11,6 +11,8 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Nameable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -47,6 +49,21 @@ public class CableBlockEntity extends BlockEntity implements AdventureModeAccess
 
     public String getName(Direction direction) {
         return names[direction.getId()];
+    }
+
+    public Text getDisplayName(Direction direction) {
+        var customName = this.names[direction.getId()];
+        if (!customName.isBlank()) return Text.literal(customName);
+        return getBackupName(direction);
+    }
+
+    public Text getBackupName(Direction direction) {
+        if (world != null) {
+            if (world.getBlockEntity(pos.offset(direction)) instanceof Nameable nameable) {
+                return nameable.getDisplayName();
+            }
+        }
+        return Text.literal(CableBlock.calcInterfaceId(pos, direction));
     }
 
     @Nullable

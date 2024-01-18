@@ -54,7 +54,7 @@ public class ControllerScreenHandler extends EditorScreenHandler {
         return false;
     }
 
-    public Optional<Map<String, String>> getInterfaces() {
+    public Optional<Map<String, Text>> getInterfaces() {
         return context.get((world, pos) -> {
             if (!(world instanceof ServerWorld serverWorld))
                 return Optional.empty();
@@ -64,7 +64,7 @@ public class ControllerScreenHandler extends EditorScreenHandler {
                     .flatMap(BlockGraph::getNodes)
                     .toList();
 
-            var map = new HashMap<String, String>();
+            var map = new HashMap<String, Text>();
 
             for (var node : nodes) {
                 if (!(node.getNode() instanceof InterfaceNode interfaceNode))
@@ -73,8 +73,7 @@ public class ControllerScreenHandler extends EditorScreenHandler {
                     continue;
 
                 var interfaceId = CableBlock.calcInterfaceId(node.getBlockPos(), interfaceNode.getSide());
-                var name = cable.getName(interfaceNode.getSide());
-                map.put(interfaceId, name);
+                map.put(interfaceId, cable.getDisplayName(interfaceNode.getSide()));
             }
             return Optional.of(map);
         }, Optional.empty());
