@@ -34,12 +34,13 @@ public class ReadRedstoneNode extends InterfaceNode {
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
         var world = context.get(ContextType.SERVER_WORLD);
-        var pos = findInterface(world, context.get(NetworkControllerContext.TYPE).graphId());
-        if (pos.isEmpty())
-            return Either.right(Text.translatable("node.advanced_networking.interface.missing", interfaceId));
+        var positions = findInterfaces(world, context.get(NetworkControllerContext.TYPE).graphId());
 
-        var targetPos = pos.get().pos().offset(pos.get().side());
-        int power = world.getEmittedRedstonePower(targetPos, pos.get().side());
+        var power = positions.stream()
+                .mapToInt(pos -> world.getEmittedRedstonePower(pos.pos().offset(pos.side()), pos.side()))
+                .max()
+                .orElse(0);
+
         return Either.left(new DataValue<?>[]{
                 DataType.BOOLEAN.makeValue(power > 0),
                 DataType.NUMBER.makeValue((double) power)

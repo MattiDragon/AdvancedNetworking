@@ -9,6 +9,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+import java.util.List;
 import java.util.Map;
 
 import static io.github.mattidragon.advancednetworking.AdvancedNetworking.id;
@@ -26,18 +27,21 @@ public class RequestInterfacesPacket {
                     var interfaces = controllerScreenHandler.getInterfaces();
                     if (interfaces.isEmpty()) {
                         AdvancedNetworking.LOGGER.warn("Failed to get interfaces for client, sending empty map");
+                        respond(Map.of(), Map.of(), syncId, responseSender);
+                        return;
                     }
-                    var map = interfaces.orElseGet(Map::of);
-                    respond(map, syncId, responseSender);
+                    var pair = interfaces.get();
+                    respond(pair.getLeft(), pair.getRight(), syncId, responseSender);
                 }
             });
         });
     }
 
-    private static void respond(Map<String, Text> interfaces, int syncId, PacketSender responseSender) {
+    private static void respond(Map<String, Text> interfaces, Map<String, List<String>> groups, int syncId, PacketSender responseSender) {
         var buf = PacketByteBufs.create();
         buf.writeByte(syncId);
         buf.writeMap(interfaces, PacketByteBuf::writeString, PacketByteBuf::writeText);
+        buf.writeMap(groups, PacketByteBuf::writeString, (buf1, list) -> buf1.writeCollection(list, PacketByteBuf::writeString));
 
         responseSender.sendPacket(RESPONSE_ID, buf);
     }

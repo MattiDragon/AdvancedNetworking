@@ -61,10 +61,11 @@ public class AdvancedNetworkingClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(RequestInterfacesPacket.RESPONSE_ID, (client, handler, buf, responseSender) -> {
             var syncId = buf.readByte();
             var interfaces = buf.readMap(PacketByteBuf::readString, PacketByteBuf::readText);
+            var groups = buf.readMap(PacketByteBuf::readString, buf1 -> buf1.readList(PacketByteBuf::readString));
 
             client.execute(() -> {
                 if (client.player != null && client.player.currentScreenHandler.syncId == syncId && client.currentScreen instanceof InterfaceNodeConfigScreen<?> configScreen) {
-                    configScreen.setInterfaces(interfaces);
+                    configScreen.setInterfaces(interfaces, groups);
                 }
             });
         });

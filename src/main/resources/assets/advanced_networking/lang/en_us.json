@@ -5,6 +5,7 @@
   "screen.advanced_networking.cable_config": "Configure Cable",
   "screen.advanced_networking.cable_config.pos": "Position: %s %s %s",
   "screen.advanced_networking.cable_config.name": "Name:",
+  "screen.advanced_networking.cable_config.group": "Group:",
   "screen.advanced_networking.cable_config.id": "Interface ID: %s",
   "screen.advanced_networking.cable_config.interface_type": "Interface Type",
   "screen.advanced_networking.cable_config.interface_type.default": "Default",
@@ -79,7 +80,7 @@
   "node.advanced_networking.limit": "Limit",
   "node.advanced_networking.streams": "Streams",
 
-  "node.advanced_networking.interface.missing": "Interface not found: %s",
+  "node.advanced_networking.interface.missing": "Interface/group not found: %s",
   "node.advanced_networking.interface.invalid": "Invalid interface id",
   "node.advanced_networking.interface.loading": "Loading interfaces...",
   "node.advanced_networking.interface.no_interfaces": "No interfaces found",

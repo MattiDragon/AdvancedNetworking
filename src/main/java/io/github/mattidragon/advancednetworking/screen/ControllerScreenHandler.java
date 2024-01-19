@@ -15,6 +15,7 @@ import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.Pair;
 
 import java.util.*;
 
@@ -54,7 +55,7 @@ public class ControllerScreenHandler extends EditorScreenHandler {
         return false;
     }
 
-    public Optional<Map<String, Text>> getInterfaces() {
+    public Optional<Pair<Map<String, Text>, Map<String, List<String>>>> getInterfaces() {
         return context.get((world, pos) -> {
             if (!(world instanceof ServerWorld serverWorld))
                 return Optional.empty();
@@ -64,7 +65,8 @@ public class ControllerScreenHandler extends EditorScreenHandler {
                     .flatMap(BlockGraph::getNodes)
                     .toList();
 
-            var map = new HashMap<String, Text>();
+            var interfaces = new HashMap<String, Text>();
+            var groups = new HashMap<String, List<String>>();
 
             for (var node : nodes) {
                 if (!(node.getNode() instanceof InterfaceNode interfaceNode))
@@ -73,9 +75,13 @@ public class ControllerScreenHandler extends EditorScreenHandler {
                     continue;
 
                 var interfaceId = CableBlock.calcInterfaceId(node.getBlockPos(), interfaceNode.getSide());
-                map.put(interfaceId, cable.getDisplayName(interfaceNode.getSide()));
+                interfaces.put(interfaceId, cable.getDisplayName(interfaceNode.getSide()));
+                var group = cable.getGroup(interfaceNode.getSide());
+                if (!group.isBlank()) {
+                    groups.computeIfAbsent(group, (group1) -> new ArrayList<>()).add(interfaceId);
+                }
             }
-            return Optional.of(map);
+            return Optional.of(new Pair<>(interfaces, groups));
         }, Optional.empty());
     }
 

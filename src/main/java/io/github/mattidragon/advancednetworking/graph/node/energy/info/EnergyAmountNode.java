@@ -4,13 +4,13 @@ import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
 import io.github.mattidragon.advancednetworking.graph.node.base.InterfaceNode;
+import io.github.mattidragon.advancednetworking.graph.node.energy.EnergyNodeUtils;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.graph.data.DataType;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
 import net.minecraft.text.Text;
-import team.reborn.energy.api.EnergyStorage;
 
 import java.util.List;
 
@@ -33,19 +33,9 @@ public class EnergyAmountNode extends InterfaceNode {
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
         var controller = context.get(NetworkControllerContext.TYPE);
         var world = context.get(ContextType.SERVER_WORLD);
+        var positions = findInterfaces(world, controller.graphId());
 
-        var optionalPos = findInterface(world, controller.graphId());
-        if (optionalPos.isEmpty()) {
-            return Either.right(Text.translatable("node.advanced_networking.interface.missing", interfaceId));
-        }
-
-        var pos = optionalPos.get().pos();
-        var side = optionalPos.get().side();
-
-        var storage = EnergyStorage.SIDED.find(world, pos.offset(side), side.getOpposite());
-        if (storage == null) {
-            return Either.right(Text.translatable("node.advanced_networking.energy_source.missing", interfaceId));
-        }
+        var storage = EnergyNodeUtils.buildCombinedStorage(positions, world);
 
         return Either.left(new DataValue<?>[]{ DataType.NUMBER.makeValue((double) storage.getAmount()) });
     }

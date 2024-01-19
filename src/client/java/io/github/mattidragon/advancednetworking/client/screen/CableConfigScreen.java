@@ -24,6 +24,7 @@ public class CableConfigScreen extends Screen {
     private Direction side;
     private InterfaceType type;
     private String name;
+    private String group;
     private boolean adventureModeAccessAllowed;
 
     public CableConfigScreen(BlockPos pos, Direction side, CableBlockEntity cable) {
@@ -35,6 +36,7 @@ public class CableConfigScreen extends Screen {
         this.cable = cable;
         this.type = getType();
         this.name = getName();
+        this.group = getGroup();
     }
 
     private InterfaceType getType() {
@@ -43,6 +45,10 @@ public class CableConfigScreen extends Screen {
 
     private String getName() {
         return this.cable.getName(this.side);
+    }
+
+    private String getGroup() {
+        return this.cable.getGroup(this.side);
     }
 
     @Override
@@ -57,6 +63,10 @@ public class CableConfigScreen extends Screen {
         nameField.setPlaceholder(cable.getBackupName(side).copy().formatted(Formatting.GRAY));
         nameField.setChangedListener(value -> name = value.trim());
 
+        var groupField = addDrawableChild(new TextFieldWidget(textRenderer, calcRightX() - 100, 90, 100, 20, Text.empty()));
+        groupField.setText(group);
+        groupField.setChangedListener(value -> group = value.trim());
+
         var buttons = new ButtonWidget[6];
         for (int i = 0; i < 6; i++) {
             var direction = Direction.byId(i);
@@ -64,13 +74,15 @@ public class CableConfigScreen extends Screen {
                 button1.active = false;
                 buttons[side.getId()].active = true;
 
-                ClientPlayNetworking.send(new UpdateInterfacePacket(pos, side, type, name));
+                ClientPlayNetworking.send(new UpdateInterfacePacket(pos, side, type, name, group));
                 side = direction;
                 type = getType();
                 name = getName();
+                group = getGroup();
                 interfaceTypeButton.setValue(type);
                 nameField.setText(name);
                 nameField.setPlaceholder(cable.getBackupName(side).copy().formatted(Formatting.GRAY));
+                groupField.setText(group);
             }).width(100).position(calcLeftX(), 40 + 20 * i).build();
             addDrawableChild(button);
             buttons[i] = button;
@@ -95,7 +107,7 @@ public class CableConfigScreen extends Screen {
     @Override
     public void close() {
         super.close();
-        ClientPlayNetworking.send(new UpdateInterfacePacket(pos, side, type, name));
+        ClientPlayNetworking.send(new UpdateInterfacePacket(pos, side, type, name, group));
     }
 
     private int calcLeftX() {
@@ -115,11 +127,13 @@ public class CableConfigScreen extends Screen {
         context.drawText(textRenderer, title, (width - textRenderer.getWidth(title.asOrderedText())) / 2, 10, 0xffffff, false);
 
         // Info rows
-        context.drawText(textRenderer, Text.translatable("screen.advanced_networking.cable_config.pos", pos.getX(), pos.getY(), pos.getZ()), calcRightX() - 150, 100, 0xffffff, false);
-        context.drawText(textRenderer, Text.translatable("screen.advanced_networking.cable_config.id", CableBlock.calcInterfaceId(pos, side)), calcRightX() - 150, 110, 0xffffff, false);
+        context.drawText(textRenderer, Text.translatable("screen.advanced_networking.cable_config.pos", pos.getX(), pos.getY(), pos.getZ()), calcRightX() - 150, 120, 0xffffff, false);
+        context.drawText(textRenderer, Text.translatable("screen.advanced_networking.cable_config.id", CableBlock.calcInterfaceId(pos, side)), calcRightX() - 150, 130, 0xffffff, false);
 
         // Name field tag
         var nameText = Text.translatable("screen.advanced_networking.cable_config.name");
         context.drawText(textRenderer, nameText, calcRightX() - 110 - textRenderer.getWidth(nameText), 75, 0xffffff, false);
+        var groupText = Text.translatable("screen.advanced_networking.cable_config.group");
+        context.drawText(textRenderer, groupText, calcRightX() - 110 - textRenderer.getWidth(groupText), 95, 0xffffff, false);
     }
 }

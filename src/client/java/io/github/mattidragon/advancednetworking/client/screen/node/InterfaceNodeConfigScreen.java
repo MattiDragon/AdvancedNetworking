@@ -15,7 +15,9 @@ import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,29 +41,76 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
         ClientPlayNetworking.send(RequestInterfacesPacket.ID, buf);
     }
 
-    public void setInterfaces(Map<String, Text> interfaces) {
+    public void setInterfaces(Map<String, Text> interfaces, Map<String, List<String>> groups) {
         interfaceList.children().clear();
-        if (interfaces.isEmpty())
+        if (interfaces.isEmpty()) {
             this.interfaceList.children().add(interfaceList.new MessageEntry(Text.translatable("node.advanced_networking.interface.no_interfaces")));
-
-        for (var entry : interfaces.entrySet()) {
-            var interfaceEntry = interfaceList.new InterfaceEntry(new Interface(entry.getKey(), entry.getValue()));
-            this.interfaceList.children().add(interfaceEntry);
-            if (entry.getKey().equals(owner.interfaceId))
-                interfaceEntry.checkbox.onPress();
+            return;
         }
-        interfaceList.children().sort((first, second) -> {
-            if (first instanceof InterfaceList.InterfaceEntry firstInterface) {
-                if (second instanceof InterfaceList.InterfaceEntry secondInterface) {
-                    return firstInterface.value.name.getString().compareTo(secondInterface.value.name.getString());
-                }
-                return -1;
-            }
-            return second instanceof InterfaceList.InterfaceEntry ? 1 : 0;
-        });
-    }
 
-    record Interface(String id, Text name) {
+        interface Sortable extends Comparable<Sortable> {
+            String getName();
+
+            @Override
+            default int compareTo(@NotNull Sortable o) {
+                return getName().compareTo(o.getName());
+            }
+        }
+
+        record Single(String id, Text name) implements Sortable {
+            @Override
+            public String getName() {
+                return name.getString();
+            }
+        }
+
+        record Group(String id, List<Single> interfaces) implements Sortable {
+            @Override
+            public String getName() {
+                return id;
+            }
+        }
+
+        var entries = new ArrayList<Sortable>();
+        interfaces.keySet()
+                .stream()
+                .filter(id -> groups.values().stream().noneMatch(group -> group.contains(id)))
+                .forEach(id -> entries.add(new Single(id, interfaces.get(id))));
+
+        groups.forEach((id, groupEntries) -> {
+            var filtered = groupEntries.stream().filter(interfaces::containsKey).toList();
+            if (filtered.isEmpty()) return;
+            var convertedEntries = filtered.stream()
+                    .map(entry -> new Single(entry, interfaces.get(entry)))
+                    .sorted()
+                    .toList();
+            entries.add(new Group(id, convertedEntries));
+        });
+
+        entries.sort(null);
+
+        for (var entry : entries) {
+            if (entry instanceof Single single) {
+                var added = interfaceList.new InterfaceEntry(single.id(), single.name(), false, false);
+                interfaceList.children().add(added);
+                if (!owner.isGroup && owner.interfaceId.equals(single.id)) {
+                    ((CheckboxWidgetAccess) added.checkbox).setChecked(true);
+                }
+            } else if (entry instanceof Group group) {
+                var groupEntry = interfaceList.new InterfaceEntry(group.id(), Text.literal(group.id()), true, false);
+                interfaceList.children().add(groupEntry);
+                for (var child : group.interfaces()) {
+                    var childEntry = interfaceList.new InterfaceEntry(child.id(), child.name(), false, true);
+                    interfaceList.children().add(childEntry);
+                    if (!owner.isGroup && owner.interfaceId.equals(child.id)) {
+                        ((CheckboxWidgetAccess) childEntry.checkbox).setChecked(true);
+                    }
+                }
+                if (owner.isGroup && owner.interfaceId.equals(group.id)) {
+                    ((CheckboxWidgetAccess) groupEntry.checkbox).setChecked(true);
+                }
+            }
+        }
     }
 
     private class InterfaceList extends ElementListWidget<InterfaceList.Entry> {
@@ -111,12 +160,11 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
         }
 
         private class InterfaceEntry extends InterfaceList.Entry {
-            private final Interface value;
             private final CheckboxWidget checkbox;
+            private final boolean isUnderGroup;
 
-            private InterfaceEntry(Interface value) {
-                this.value = value;
-                this.checkbox = CheckboxWidget.builder(value.name, textRenderer)
+            private InterfaceEntry(String id, Text name, boolean isGroup, boolean isUnderGroup) {
+                this.checkbox = CheckboxWidget.builder(name, textRenderer)
                         .callback((clickedBox, checked) -> {
                             for (int i = 0; i < getEntryCount(); i++) {
                                 if (getEntry(i) instanceof InterfaceList.InterfaceEntry entry && entry.checkbox != clickedBox) {
@@ -124,11 +172,13 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
                                 }
                             }
 
-                            owner.interfaceId = value.id;
+                            owner.interfaceId = id;
+                            owner.isGroup = isGroup;
                         })
                         .build();
-                checkbox.setWidth(150);
+                checkbox.setWidth(isUnderGroup ? 130 : 150);
                 checkbox.setHeight(20);
+                this.isUnderGroup = isUnderGroup;
             }
 
             @Override
@@ -143,7 +193,7 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
 
             @Override
             public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
-                checkbox.setX(x);
+                checkbox.setX(isUnderGroup ? x + 20 : x);
                 checkbox.setY(y);
                 checkbox.render(context, mouseX, mouseY, tickDelta);
             }

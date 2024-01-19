@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
 import io.github.mattidragon.advancednetworking.graph.node.base.InterfaceNode;
+import io.github.mattidragon.advancednetworking.misc.CombinedEnergyStorage;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
@@ -13,6 +14,7 @@ import net.minecraft.text.Text;
 import team.reborn.energy.api.EnergyStorage;
 
 import java.util.List;
+import java.util.Objects;
 
 public class EnergyCapacityNode extends InterfaceNode {
     public EnergyCapacityNode(Graph graph) {
@@ -33,16 +35,16 @@ public class EnergyCapacityNode extends InterfaceNode {
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
         var controller = context.get(NetworkControllerContext.TYPE);
         var world = context.get(ContextType.SERVER_WORLD);
-        var optionalPos = findInterface(world, controller.graphId());
-        if (optionalPos.isEmpty())
-            return Either.right(Text.translatable("node.advanced_networking.interface.missing", interfaceId));
+        var positions = findInterfaces(world, controller.graphId());
 
-        var pos = optionalPos.get().pos();
-        var side = optionalPos.get().side();
-
-        var storage = EnergyStorage.SIDED.find(world, pos.offset(side), side.getOpposite());
-        if (storage == null)
-            return Either.right(Text.translatable("node.advanced_networking.energy_source.missing", interfaceId));
+        var storage = new CombinedEnergyStorage(positions.stream()
+                .map(sidePos -> {
+                    var pos = sidePos.pos();
+                    var side = sidePos.side();
+                    return EnergyStorage.SIDED.find(world, pos.offset(side), side.getOpposite());
+                })
+                .filter(Objects::nonNull)
+                .toList());
 
         return Either.left(new DataValue<?>[] { DataType.NUMBER.makeValue((double) storage.getCapacity()) });
     }

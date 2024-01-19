@@ -5,6 +5,7 @@ import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
 import io.github.mattidragon.advancednetworking.graph.node.base.InterfaceNode;
+import io.github.mattidragon.advancednetworking.graph.node.base.TransferNodeUtils;
 import io.github.mattidragon.advancednetworking.graph.node.fluid.FluidTransformer;
 import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
 import io.github.mattidragon.nodeflow.graph.Connector;
@@ -37,16 +38,9 @@ public class FluidSourceNode extends InterfaceNode {
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
         var controller = context.get(NetworkControllerContext.TYPE);
         var world = context.get(ContextType.SERVER_WORLD);
-        var optionalPos = findInterface(world, controller.graphId());
-        if (optionalPos.isEmpty())
-            return Either.right(Text.translatable("node.advanced_networking.interface.missing", interfaceId));
+        var positions = findInterfaces(world, controller.graphId());
 
-        var pos = optionalPos.get().pos();
-        var side = optionalPos.get().side();
-
-        var storage = FluidStorage.SIDED.find(world, pos.offset(side), side.getOpposite());
-        if (storage == null)
-            return Either.right(Text.translatable("node.advanced_networking.fluid_source.missing", interfaceId));
+        var storage = TransferNodeUtils.buildCombinedStorage(positions, world, FluidStorage.SIDED);
 
         var stream = PathBundle.<Storage<FluidVariant>, FluidTransformer>begin(storage);
         return Either.left(new DataValue<?>[] { ModDataTypes.FLUID_STREAM.makeValue(stream) });

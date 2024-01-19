@@ -22,11 +22,13 @@ import java.util.Arrays;
 public class CableBlockEntity extends BlockEntity implements AdventureModeAccessBlockEntity {
     private final int[] power = new int[6];
     private final String[] names = new String[6];
+    private final String[] groups = new String[6];
     private boolean allowAdventureModeAccess = false;
 
     public CableBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.CABLE_BLOCK_ENTITY, pos, state);
         Arrays.fill(names, "");
+        Arrays.fill(groups, "");
     }
 
     public void setPower(Direction direction, int power) {
@@ -38,6 +40,17 @@ public class CableBlockEntity extends BlockEntity implements AdventureModeAccess
 
     public int getPower(Direction direction) {
         return this.power[direction.getId()];
+    }
+
+    public void setGroup(Direction direction, String group) {
+        this.groups[direction.getId()] = group;
+        markDirty();
+        if (world instanceof ServerWorld serverWorld)
+            serverWorld.getChunkManager().markForUpdate(pos);
+    }
+
+    public String getGroup(Direction direction) {
+        return groups[direction.getId()];
     }
 
     public void setName(Direction direction, String name) {
@@ -88,6 +101,11 @@ public class CableBlockEntity extends BlockEntity implements AdventureModeAccess
         for (int i = 0; i < Math.min(names.size(), 6); i++) {
             this.names[i] = names.get(i).asString();
         }
+
+        var groups = nbt.getList("groups", NbtElement.STRING_TYPE);
+        for (int i = 0; i < Math.min(groups.size(), 6); i++) {
+            this.groups[i] = groups.get(i).asString();
+        }
     }
 
     @Override
@@ -101,6 +119,12 @@ public class CableBlockEntity extends BlockEntity implements AdventureModeAccess
             names.add(NbtString.of(name));
         }
         nbt.put("names", names);
+
+        var groups = new NbtList();
+        for (var group : this.groups) {
+            groups.add(NbtString.of(group));
+        }
+        nbt.put("groups", groups);
     }
 
     public boolean isAdventureModeAccessAllowed() {

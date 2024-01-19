@@ -33,19 +33,18 @@ public class SetRedstoneNode extends InterfaceNode {
     @Override
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
         var world = context.get(ContextType.SERVER_WORLD);
-        var optionalPos = findInterface(world, context.get(NetworkControllerContext.TYPE).graphId());
-        if (optionalPos.isEmpty())
-            return Either.right(Text.translatable("node.advanced_networking.interface.missing", interfaceId));
-
-        var pos = optionalPos.get().pos();
-        var side = optionalPos.get().side();
-
+        var positions = findInterfaces(world, context.get(NetworkControllerContext.TYPE).graphId());
         var enabled = inputs[0].getAs(DataType.BOOLEAN);
 
-        var state = world.getBlockState(pos);
-        world.setBlockState(pos, state.with(CableBlock.FACING_PROPERTIES.get(side), enabled ? CableBlock.ConnectionType.INTERFACE_POWERED : CableBlock.ConnectionType.INTERFACE));
-        if (world.getBlockEntity(pos) instanceof CableBlockEntity cable)  {
-            cable.setPower(side, enabled ? 15 : 0);
+        for (var position : positions) {
+            var pos = position.pos();
+            var side = position.side();
+
+            var state = world.getBlockState(pos);
+            world.setBlockState(pos, state.with(CableBlock.FACING_PROPERTIES.get(side), enabled ? CableBlock.ConnectionType.INTERFACE_POWERED : CableBlock.ConnectionType.INTERFACE));
+            if (world.getBlockEntity(pos) instanceof CableBlockEntity cable) {
+                cable.setPower(side, enabled ? 15 : 0);
+            }
         }
 
         return Either.left(new DataValue<?>[0]);

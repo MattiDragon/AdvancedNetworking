@@ -13,12 +13,12 @@ import net.minecraft.util.math.Direction;
 
 import static io.github.mattidragon.advancednetworking.AdvancedNetworking.id;
 
-public record UpdateInterfacePacket(BlockPos pos, Direction side, InterfaceType type, String name) implements FabricPacket {
+public record UpdateInterfacePacket(BlockPos pos, Direction side, InterfaceType type, String name, String group) implements FabricPacket {
     private static final Identifier ID = id("update_interface");
     private static final PacketType<UpdateInterfacePacket> TYPE = PacketType.create(ID, UpdateInterfacePacket::new);
 
     public UpdateInterfacePacket(PacketByteBuf buf) {
-        this(buf.readBlockPos(), buf.readEnumConstant(Direction.class), buf.readEnumConstant(InterfaceType.class), buf.readString());
+        this(buf.readBlockPos(), buf.readEnumConstant(Direction.class), buf.readEnumConstant(InterfaceType.class), buf.readString(), buf.readString());
     }
 
     public static void register() {
@@ -31,6 +31,7 @@ public record UpdateInterfacePacket(BlockPos pos, Direction side, InterfaceType 
                 return;
 
             cable.setName(packet.side, packet.name.trim());
+            cable.setGroup(packet.side, packet.group.trim());
             CableBlock.changeMode(player.getWorld(), player.getWorld().getBlockState(packet.pos), packet.pos, packet.side, packet.type);
         });
     }
@@ -41,6 +42,7 @@ public record UpdateInterfacePacket(BlockPos pos, Direction side, InterfaceType 
         buf.writeEnumConstant(side);
         buf.writeEnumConstant(type);
         buf.writeString(name);
+        buf.writeString(group);
     }
 
     @Override

@@ -6,6 +6,7 @@ import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
 import io.github.mattidragon.advancednetworking.graph.node.base.InterfaceNode;
 import io.github.mattidragon.advancednetworking.graph.node.energy.EnergyLimitTransformer;
+import io.github.mattidragon.advancednetworking.graph.node.energy.EnergyNodeUtils;
 import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
@@ -35,16 +36,9 @@ public class EnergySourceNode extends InterfaceNode {
     protected Either<DataValue<?>[], Text> process(DataValue<?>[] inputs, ContextProvider context) {
         var controller = context.get(NetworkControllerContext.TYPE);
         var world = context.get(ContextType.SERVER_WORLD);
-        var optionalPos = findInterface(world, controller.graphId());
-        if (optionalPos.isEmpty())
-            return Either.right(Text.translatable("node.advanced_networking.interface.missing", interfaceId));
+        var positions = findInterfaces(world, controller.graphId());
 
-        var pos = optionalPos.get().pos();
-        var side = optionalPos.get().side();
-
-        var storage = EnergyStorage.SIDED.find(world, pos.offset(side), side.getOpposite());
-        if (storage == null)
-            return Either.right(Text.translatable("node.advanced_networking.energy_source.missing", interfaceId));
+        var storage = EnergyNodeUtils.buildCombinedStorage(positions, world);
 
         var bundle = PathBundle.<EnergyStorage, EnergyLimitTransformer>begin(storage);
         return Either.left(new DataValue<?>[] { ModDataTypes.ENERGY_STREAM.makeValue(bundle) });
