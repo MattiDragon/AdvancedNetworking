@@ -6,7 +6,8 @@
   "entrypoints": {
     "fabric-gametest" : [
       "io.github.mattidragon.advancednetworking.test.SimpleMoveTests",
-      "io.github.mattidragon.advancednetworking.test.RedstoneTests"
+      "io.github.mattidragon.advancednetworking.test.RedstoneTests",
+      "io.github.mattidragon.advancednetworking.test.GroupMoveTests"
     ]
   }
 }

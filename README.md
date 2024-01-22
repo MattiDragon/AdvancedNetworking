@@ -14,7 +14,7 @@ There you can set the mode of each side of the cable. Make one side an interface
 Open up the controller, add some nodes and connect them. 
 Select your interface in the configuration of a node and you should have a working network.
 
-<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/1.19.3/.github/media/room.png" width="50%"/>
+<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/1.20.4/.github/media/room.png" width="50%"/>
 
 ## Features
 ### Cables
@@ -23,7 +23,7 @@ Click on them with a stick or any wrench from other mods to quickly change the m
 More advanced configuration can be accessed by sneak-clicking on the cable.
 Cables automatically connect to each other and controllers, but not other blocks. For those you will need to set the cable to interface mode.
 
-<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/1.19.3/.github/media/cables.png" width="50%"/>
+<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/1.20.4/.github/media/cables.png" width="50%"/>
 
 ### Controllers
 Controllers house your programs. They have a node based UI where you can perform routing of resources and all kinds of logic.
@@ -31,7 +31,7 @@ You can add nodes from the `Add Nodes` menu and it's submenus.
 Deleting nodes can be done by right-clicking and selecting `Delete` or using the `Delete Nodes` mode.
 Nodes can also be duplicated from the right-clicking menu. You can freely move around by dragging and zoom by scrolling in the editor. 
 
-<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/1.19.3/.github/media/right_click_menu.png" width="50%"/>
+<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/1.20.4/.github/media/right_click_menu.png" width="50%"/>
 
 ### Resource Transfer and Streams
 Some of the most important nodes are for transfer of energy, items and fluids. 
@@ -40,7 +40,7 @@ There are also nodes for getting the capacity and fill level of storages. These 
 The filter and limit nodes allows you to control what items are transferred. 
 The limit node sets a maximum number of items to transfer and the filter blocks certain items from passing through.
 
-<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/1.19.3/.github/media/fluids.png" width="50%"/>
+<img src="https://github.com/MattiDragon/AdvancedNetworking/raw/1.20.4/.github/media/fluids.png" width="50%"/>
 
 ## Other Info
 ### Modpack permission
@@ -57,7 +57,6 @@ I intend to try and stay compatible with as many mods as possible, but might aba
 
 ### Porting and Forking
 You can read my policy on [forking and porting mods](https://gist.github.com/MattiDragon/6b9e71e8516447f53f0d5fb296ab8868).
-This mod will not be ported to anything older than 1.19.4 due to that version adding necessary client features.
 
 ## Licencing
 The mod is licensed under the Apache License, Version 2.0. 

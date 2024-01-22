@@ -5,7 +5,9 @@ import io.github.mattidragon.advancednetworking.block.CableBlockEntity;
 import io.github.mattidragon.advancednetworking.block.ControllerBlockEntity;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.test.GameTestException;
 import net.minecraft.test.GameTestState;
@@ -34,10 +36,36 @@ public class AdvancedNetworkingTestContext extends TestContext {
         }
     }
 
+    public void expectEmptyPot(BlockPos pos) {
+        try {
+            var blockPos = this.getAbsolutePos(pos);
+            var blockEntity = this.getWorld().getBlockEntity(blockPos);
+            if (blockEntity instanceof DecoratedPotBlockEntity pot && !pot.isEmpty()) {
+                throw new GameTestException("Container should be empty");
+            }
+        } catch (GameTestException e) {
+            throwPositionedException(e.getMessage(), pos);
+        }
+    }
+
     @Override
     public void expectContainerWith(BlockPos pos, Item item) {
         try {
             super.expectContainerWith(pos, item);
+        } catch (GameTestException e) {
+            throwPositionedException(e.getMessage(), pos);
+        }
+    }
+
+    public void expectPotWith(BlockPos pos, Item item, int count) {
+        try {
+            BlockPos blockPos = this.getAbsolutePos(pos);
+            BlockEntity blockEntity = this.getWorld().getBlockEntity(blockPos);
+            if (!(blockEntity instanceof DecoratedPotBlockEntity pot)) {
+                throw new GameTestException("Expected a container at " + pos + ", found " + Registries.BLOCK_ENTITY_TYPE.getId(blockEntity.getType()));
+            } else if (pot.count(item) != count) {
+                throw new GameTestException("Container should contain: " + item);
+            }
         } catch (GameTestException e) {
             throwPositionedException(e.getMessage(), pos);
         }

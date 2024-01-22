@@ -98,10 +98,10 @@ dependencies {
 
 sourceSets {
     testmod {
-        compileClasspath += main.compileClasspath
-        compileClasspath += main.output
-        runtimeClasspath += main.runtimeClasspath
-        runtimeClasspath += main.output
+        compileClasspath += client.compileClasspath
+        compileClasspath += client.output
+        runtimeClasspath += client.runtimeClasspath
+        runtimeClasspath += client.output
     }
 }
 
