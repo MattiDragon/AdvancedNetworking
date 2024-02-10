@@ -19,7 +19,7 @@ public interface AdvancedNetworkingGameTest extends FabricGameTest {
     default NumberNode createNumberNode(Graph graph, double value) {
         var node = new NumberNode(graph);
         var numberNbt = new NbtCompound();
-        numberNbt.putString("value", "15");
+        numberNbt.putString("value", value + "");
         node.readNbt(numberNbt);
         return node;
     }
