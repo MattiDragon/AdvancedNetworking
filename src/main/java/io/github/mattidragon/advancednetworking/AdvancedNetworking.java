@@ -4,7 +4,7 @@ import io.github.mattidragon.advancednetworking.config.ConfigData;
 import io.github.mattidragon.advancednetworking.graph.ModDataTypes;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
-import io.github.mattidragon.advancednetworking.misc.RequestInterfacesPacket;
+import io.github.mattidragon.advancednetworking.misc.RequestInterfacesPayload;
 import io.github.mattidragon.advancednetworking.misc.ScreenPosSyncPacket;
 import io.github.mattidragon.advancednetworking.misc.SetAdventureModeAccessPacket;
 import io.github.mattidragon.advancednetworking.misc.UpdateInterfacePacket;
@@ -12,6 +12,7 @@ import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import io.github.mattidragon.advancednetworking.registry.ModItems;
 import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
+import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandlerPayload;
 import io.github.mattidragon.configloader.api.ConfigManager;
 import io.github.mattidragon.nodeflow.graph.GraphEnvironment;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
@@ -32,7 +33,8 @@ public class AdvancedNetworking implements ModInitializer {
     public static final String MOD_ID = "advanced_networking";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final ConfigManager<ConfigData> CONFIG = ConfigManager.create(ConfigData.CODEC, ConfigData.DEFAULT, MOD_ID);
-    public static final ExtendedScreenHandlerType<ControllerScreenHandler> CONTROLLER_SCREEN = new ExtendedScreenHandlerType<>(ControllerScreenHandler::new);
+    public static final ExtendedScreenHandlerType<ControllerScreenHandler, ControllerScreenHandlerPayload> CONTROLLER_SCREEN 
+            = new ExtendedScreenHandlerType<>(ControllerScreenHandler::new, ControllerScreenHandlerPayload.CODEC);
     public static final GraphEnvironment ENVIRONMENT = GraphEnvironment.builder()
             .addContextTypes(ContextType.SERVER_WORLD, ContextType.BLOCK_POS, ContextType.SERVER, NetworkControllerContext.TYPE)
             .addDataTypes(DataType.BOOLEAN, DataType.NUMBER, ModDataTypes.ITEM_STREAM, ModDataTypes.FLUID_STREAM, ModDataTypes.ENERGY_STREAM)
@@ -65,7 +67,7 @@ public class AdvancedNetworking implements ModInitializer {
         NetworkRegistry.register();
         ScreenPosSyncPacket.register();
         UpdateInterfacePacket.register();
-        RequestInterfacesPacket.register();
+        RequestInterfacesPayload.register();
         SetAdventureModeAccessPacket.register();
         NetworkControllerContext.register();
     }

@@ -1,5 +1,6 @@
 package io.github.mattidragon.advancednetworking.client.screen;
 
+import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.block.CableBlock;
 import io.github.mattidragon.advancednetworking.block.CableBlockEntity;
 import io.github.mattidragon.advancednetworking.misc.InterfaceType;
@@ -89,7 +90,7 @@ public class CableConfigScreen extends Screen {
         }
         buttons[side.getId()].active = false;
 
-        if (client != null && client.player != null && client.player.isCreativeLevelTwoOp()) {
+        if (client != null && client.player != null && client.player.isCreativeLevelTwoOp() && AdvancedNetworking.CONFIG.get().showAdventureModeToggles()) {
             addDrawableChild(CyclingButtonWidget.onOffBuilder()
                     .initially(adventureModeAccessAllowed)
                     .build(calcLeftX(), 170, 150, 20, Text.translatable("screen.advanced_networking.adventure_mode_access"), (button, value) -> {

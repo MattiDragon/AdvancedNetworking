@@ -1,5 +1,4 @@
 {
-  "replace": false,
   "values": [
     "advanced_networking:fluid_source",
     "advanced_networking:fluid_target",

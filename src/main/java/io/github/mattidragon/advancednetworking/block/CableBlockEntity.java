@@ -10,6 +10,7 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Nameable;
@@ -86,13 +87,13 @@ public class CableBlockEntity extends BlockEntity implements AdventureModeAccess
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt() {
-        return createNbt();
+    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
+        return createNbt(registryLookup);
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
+    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        super.readNbt(nbt, registryLookup);
         var power = nbt.getIntArray("power");
         System.arraycopy(power, 0, this.power, 0, Math.min(power.length, 6));
         allowAdventureModeAccess = nbt.getBoolean("allowAdventureModeAccess");
@@ -109,8 +110,8 @@ public class CableBlockEntity extends BlockEntity implements AdventureModeAccess
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
+    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        super.writeNbt(nbt, registryLookup);
         nbt.putIntArray("power", power);
         nbt.putBoolean("allowAdventureModeAccess", allowAdventureModeAccess);
 
@@ -133,5 +134,6 @@ public class CableBlockEntity extends BlockEntity implements AdventureModeAccess
 
     public void setAdventureModeAccessAllowed(boolean allowed) {
         this.allowAdventureModeAccess = allowed;
+        markDirty();
     }
 }

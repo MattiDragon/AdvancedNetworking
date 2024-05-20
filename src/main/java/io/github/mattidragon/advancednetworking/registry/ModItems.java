@@ -1,7 +1,6 @@
 package io.github.mattidragon.advancednetworking.registry;
 
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -11,9 +10,9 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 public final class ModItems {
-    public static final BlockItem CONTROLLER = new BlockItem(ModBlocks.CONTROLLER, new FabricItemSettings());
-    public static final BlockItem CABLE = new BlockItem(ModBlocks.CABLE, new FabricItemSettings());
-    public static final Item COMPOUND = new Item(new FabricItemSettings());
+    public static final BlockItem CONTROLLER = new BlockItem(ModBlocks.CONTROLLER, new Item.Settings());
+    public static final BlockItem CABLE = new BlockItem(ModBlocks.CABLE, new Item.Settings());
+    public static final Item COMPOUND = new Item(new Item.Settings());
 
     private ModItems() { throw new UnsupportedOperationException(); }
 

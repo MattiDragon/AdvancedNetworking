@@ -13,21 +13,24 @@ import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import io.github.mattidragon.advancednetworking.network.node.ControllerNode;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
+import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandlerPayload;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.Context;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.misc.EvaluationError;
-import io.github.mattidragon.nodeflow.misc.GraphProvidingBlockEntity;
+import io.github.mattidragon.nodeflow.misc.GraphProvider;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -43,7 +46,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class ControllerBlockEntity extends GraphProvidingBlockEntity implements AdventureModeAccessBlockEntity {
+public class ControllerBlockEntity extends BlockEntity implements AdventureModeAccessBlockEntity, GraphProvider, ExtendedScreenHandlerFactory<ControllerScreenHandlerPayload> {
     private Graph graph = new Graph(AdvancedNetworking.ENVIRONMENT);
     private boolean allowAdventureModeAccess = false;
 
@@ -66,8 +69,8 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity implements 
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
+    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        super.readNbt(nbt, registryLookup);
         allowAdventureModeAccess = nbt.getBoolean("allowAdventureModeAccess");
         viewX = nbt.getDouble("viewX");
         viewY = nbt.getDouble("viewY");
@@ -75,14 +78,14 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity implements 
 
         graph.readNbt(nbt.getCompound("graph"));
         errors = NbtUtils.readStrings(nbt, "errors").stream()
-                .map((Function<String, Optional<Text>>) json -> Optional.ofNullable(Text.Serialization.fromJson(json)))
+                .map((Function<String, Optional<Text>>) json -> Optional.ofNullable(Text.Serialization.fromJson(json, registryLookup)))
                 .flatMap(Optional::stream)
                 .toList();
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
+    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        super.writeNbt(nbt, registryLookup);
         nbt.putBoolean("allowAdventureModeAccess", allowAdventureModeAccess);
         nbt.putDouble("viewX", viewX);
         nbt.putDouble("viewY", viewY);
@@ -91,7 +94,7 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity implements 
         var graphNbt = new NbtCompound();
         graph.writeNbt(graphNbt);
         nbt.put("graph", graphNbt);
-        NbtUtils.writeStrings(nbt, "errors", errors.stream().map(Text.Serialization::toJsonString).toList());
+        NbtUtils.writeStrings(nbt, "errors", errors.stream().map(text -> Text.Serialization.toJsonString(text, registryLookup)).toList());
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, ControllerBlockEntity controller) {
@@ -128,7 +131,7 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity implements 
     public List<EvaluationError> evaluate() {
         if (world == null) return List.of(EvaluationError.Type.MISSING_CONTEXTS.error("World missing (something went very wrong)"));
 
-        var graph = NetworkRegistry.UNIVERSE.getServerGraphWorld((ServerWorld) world).getGraphForNode(new NodePos(pos, ControllerNode.INSTANCE));
+        var graph = NetworkRegistry.UNIVERSE.getGraphWorld((ServerWorld) world).getGraphForNode(new NodePos(pos, ControllerNode.INSTANCE));
         if (graph == null) {
             AdvancedNetworking.LOGGER.warn("Controller missing graph at {}", pos);
             return List.of(EvaluationError.Type.MISSING_CONTEXTS.error("Controller missing"));
@@ -143,13 +146,8 @@ public class ControllerBlockEntity extends GraphProvidingBlockEntity implements 
     }
 
     @Override
-    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
-        super.writeScreenOpeningData(player, buf);
-        buf.writeInt(zoom);
-        buf.writeDouble(viewX);
-        buf.writeDouble(viewY);
-        buf.writeCollection(errors, PacketByteBuf::writeText);
-        buf.writeBoolean(allowAdventureModeAccess);
+    public ControllerScreenHandlerPayload getScreenOpeningData(ServerPlayerEntity player) {
+        return new ControllerScreenHandlerPayload(graph, allowAdventureModeAccess, viewX, viewY, zoom, errors);
     }
 
     @Override

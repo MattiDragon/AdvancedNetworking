@@ -7,7 +7,7 @@ import io.github.mattidragon.advancednetworking.client.screen.node.CountNodeConf
 import io.github.mattidragon.advancednetworking.client.screen.node.InterfaceNodeConfigScreen;
 import io.github.mattidragon.advancednetworking.client.screen.node.SliderNodeConfigScreen;
 import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
-import io.github.mattidragon.advancednetworking.misc.RequestInterfacesPacket;
+import io.github.mattidragon.advancednetworking.misc.RequestInterfacesPayload;
 import io.github.mattidragon.advancednetworking.screen.ControllerScreenHandler;
 import io.github.mattidragon.nodeflow.client.compat.controlify.ControlifyProxy;
 import io.github.mattidragon.nodeflow.client.ui.NodeConfigScreenRegistry;
@@ -16,7 +16,6 @@ import io.github.mattidragon.nodeflow.screen.EditorScreenHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.network.PacketByteBuf;
 
 public class AdvancedNetworkingClient implements ClientModInitializer {
     @Override
@@ -58,16 +57,11 @@ public class AdvancedNetworkingClient implements ClientModInitializer {
                 ModNodeTypes.ITEM_COUNT,
                 ModNodeTypes.FLUID_COUNT);
 
-        ClientPlayNetworking.registerGlobalReceiver(RequestInterfacesPacket.RESPONSE_ID, (client, handler, buf, responseSender) -> {
-            var syncId = buf.readByte();
-            var interfaces = buf.readMap(PacketByteBuf::readString, PacketByteBuf::readText);
-            var groups = buf.readMap(PacketByteBuf::readString, buf1 -> buf1.readList(PacketByteBuf::readString));
-
-            client.execute(() -> {
-                if (client.player != null && client.player.currentScreenHandler.syncId == syncId && client.currentScreen instanceof InterfaceNodeConfigScreen<?> configScreen) {
-                    configScreen.setInterfaces(interfaces, groups);
-                }
-            });
+        ClientPlayNetworking.registerGlobalReceiver(RequestInterfacesPayload.Response.ID, (packet, context) -> {
+            var player = context.player();
+            if (player != null && player.currentScreenHandler.syncId == packet.syncId() && context.client().currentScreen instanceof InterfaceNodeConfigScreen<?> configScreen) {
+                configScreen.setInterfaces(packet.interfaces(), packet.groups());
+            }
         });
     }
 }

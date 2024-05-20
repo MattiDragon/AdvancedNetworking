@@ -5,8 +5,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.command.argument.NbtPathArgumentType;
+import net.minecraft.component.ComponentChanges;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
@@ -45,9 +47,9 @@ public class ResourceFilter<R, V extends TransferVariant<R>> {
                     list.add(Text.translatable("node.advanced_networking.filter.invalid_id", idFilter));
                 } else {
                     if (mode == Mode.RESOURCE && !registry.containsId(id))
-                        list.add(Text.translatable("node.advanced_networking.filter.unknown_resource", id));
+                        list.add(Text.translatable("node.advanced_networking.filter.unknown_resource", id.toString()));
                     if (mode == Mode.TAG && registry.streamTags().map(TagKey::id).noneMatch(id::equals))
-                        list.add(Text.translatable("node.advanced_networking.filter.unknown_tag", id));
+                        list.add(Text.translatable("node.advanced_networking.filter.unknown_tag", id.toString()));
                 }
             }
         }
@@ -76,7 +78,7 @@ public class ResourceFilter<R, V extends TransferVariant<R>> {
                     .map(TagKey::id)
                     .anyMatch(this::checkId);
         };
-        var nbtMatches = nbtPath == null || nbtPath.count(resource.getNbt()) > 0;
+        var nbtMatches = nbtPath == null || nbtPath.count(ComponentChanges.CODEC.encodeStart(NbtOps.INSTANCE, resource.getComponents()).result().orElseGet(NbtCompound::new)) > 0;
         var matches = idMatches && nbtMatches;
 
         if (isWhitelist) {

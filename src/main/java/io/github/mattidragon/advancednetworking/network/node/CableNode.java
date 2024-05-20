@@ -8,12 +8,10 @@ import com.kneelawk.graphlib.api.wire.CenterWireBlockNode;
 import com.kneelawk.graphlib.api.wire.WireConnectionDiscoverers;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.block.CableBlock;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class CableNode implements CenterWireBlockNode {
     public static final Identifier ID = AdvancedNetworking.id("cable");
@@ -25,11 +23,6 @@ public class CableNode implements CenterWireBlockNode {
     @Override
     public @NotNull BlockNodeType getType() {
         return TYPE;
-    }
-
-    @Override
-    public @Nullable NbtElement toTag() {
-        return null;
     }
 
     @Override

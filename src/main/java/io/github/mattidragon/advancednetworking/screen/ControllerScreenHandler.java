@@ -10,7 +10,6 @@ import io.github.mattidragon.advancednetworking.network.node.InterfaceNode;
 import io.github.mattidragon.nodeflow.screen.EditorScreenHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.world.ServerWorld;
@@ -37,14 +36,14 @@ public class ControllerScreenHandler extends EditorScreenHandler {
         adventureModeAccessAllowed = controller.isAdventureModeAccessAllowed();
     }
 
-    public ControllerScreenHandler(int syncId, PlayerInventory inv, PacketByteBuf buf) {
-        super(syncId, inv, buf);
+    public ControllerScreenHandler(int syncId, PlayerInventory inv, ControllerScreenHandlerPayload payload) {
+        super(syncId, inv, payload.graph());
         context = ScreenHandlerContext.EMPTY;
-        zoom = buf.readInt();
-        viewX = buf.readDouble();
-        viewY = buf.readDouble();
-        errors = buf.readList(PacketByteBuf::readText);
-        adventureModeAccessAllowed = buf.readBoolean();
+        zoom = payload.zoom();
+        viewX = payload.viewX();
+        viewY = payload.viewY();
+        errors = payload.errors();
+        adventureModeAccessAllowed = payload.adventureModeAccessAllowed();
     }
 
     @Override
@@ -60,7 +59,7 @@ public class ControllerScreenHandler extends EditorScreenHandler {
             if (!(world instanceof ServerWorld serverWorld))
                 return Optional.empty();
 
-            var graphWorld = NetworkRegistry.UNIVERSE.getServerGraphWorld(serverWorld);
+            var graphWorld = NetworkRegistry.UNIVERSE.getGraphWorld(serverWorld);
             var nodes = graphWorld.getLoadedGraphsAt(pos)
                     .flatMap(BlockGraph::getNodes)
                     .toList();

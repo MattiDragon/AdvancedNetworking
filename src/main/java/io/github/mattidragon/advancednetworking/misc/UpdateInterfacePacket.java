@@ -1,28 +1,33 @@
 package io.github.mattidragon.advancednetworking.misc;
 
+import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import io.github.mattidragon.advancednetworking.block.CableBlock;
 import io.github.mattidragon.advancednetworking.block.CableBlockEntity;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
-import static io.github.mattidragon.advancednetworking.AdvancedNetworking.id;
-
-public record UpdateInterfacePacket(BlockPos pos, Direction side, InterfaceType type, String name, String group) implements FabricPacket {
-    private static final Identifier ID = id("update_interface");
-    private static final PacketType<UpdateInterfacePacket> TYPE = PacketType.create(ID, UpdateInterfacePacket::new);
-
-    public UpdateInterfacePacket(PacketByteBuf buf) {
-        this(buf.readBlockPos(), buf.readEnumConstant(Direction.class), buf.readEnumConstant(InterfaceType.class), buf.readString(), buf.readString());
-    }
+public record UpdateInterfacePacket(BlockPos pos, Direction side, InterfaceType type, String name, String group) implements CustomPayload {
+    private static final Id<UpdateInterfacePacket> ID = new Id<>(AdvancedNetworking.id("update_interface"));
+    private static final PacketCodec<PacketByteBuf, UpdateInterfacePacket> CODEC = PacketCodec.tuple(
+            BlockPos.PACKET_CODEC, UpdateInterfacePacket::pos,
+            Direction.PACKET_CODEC, UpdateInterfacePacket::side,
+            InterfaceType.PACKET_CODEC, UpdateInterfacePacket::type,
+            PacketCodecs.STRING, UpdateInterfacePacket::name,
+            PacketCodecs.STRING, UpdateInterfacePacket::group,
+            UpdateInterfacePacket::new
+    );
 
     public static void register() {
-        ServerPlayNetworking.registerGlobalReceiver(TYPE, (packet, player, responseSender) -> {
+        PayloadTypeRegistry.playC2S().register(ID, CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ID, (packet, context) -> {
+            var player = context.player();
             if (player.squaredDistanceTo(packet.pos.toCenterPos()) > 64.0)
                 return; // Player too far away
             if (!player.getWorld().getBlockState(packet.pos).isOf(ModBlocks.CABLE))
@@ -37,16 +42,7 @@ public record UpdateInterfacePacket(BlockPos pos, Direction side, InterfaceType 
     }
 
     @Override
-    public void write(PacketByteBuf buf) {
-        buf.writeBlockPos(pos);
-        buf.writeEnumConstant(side);
-        buf.writeEnumConstant(type);
-        buf.writeString(name);
-        buf.writeString(group);
-    }
-
-    @Override
-    public PacketType<?> getType() {
-        return TYPE;
+    public Id<? extends CustomPayload> getId() {
+        return ID;
     }
 }

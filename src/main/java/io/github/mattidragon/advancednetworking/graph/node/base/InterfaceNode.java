@@ -24,7 +24,7 @@ public abstract class InterfaceNode extends Node {
     }
 
     protected final List<SidedPos> findInterfaces(ServerWorld world, long graphId) {
-        var graph = NetworkRegistry.UNIVERSE.getServerGraphWorld(world).getGraph(graphId);
+        var graph = NetworkRegistry.UNIVERSE.getGraphWorld(world).getGraph(graphId);
         if (graph == null)
             return List.of();
 

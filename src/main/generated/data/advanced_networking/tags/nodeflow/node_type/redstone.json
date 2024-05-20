@@ -1,5 +1,4 @@
 {
-  "replace": false,
   "values": [
     "advanced_networking:read_redstone",
     "advanced_networking:write_redstone",

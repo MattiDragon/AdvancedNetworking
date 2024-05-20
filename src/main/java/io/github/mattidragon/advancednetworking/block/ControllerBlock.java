@@ -16,7 +16,6 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
@@ -24,7 +23,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("deprecation")
 public class ControllerBlock extends BlockWithEntity {
     public static final BooleanProperty POWERED = Properties.POWERED;
     public static final BooleanProperty SUCCESS = BooleanProperty.of("success");
@@ -94,7 +92,7 @@ public class ControllerBlock extends BlockWithEntity {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (!(world.getBlockEntity(pos) instanceof ControllerBlockEntity controller)) return ActionResult.PASS;
         if (!controller.isAdventureModeAccessAllowed() && !player.getAbilities().allowModifyWorld) return ActionResult.PASS;
         if (world.isClient) return ActionResult.SUCCESS;
@@ -109,7 +107,7 @@ public class ControllerBlock extends BlockWithEntity {
     @Override
     public void prepare(BlockState state, WorldAccess world, BlockPos pos, int flags, int maxUpdateDepth) {
         if (world instanceof ServerWorld serverWorld) {
-            NetworkRegistry.UNIVERSE.getServerGraphWorld(serverWorld).updateNodes(pos);
+            NetworkRegistry.UNIVERSE.getGraphWorld(serverWorld).updateNodes(pos);
         }
     }
 }

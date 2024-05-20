@@ -1,11 +1,19 @@
 package io.github.mattidragon.advancednetworking.misc;
 
 import io.github.mattidragon.advancednetworking.block.CableBlock;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.util.function.ValueLists;
 
 public enum InterfaceType {
     INTERFACE("interface"),
     BLOCKED("blocked"),
     DEFAULT("default");
+
+    public static final PacketCodec<ByteBuf, InterfaceType> PACKET_CODEC = PacketCodecs.indexed(ValueLists.createIdToValueFunction(
+            InterfaceType::ordinal, values(), ValueLists.OutOfBoundsHandling.WRAP
+    ), InterfaceType::ordinal);
 
     public final String id;
 

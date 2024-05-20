@@ -2,12 +2,11 @@ package io.github.mattidragon.advancednetworking.client.screen.node;
 
 import io.github.mattidragon.advancednetworking.client.mixin.CheckboxWidgetAccess;
 import io.github.mattidragon.advancednetworking.graph.node.base.InterfaceNode;
-import io.github.mattidragon.advancednetworking.misc.RequestInterfacesPacket;
+import io.github.mattidragon.advancednetworking.misc.RequestInterfacesPayload;
 import io.github.mattidragon.nodeflow.client.ui.screen.EditorScreen;
 import io.github.mattidragon.nodeflow.client.ui.screen.HandledEditorScreen;
 import io.github.mattidragon.nodeflow.client.ui.screen.NodeConfigScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
@@ -35,10 +34,7 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
         parent.syncGraph();
 
         interfaceList = addDrawableChild(new InterfaceList(client, width, height));
-
-        var buf = PacketByteBufs.create();
-        buf.writeByte(((HandledEditorScreen) parent).getScreenHandler().syncId);
-        ClientPlayNetworking.send(RequestInterfacesPacket.ID, buf);
+        ClientPlayNetworking.send(new RequestInterfacesPayload(((HandledEditorScreen) parent).getScreenHandler().syncId));
     }
 
     public void setInterfaces(Map<String, Text> interfaces, Map<String, List<String>> groups) {
@@ -116,7 +112,6 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
     private class InterfaceList extends ElementListWidget<InterfaceList.Entry> {
         public InterfaceList(MinecraftClient minecraftClient, int screenWidth, int screenHeight) {
             super(minecraftClient, 150, screenHeight - 50, 30, 25);
-            setRenderBackground(false);
 
             setX(((screenWidth - 200) / 2) - this.width / 2);
 
@@ -124,10 +119,20 @@ public class InterfaceNodeConfigScreen<T extends InterfaceNode> extends NodeConf
         }
 
         @Override
-        protected int getScrollbarPositionX() {
+        protected int getScrollbarX() {
             return getX() + width;
         }
+        
+        @Override
+        protected void drawHeaderAndFooterSeparators(DrawContext context) {
+            // Overridden to disable background
+        }
 
+        @Override
+        protected void drawMenuListBackground(DrawContext context) {
+            // Overridden to disable background
+        }
+        
         @Override
         public int getRowWidth() {
             return width;

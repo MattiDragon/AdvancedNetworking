@@ -5,9 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "advanced_networking:compound"
-            ]
+            "items": "advanced_networking:compound"
           }
         ]
       },
@@ -17,9 +15,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "advanced_networking:controller"
-            ]
+            "items": "advanced_networking:controller"
           }
         ]
       },

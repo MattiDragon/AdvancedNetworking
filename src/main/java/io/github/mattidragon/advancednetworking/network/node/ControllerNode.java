@@ -5,10 +5,8 @@ import com.kneelawk.graphlib.api.graph.user.BlockNode;
 import com.kneelawk.graphlib.api.graph.user.BlockNodeType;
 import com.kneelawk.graphlib.api.wire.FullWireBlockNode;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class ControllerNode implements FullWireBlockNode {
     public static final Identifier ID = AdvancedNetworking.id("controller");
@@ -23,13 +21,7 @@ public class ControllerNode implements FullWireBlockNode {
     }
 
     @Override
-    public @Nullable NbtElement toTag() {
-        return null;
-    }
-
-    @Override
     public void onConnectionsChanged(@NotNull NodeHolder<BlockNode> self) {
-
     }
 
     @Override

@@ -58,7 +58,7 @@ public class PathEnvironment<S, T> {
         var readyForSort = findSortable(unsortedPhases);
 
         while (!readyForSort.isEmpty()) {
-            var entry = readyForSort.remove(0);
+            var entry = readyForSort.removeFirst();
             paths.add(entry.getValue());
 
             markers:

@@ -17,13 +17,11 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -43,8 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-// Mojank
-@SuppressWarnings("deprecation")
 public class CableBlock extends BlockWithEntity {
     public static final EnumProperty<ConnectionType> NORTH = EnumProperty.of("north", ConnectionType.class);
     public static final EnumProperty<ConnectionType> EAST = EnumProperty.of("east", ConnectionType.class);
@@ -201,7 +197,7 @@ public class CableBlock extends BlockWithEntity {
     @Override
     public void prepare(BlockState state, WorldAccess world, BlockPos pos, int flags, int maxUpdateDepth) {
         if (world instanceof ServerWorld serverWorld) {
-            NetworkRegistry.UNIVERSE.getServerGraphWorld(serverWorld).updateNodes(pos);
+            NetworkRegistry.UNIVERSE.getGraphWorld(serverWorld).updateNodes(pos);
         }
 
         // Zero power for non-interface faces to be safe
@@ -238,27 +234,34 @@ public class CableBlock extends BlockWithEntity {
         }
 
         if (world instanceof ServerWorld serverWorld)
-            NetworkRegistry.UNIVERSE.getServerGraphWorld(serverWorld).updateConnections(pos);
+            NetworkRegistry.UNIVERSE.getGraphWorld(serverWorld).updateConnections(pos);
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!(world.getBlockEntity(pos) instanceof CableBlockEntity cable)) return ActionResult.PASS;
-        if (!player.getAbilities().allowModifyWorld && !cable.isAdventureModeAccessAllowed()) return ActionResult.PASS;
-
+    protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         var direction = calcHitDirection(hit.getPos().subtract(Vec3d.of(pos)));
         var property = FACING_PROPERTIES.get(direction);
-
-        if (player.getStackInHand(hand).isIn(ModTags.Items.WRENCHES)) {
+        
+        if (stack.isIn(ModTags.Items.WRENCHES)) {
             changeMode(world, state, pos, direction, switch (state.get(property)) {
                 case NONE -> InterfaceType.INTERFACE;
                 case DISABLED -> InterfaceType.DEFAULT;
                 case INTERFACE, INTERFACE_POWERED, CONNECTED -> InterfaceType.BLOCKED;
             });
 
-            return ActionResult.SUCCESS;
+            return ItemActionResult.success(world.isClient);
         }
-        if (hand == Hand.MAIN_HAND && player.isSneaking()) {
+        return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    @Override
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+        if (!(world.getBlockEntity(pos) instanceof CableBlockEntity cable)) return ActionResult.PASS;
+        if (!player.getAbilities().allowModifyWorld && !cable.isAdventureModeAccessAllowed()) return ActionResult.PASS;
+
+        var direction = calcHitDirection(hit.getPos().subtract(Vec3d.of(pos)));
+        
+        if (player.isSneaking()) {
             ((ClientScreenOpener)player).advancednetworking$openCableConfigScreen(
                     pos.toImmutable(),
                     direction,
