@@ -1,85 +1,70 @@
 package io.github.mattidragon.advancednetworking.misc;
 
 import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
-import net.minecraft.command.argument.NbtPathArgumentType;
-import net.minecraft.component.ComponentChanges;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class ResourceFilter<R, V extends TransferVariant<R>> {
     private final Registry<R> registry;
+    private final FilterPredicateParsing.PredicateParser<R> predicateParser;
 
-    private String idFilter = "";
-    private String nbtFilter = "";
-    private Mode mode = Mode.RESOURCE;
-    private boolean useRegex = false;
+    private String filter = "*";
+    private boolean isRegex = false;
     private boolean isWhitelist = true;
+    
+    @Nullable
+    private Predicate<V> cachedPredicate = null;
 
-    public ResourceFilter(Registry<R> registry) {
+    public ResourceFilter(Registry<R> registry, FilterPredicateParsing.PredicateParser<R> predicateParser) {
         this.registry = registry;
+        this.predicateParser = predicateParser;
     }
 
     public List<Text> validate() {
         var list = new ArrayList<Text>();
-        if (!idFilter.isBlank()) {
-            if (shouldUseRegex()) {
-                try {
-                    Pattern.compile(idFilter);
-                } catch (PatternSyntaxException e) {
-                    list.add(Text.translatable("node.advanced_networking.filter.invalid_id_regex", e.getDescription(), e.getIndex()));
-                }
-            } else {
-                var id = Identifier.tryParse(idFilter.trim());
-                if (id == null) {
-                    list.add(Text.translatable("node.advanced_networking.filter.invalid_id", idFilter));
-                } else {
-                    if (mode == Mode.RESOURCE && !registry.containsId(id))
-                        list.add(Text.translatable("node.advanced_networking.filter.unknown_resource", id.toString()));
-                    if (mode == Mode.TAG && registry.streamTags().map(TagKey::id).noneMatch(id::equals))
-                        list.add(Text.translatable("node.advanced_networking.filter.unknown_tag", id.toString()));
-                }
+        
+        if (shouldUseRegex()) {
+            try {
+                var pattern = Pattern.compile(filter);
+                cachedPredicate = v -> pattern.matcher(Objects.requireNonNull(registry.getId(v.getObject()), "resource not registered").toString()).matches();
+            } catch (PatternSyntaxException e) {
+                list.add(Text.translatable("node.advanced_networking.filter.invalid_id_regex", e.getDescription(), e.getIndex()));
             }
+        } else {
+            var parse = predicateParser.parse(new StringReader(filter.trim()));
+            parse.ifLeft(predicate -> this.cachedPredicate = predicate::test);
+            parse.ifRight(e -> list.add(Text.translatable("node.advanced_networking.filter.invalid_filter", e.getMessage())));
         }
-
-        try {
-            if (!nbtFilter.isBlank())
-                NbtPathArgumentType.nbtPath().parse(new StringReader(nbtFilter.trim()));
-        } catch (CommandSyntaxException | StringIndexOutOfBoundsException e) {
-            list.add(Text.translatable("node.advanced_networking.filter.invalid_nbt_path", e.getMessage()));
-        }
+        
         return list;
     }
 
     public boolean isAllowed(V resource) {
-        NbtPathArgumentType.NbtPath nbtPath;
-        try {
-            nbtPath = nbtFilter.isBlank() ? null : NbtPathArgumentType.nbtPath().parse(new StringReader(nbtFilter.trim()));
-        } catch (CommandSyntaxException e) {
-            throw new RuntimeException("Error while building nbt path not caught in validation", e);
+        if (cachedPredicate == null) {
+            if (shouldUseRegex()) {
+                var pattern = Pattern.compile(filter);
+                cachedPredicate = v -> pattern.matcher(Objects.requireNonNull(registry.getId(v.getObject()), "resource not registered").toString()).matches();
+            } else {
+                cachedPredicate = predicateParser.parse(new StringReader(filter.trim()))
+                        .left()
+                        .orElseThrow(() -> new IllegalStateException("Error in predicate not caught in validation"))
+                        ::test;
+            }
         }
-
-        var idMatches = idFilter.isBlank() || switch (mode) {
-            case RESOURCE -> checkId(registry.getId(resource.getObject()));
-            case TAG -> registry.getEntry(resource.getObject())
-                    .streamTags()
-                    .map(TagKey::id)
-                    .anyMatch(this::checkId);
-        };
-        var nbtMatches = nbtPath == null || nbtPath.count(ComponentChanges.CODEC.encodeStart(NbtOps.INSTANCE, resource.getComponents()).result().orElseGet(NbtCompound::new)) > 0;
-        var matches = idMatches && nbtMatches;
+        
+        var matches = cachedPredicate.test(resource);
 
         if (isWhitelist) {
             return matches;
@@ -88,70 +73,38 @@ public class ResourceFilter<R, V extends TransferVariant<R>> {
         }
     }
 
-    private boolean checkId(Identifier id) {
-        if (shouldUseRegex()) {
-            return Pattern.matches(idFilter, id.toString());
-        } else {
-            return id.equals(Identifier.tryParse(idFilter));
-        }
-    }
-
     public void readNbt(NbtCompound data) {
         // Can't go breaking old saves
-        if (data.contains("itemId", NbtElement.STRING_TYPE)) {
-            idFilter = data.getString("itemId");
-        } else if (data.contains("fluidId", NbtElement.STRING_TYPE)) {
-            idFilter = data.getString("fluidId");
+        if (data.contains("idFilter", NbtElement.STRING_TYPE)) {
+            filter = data.getString("idFilter");
         } else {
-            idFilter = data.getString("idFilter");
+            filter = data.getString("filter");
         }
 
-        // Can't go breaking old saves
-        if (data.contains("nbt", NbtElement.STRING_TYPE)) {
-            nbtFilter = data.getString("nbt");
-        } else {
-            nbtFilter = data.getString("nbtFilter");
-        }
-
-        mode = Mode.byOrdinal(data.getInt("mode"));
         isWhitelist = data.getBoolean("whitelist");
-        useRegex = data.getBoolean("regex");
+        isRegex = data.getBoolean("regex");
+        
+        cachedPredicate = null;
     }
 
     public void writeNbt(NbtCompound data) {
-        data.putString("idFilter", idFilter);
-        data.putString("nbtFilter", nbtFilter);
-        data.putInt("mode", mode.ordinal());
+        data.putString("filter", filter);
         data.putBoolean("whitelist", isWhitelist);
-        data.putBoolean("regex", useRegex);
+        data.putBoolean("regex", isRegex);
     }
 
-    public String getIdFilter() {
-        return idFilter;
+    public String getFilter() {
+        return filter;
     }
 
-    public void setIdFilter(String idFilter) {
-        this.idFilter = idFilter;
-    }
-
-    public String getNbtFilter() {
-        return nbtFilter;
-    }
-
-    public void setNbtFilter(String nbtFilter) {
-        this.nbtFilter = nbtFilter;
-    }
-
-    public Mode getMode() {
-        return mode;
-    }
-
-    public void setMode(Mode mode) {
-        this.mode = mode;
+    public void setFilter(String filter) {
+        this.filter = filter;
+        cachedPredicate = null;
     }
 
     public void setUseRegex(boolean useRegex) {
-        this.useRegex = useRegex;
+        this.isRegex = useRegex;
+        cachedPredicate = null;
     }
 
     public boolean isWhitelist() {
@@ -163,15 +116,6 @@ public class ResourceFilter<R, V extends TransferVariant<R>> {
     }
 
     public boolean shouldUseRegex() {
-        return useRegex && !AdvancedNetworking.CONFIG.get().disableRegexFilter();
+        return isRegex && !AdvancedNetworking.CONFIG.get().disableRegexFilter();
     }
-
-    public enum Mode {
-        RESOURCE, TAG;
-
-        private static Mode byOrdinal(int ordinal) {
-            return ordinal > 0 && ordinal < values().length ? values()[ordinal] : RESOURCE;
-        }
-    }
-
 }

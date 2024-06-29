@@ -5,6 +5,7 @@ import io.github.mattidragon.advancednetworking.graph.ModNodeTypes;
 import io.github.mattidragon.advancednetworking.graph.node.base.FilterNode;
 import io.github.mattidragon.advancednetworking.graph.node.item.ItemTransformer;
 import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
+import io.github.mattidragon.advancednetworking.misc.FilterPredicateParsing;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.data.DataType;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -16,7 +17,7 @@ import java.util.function.Predicate;
 
 public class FilterItemsNode extends FilterNode<Item, ItemVariant, ItemTransformer> {
     public FilterItemsNode(Graph graph) {
-        super(ModNodeTypes.FILTER_ITEMS, graph, Registries.ITEM);
+        super(ModNodeTypes.FILTER_ITEMS, graph, Registries.ITEM, FilterPredicateParsing.ITEM_PREDICATE_PARSER);
     }
 
     @Override

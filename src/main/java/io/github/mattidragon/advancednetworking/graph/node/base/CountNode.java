@@ -2,6 +2,7 @@ package io.github.mattidragon.advancednetworking.graph.node.base;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.NetworkControllerContext;
+import io.github.mattidragon.advancednetworking.misc.FilterPredicateParsing;
 import io.github.mattidragon.advancednetworking.misc.ResourceFilter;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
@@ -28,9 +29,9 @@ public abstract class CountNode<R, V extends TransferVariant<R>> extends Interfa
     private final ResourceFilter<R, V> filter;
     private final BlockApiLookup<Storage<V>, @Nullable Direction> lookup;
 
-    public CountNode(NodeType<?> type, Graph graph, Registry<R> registry, BlockApiLookup<Storage<V>, @Nullable Direction> lookup) {
+    public CountNode(NodeType<?> type, Graph graph, Registry<R> registry, BlockApiLookup<Storage<V>, @Nullable Direction> lookup, FilterPredicateParsing.PredicateParser<R> predicateParser) {
         super(type, List.of(NetworkControllerContext.TYPE, ContextType.SERVER_WORLD), graph);
-        filter = new ResourceFilter<>(registry);
+        filter = new ResourceFilter<>(registry, predicateParser);
         this.lookup = lookup;
     }
 

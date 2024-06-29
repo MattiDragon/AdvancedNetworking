@@ -12,7 +12,8 @@
   "screen.advanced_networking.cable_config.interface_type.interface": "Interface",
   "screen.advanced_networking.cable_config.interface_type.blocked": "Blocked",
   "screen.advanced_networking.adventure_mode_access": "Adventure mode access",
-  
+
+  "advanced_networking.resource_filter.predicates_not_supported": "Item predicates are not supported in this filter",
   "tag.item.advanced_networking.wrenches": "Wrenches",
 
   "side.advanced_networking.north": "North",
@@ -87,16 +88,12 @@
   "node.advanced_networking.interface.loading": "Loading interfaces...",
   "node.advanced_networking.interface.no_interfaces": "No interfaces found",
 
-  "node.advanced_networking.filter.invalid_id": "Invalid identifier: %s",
+  "node.advanced_networking.filter.invalid_filter": "Invalid filter: %s",
   "node.advanced_networking.filter.invalid_id_regex": "Invalid regex: %s near index %s",
-  "node.advanced_networking.filter.unknown_resource": "Unknown resource: %s",
-  "node.advanced_networking.filter.unknown_tag": "Unknown tag: #%s",
-  "node.advanced_networking.filter.invalid_nbt_path": "Invalid nbt filter: %s",
   "node.advanced_networking.filter.use_regex": "Regex",
+  "node.advanced_networking.filter.syntax_info.line1": "\uD83D\uDEC8 Item predicate syntax",
+  "node.advanced_networking.filter.syntax_info.line2": "Click for more info",
   "node.advanced_networking.filter.use_regex.disabled": "Regex filter is disabled in the config",
-  "node.advanced_networking.filter.mode": "Mode",
-  "node.advanced_networking.filter.mode.resource": "Resource",
-  "node.advanced_networking.filter.mode.tag": "Tag",
   "node.advanced_networking.filter.mode.whitelist": "Whitelist",
   "node.advanced_networking.filter.mode.blacklist": "Blacklist",
 

@@ -2,6 +2,7 @@ package io.github.mattidragon.advancednetworking.graph.node.base;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mattidragon.advancednetworking.graph.path.PathBundle;
+import io.github.mattidragon.advancednetworking.misc.FilterPredicateParsing;
 import io.github.mattidragon.advancednetworking.misc.ResourceFilter;
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
@@ -22,9 +23,9 @@ import java.util.function.Predicate;
 public abstract class FilterNode<R, V extends TransferVariant<R>, T> extends Node {
     private final ResourceFilter<R, V> filter;
 
-    public FilterNode(NodeType<? extends FilterNode<R, V, T>> type, Graph graph, Registry<R> registry) {
+    public FilterNode(NodeType<? extends FilterNode<R, V, T>> type, Graph graph, Registry<R> registry, FilterPredicateParsing.PredicateParser<R> predicateParser) {
         super(type, List.of(), graph);
-        this.filter = new ResourceFilter<>(registry);
+        this.filter = new ResourceFilter<>(registry, predicateParser);
     }
 
     protected abstract DataType<PathBundle<Storage<V>, T>> getDataType();
