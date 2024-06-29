@@ -8,13 +8,13 @@ import io.github.mattidragon.advancednetworking.block.ControllerBlockEntity;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.MapColor;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.enums.Instrument;
+import net.minecraft.block.enums.NoteBlockInstrument;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 public final class ModBlocks {
-    public static final ControllerBlock CONTROLLER = new ControllerBlock(AbstractBlock.Settings.create().mapColor(MapColor.IRON_GRAY).instrument(Instrument.BASEDRUM).requiresTool().strength(3.5F));
-    public static final CableBlock CABLE = new CableBlock(AbstractBlock.Settings.create().mapColor(MapColor.DEEPSLATE_GRAY).instrument(Instrument.BASEDRUM).requiresTool().strength(3.5F));
+    public static final ControllerBlock CONTROLLER = new ControllerBlock(AbstractBlock.Settings.create().mapColor(MapColor.IRON_GRAY).instrument(NoteBlockInstrument.BASEDRUM).requiresTool().strength(3.5F));
+    public static final CableBlock CABLE = new CableBlock(AbstractBlock.Settings.create().mapColor(MapColor.DEEPSLATE_GRAY).instrument(NoteBlockInstrument.BASEDRUM).requiresTool().strength(3.5F));
     public static final BlockEntityType<ControllerBlockEntity> CONTROLLER_BLOCK_ENTITY = BlockEntityType.Builder.create(ControllerBlockEntity::new, ModBlocks.CONTROLLER).build(null);
     public static final BlockEntityType<CableBlockEntity> CABLE_BLOCK_ENTITY = BlockEntityType.Builder.create(CableBlockEntity::new, ModBlocks.CABLE).build(null);
 

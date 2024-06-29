@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.6-SNAPSHOT'
+    id 'fabric-loom' version '1.7-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -14,8 +14,7 @@ repositories {
     maven {
         url "https://kneelawk.com/maven/"
         content {
-            includeGroup "com.kneelawk.graphlib"
-            includeGroup "com.kneelawk"
+            includeGroupByRegex "com\\.kneelawk.*"
         }
     }
     maven {
@@ -81,8 +80,8 @@ dependencies {
 
     // Core apis
     modImplementation include("com.github.mattidragon:nodeflow:$nodeflow_version")
-    include modImplementation("com.kneelawk.graphlib:core-fabric:$graphlib_version")
-    modLocalRuntime("com.kneelawk.graphlib:debugrender-fabric:$graphlib_version")
+    include modImplementation("com.kneelawk.graphlib:graphlib-core-fabric:$graphlib_version")
+    modLocalRuntime("com.kneelawk.graphlib:graphlib-debugrender-fabric:$graphlib_version")
     include modApi("teamreborn:energy:$energy_version") {
         exclude(group: "net.fabricmc.fabric-api")
     }

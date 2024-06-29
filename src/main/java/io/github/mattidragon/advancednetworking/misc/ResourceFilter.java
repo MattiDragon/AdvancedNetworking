@@ -92,7 +92,7 @@ public class ResourceFilter<R, V extends TransferVariant<R>> {
         if (shouldUseRegex()) {
             return Pattern.matches(idFilter, id.toString());
         } else {
-            return new Identifier(idFilter).equals(id);
+            return id.equals(Identifier.tryParse(idFilter));
         }
     }
 
