@@ -29,7 +29,11 @@ import io.github.mattidragon.advancednetworking.graph.node.item.storage.ItemTarg
 import io.github.mattidragon.advancednetworking.graph.node.redstone.ReadRedstoneNode;
 import io.github.mattidragon.advancednetworking.graph.node.redstone.SetRedstoneNode;
 import io.github.mattidragon.advancednetworking.graph.node.redstone.WriteRedstoneNode;
+import io.github.mattidragon.nodeflow.graph.Graph;
+import io.github.mattidragon.nodeflow.graph.GraphEnvironment;
+import io.github.mattidragon.nodeflow.graph.data.DataType;
 import io.github.mattidragon.nodeflow.graph.node.NodeType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.registry.tag.TagKey;
 
 import static io.github.mattidragon.advancednetworking.AdvancedNetworking.id;
@@ -105,5 +109,29 @@ public class ModNodeTypes {
         NodeType.register(FLUID_COUNT, id("fluid_count"));
         NodeType.register(FLUID_CAPACITY, id("fluid_capacity"));
         NodeType.register(EMPTY_FLUID_STREAM, id("empty_fluid_stream"));
+
+        verifyNodeTypes();
+    }
+
+    public static void verifyNodeTypes() {
+        // Only check in dev in case some other mod does something stupid
+        if (!FabricLoader.getInstance().isDevelopmentEnvironment()) return;
+        
+        RuntimeException combined = null;
+        var graph = new Graph(GraphEnvironment.builder().addDataTypes(DataType.BOOLEAN).build());
+        for (var expectedType : NodeType.REGISTRY) {
+            var actualType = expectedType.generator().apply(graph).type;
+            if (actualType != expectedType) {
+                var e = new IllegalStateException("Node type %s produced node with type %s. This is a bug!".formatted(expectedType, actualType));
+                if (combined == null) {
+                    combined = e;
+                } else {
+                    combined.addSuppressed(e);
+                }
+            }
+        }
+        if (combined != null) {
+            throw combined;
+        }
     }
 }

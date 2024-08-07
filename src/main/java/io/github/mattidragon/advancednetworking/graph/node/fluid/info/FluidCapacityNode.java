@@ -9,6 +9,6 @@ import net.minecraft.fluid.Fluid;
 
 public class FluidCapacityNode extends CapacityNode<Fluid, FluidVariant> {
     public FluidCapacityNode(Graph graph) {
-        super(ModNodeTypes.FLUID_COUNT, graph, FluidStorage.SIDED);
+        super(ModNodeTypes.FLUID_CAPACITY, graph, FluidStorage.SIDED);
     }
 }

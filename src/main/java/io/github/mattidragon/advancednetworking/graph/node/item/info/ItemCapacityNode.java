@@ -9,6 +9,6 @@ import net.minecraft.item.Item;
 
 public class ItemCapacityNode extends CapacityNode<Item, ItemVariant> {
     public ItemCapacityNode(Graph graph) {
-        super(ModNodeTypes.ITEM_COUNT, graph, ItemStorage.SIDED);
+        super(ModNodeTypes.ITEM_CAPACITY, graph, ItemStorage.SIDED);
     }
 }
