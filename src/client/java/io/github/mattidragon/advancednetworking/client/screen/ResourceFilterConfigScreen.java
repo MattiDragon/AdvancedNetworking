@@ -59,7 +59,7 @@ public class ResourceFilterConfigScreen<N extends Node> extends NodeConfigScreen
                 textRenderer));
 
         var idField = new TextFieldWidget(textRenderer, x, 120, 200, 20, Text.empty());
-        idField.setMaxLength(100);
+        idField.setMaxLength(500);
         idField.setPlaceholder(Text.literal("filter").formatted(Formatting.GRAY));
         idField.setText(filter.getFilter());
         idField.setChangedListener(filter::setFilter);
