@@ -7,7 +7,6 @@ import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.data.DataType;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
 import io.github.mattidragon.nodeflow.graph.node.NodeType;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
@@ -56,7 +55,7 @@ public abstract class LimitNode<S, T> extends SingleSliderNode {
     @Override
     public void readNbt(NbtCompound data) {
         super.readNbt(data);
-        limit = MathHelper.clamp(data.getInt("limit"), 1, (int) FluidConstants.BUCKET);
+        limit = MathHelper.clamp(data.getInt("limit", max), 1, max);
     }
 
     @Override

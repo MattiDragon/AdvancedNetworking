@@ -6,11 +6,12 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class NbtUtils {
     public static List<String> readStrings(NbtCompound nbt, String id) {
-        return nbt.getList(id, NbtElement.STRING_TYPE).stream().map(NbtElement::asString).toList();
+        return nbt.getList(id).stream().map(NbtElement::asString).flatMap(Optional::stream).toList();
     }
 
     public static void writeStrings(NbtCompound nbt, String id, List<String> strings) {

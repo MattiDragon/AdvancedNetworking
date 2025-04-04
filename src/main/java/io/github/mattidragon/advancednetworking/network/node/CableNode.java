@@ -39,7 +39,7 @@ public class CableNode implements CenterWireBlockNode {
             return true; // Connections to interface nodes are always valid
 
         // We only connect to cables if the block state is connected
-        return world.getBlockState(pos).get(CableBlock.FACING_PROPERTIES.get(Direction.fromVector(posDiff.getX(), posDiff.getY(), posDiff.getZ()))) == CableBlock.ConnectionType.CONNECTED;
+        return world.getBlockState(pos).get(CableBlock.FACING_PROPERTIES.get(Direction.fromVector(posDiff.getX(), posDiff.getY(), posDiff.getZ(), Direction.UP))) == CableBlock.ConnectionType.CONNECTED;
     }
 
     @Override

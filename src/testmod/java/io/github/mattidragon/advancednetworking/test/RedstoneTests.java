@@ -6,16 +6,17 @@ import io.github.mattidragon.advancednetworking.graph.node.redstone.WriteRedston
 import io.github.mattidragon.advancednetworking.test.util.AdvancedNetworkingGameTest;
 import io.github.mattidragon.advancednetworking.test.util.AdvancedNetworkingTestContext;
 import io.github.mattidragon.nodeflow.graph.Graph;
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LeverBlock;
 import net.minecraft.block.RedstoneLampBlock;
 import net.minecraft.block.enums.BlockFace;
-import net.minecraft.test.GameTest;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 public class RedstoneTests implements AdvancedNetworkingGameTest {
-    @GameTest(templateName = AdvancedNetworkingGameTest.EMPTY_4x4x4)
+    @GameTest(structure = AdvancedNetworkingGameTest.EMPTY_4x4x4)
     public void powerLamp(AdvancedNetworkingTestContext context) {
         var controllerPos = new BlockPos(1, 1, 1);
         var controller = context.controller(controllerPos);
@@ -38,7 +39,7 @@ public class RedstoneTests implements AdvancedNetworkingGameTest {
 
         context.toggleLever(controllerPos.up());
         context.waitAndRun(10, () -> {
-            context.checkBlockState(cablePos.up(), state -> state.get(RedstoneLampBlock.LIT), () -> "Expected lamp to be lit");
+            context.checkBlockState(cablePos.up(), state -> state.get(RedstoneLampBlock.LIT), (state) -> Text.literal("Expected lamp to be lit"));
             context.complete();
         });
     }

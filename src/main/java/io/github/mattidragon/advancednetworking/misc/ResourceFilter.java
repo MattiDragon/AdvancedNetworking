@@ -4,7 +4,6 @@ import com.mojang.brigadier.StringReader;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
@@ -74,15 +73,12 @@ public class ResourceFilter<R, V extends TransferVariant<R>> {
     }
 
     public void readNbt(NbtCompound data) {
-        // Can't go breaking old saves
-        if (data.contains("idFilter", NbtElement.STRING_TYPE)) {
-            filter = data.getString("idFilter");
-        } else {
-            filter = data.getString("filter");
-        }
+        filter = data.getString("idFilter")
+                .or(() -> data.getString("filter"))
+                .orElse("");
 
-        isWhitelist = data.getBoolean("whitelist");
-        isRegex = data.getBoolean("regex");
+        isWhitelist = data.getBoolean("whitelist", true);
+        isRegex = data.getBoolean("regex", false);
         
         cachedPredicate = null;
     }

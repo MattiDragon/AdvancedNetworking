@@ -11,7 +11,7 @@ public enum InterfaceType {
     BLOCKED("blocked"),
     DEFAULT("default");
 
-    public static final PacketCodec<ByteBuf, InterfaceType> PACKET_CODEC = PacketCodecs.indexed(ValueLists.createIdToValueFunction(
+    public static final PacketCodec<ByteBuf, InterfaceType> PACKET_CODEC = PacketCodecs.indexed(ValueLists.createIndexToValueFunction(
             InterfaceType::ordinal, values(), ValueLists.OutOfBoundsHandling.WRAP
     ), InterfaceType::ordinal);
 

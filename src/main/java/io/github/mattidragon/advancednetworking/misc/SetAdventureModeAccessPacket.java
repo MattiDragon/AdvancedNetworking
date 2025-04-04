@@ -14,7 +14,7 @@ public record SetAdventureModeAccessPacket(BlockPos pos, boolean allowAccess) im
     private static final Id<SetAdventureModeAccessPacket> ID = new Id<>(AdvancedNetworking.id("set_adventure_mode_access"));
     private static final PacketCodec<PacketByteBuf, SetAdventureModeAccessPacket> CODEC = PacketCodec.tuple(
             BlockPos.PACKET_CODEC, SetAdventureModeAccessPacket::pos,
-            PacketCodecs.BOOL, SetAdventureModeAccessPacket::allowAccess,
+            PacketCodecs.BOOLEAN, SetAdventureModeAccessPacket::allowAccess,
             SetAdventureModeAccessPacket::new
     );
 

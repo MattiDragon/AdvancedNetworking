@@ -4,7 +4,6 @@ import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -33,40 +32,40 @@ public class CableBlockEntity extends BlockEntity implements AdventureModeAccess
     }
 
     public void setPower(Direction direction, int power) {
-        this.power[direction.getId()] = power;
-        world.updateNeighborsAlways(pos, ModBlocks.CABLE);
-        world.updateNeighborsAlways(pos.offset(direction), ModBlocks.CABLE);
+        this.power[direction.getIndex()] = power;
+        world.updateNeighbors(pos, ModBlocks.CABLE);
+        world.updateNeighbors(pos.offset(direction), ModBlocks.CABLE);
         markDirty();
     }
 
     public int getPower(Direction direction) {
-        return this.power[direction.getId()];
+        return this.power[direction.getIndex()];
     }
 
     public void setGroup(Direction direction, String group) {
-        this.groups[direction.getId()] = group;
+        this.groups[direction.getIndex()] = group;
         markDirty();
         if (world instanceof ServerWorld serverWorld)
             serverWorld.getChunkManager().markForUpdate(pos);
     }
 
     public String getGroup(Direction direction) {
-        return groups[direction.getId()];
+        return groups[direction.getIndex()];
     }
 
     public void setName(Direction direction, String name) {
-        this.names[direction.getId()] = name;
+        this.names[direction.getIndex()] = name;
         markDirty();
         if (world instanceof ServerWorld serverWorld)
             serverWorld.getChunkManager().markForUpdate(pos);
     }
 
     public String getName(Direction direction) {
-        return names[direction.getId()];
+        return names[direction.getIndex()];
     }
 
     public Text getDisplayName(Direction direction) {
-        var customName = this.names[direction.getId()];
+        var customName = this.names[direction.getIndex()];
         if (!customName.isBlank()) return Text.literal(customName);
         return getBackupName(direction);
     }
@@ -94,18 +93,18 @@ public class CableBlockEntity extends BlockEntity implements AdventureModeAccess
     @Override
     public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.readNbt(nbt, registryLookup);
-        var power = nbt.getIntArray("power");
+        var power = nbt.getIntArray("power").orElseGet(() -> new int[0]);
         System.arraycopy(power, 0, this.power, 0, Math.min(power.length, 6));
-        allowAdventureModeAccess = nbt.getBoolean("allowAdventureModeAccess");
+        allowAdventureModeAccess = nbt.getBoolean("allowAdventureModeAccess", false);
 
-        var names = nbt.getList("names", NbtElement.STRING_TYPE);
+        var names = nbt.getList("names").orElseGet(NbtList::new);
         for (int i = 0; i < Math.min(names.size(), 6); i++) {
-            this.names[i] = names.get(i).asString();
+            this.names[i] = names.get(i).asString().orElse("");
         }
 
-        var groups = nbt.getList("groups", NbtElement.STRING_TYPE);
+        var groups = nbt.getList("groups").orElseGet(NbtList::new);
         for (int i = 0; i < Math.min(groups.size(), 6); i++) {
-            this.groups[i] = groups.get(i).asString();
+            this.groups[i] = groups.get(i).asString().orElse("");
         }
     }
 

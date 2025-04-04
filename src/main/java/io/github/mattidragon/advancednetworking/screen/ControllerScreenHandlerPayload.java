@@ -17,7 +17,7 @@ public record ControllerScreenHandlerPayload(Graph graph,
                                              List<Text> errors) {
     public static final PacketCodec<RegistryByteBuf, ControllerScreenHandlerPayload> CODEC = PacketCodec.tuple(
             Graph.PACKET_CODEC, ControllerScreenHandlerPayload::graph,
-            PacketCodecs.BOOL, ControllerScreenHandlerPayload::adventureModeAccessAllowed,
+            PacketCodecs.BOOLEAN, ControllerScreenHandlerPayload::adventureModeAccessAllowed,
             PacketCodecs.DOUBLE, ControllerScreenHandlerPayload::viewX,
             PacketCodecs.DOUBLE, ControllerScreenHandlerPayload::viewY,
             PacketCodecs.VAR_INT, ControllerScreenHandlerPayload::zoom,

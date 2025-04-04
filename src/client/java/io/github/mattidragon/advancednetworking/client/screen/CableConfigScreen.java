@@ -70,10 +70,10 @@ public class CableConfigScreen extends Screen {
 
         var buttons = new ButtonWidget[6];
         for (int i = 0; i < 6; i++) {
-            var direction = Direction.byId(i);
+            var direction = Direction.byIndex(i);
             var button = ButtonWidget.builder(Text.translatable("side.advanced_networking." + direction.asString()), button1 -> {
                 button1.active = false;
-                buttons[side.getId()].active = true;
+                buttons[side.getIndex()].active = true;
 
                 ClientPlayNetworking.send(new UpdateInterfacePacket(pos, side, type, name, group));
                 side = direction;
@@ -88,7 +88,7 @@ public class CableConfigScreen extends Screen {
             addDrawableChild(button);
             buttons[i] = button;
         }
-        buttons[side.getId()].active = false;
+        buttons[side.getIndex()].active = false;
 
         if (client != null && client.player != null && client.player.isCreativeLevelTwoOp() && AdvancedNetworking.CONFIG.get().showAdventureModeToggles()) {
             addDrawableChild(CyclingButtonWidget.onOffBuilder()

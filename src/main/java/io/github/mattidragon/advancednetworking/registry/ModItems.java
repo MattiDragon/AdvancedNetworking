@@ -8,11 +8,13 @@ import net.minecraft.item.ItemGroups;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 
 public final class ModItems {
-    public static final BlockItem CONTROLLER = new BlockItem(ModBlocks.CONTROLLER, new Item.Settings());
-    public static final BlockItem CABLE = new BlockItem(ModBlocks.CABLE, new Item.Settings());
-    public static final Item COMPOUND = new Item(new Item.Settings());
+    public static final BlockItem CONTROLLER = new BlockItem(ModBlocks.CONTROLLER, new Item.Settings().registryKey(key("controller")));
+    public static final BlockItem CABLE = new BlockItem(ModBlocks.CABLE, new Item.Settings().registryKey(key("cable")));
+    public static final Item COMPOUND = new Item(new Item.Settings().registryKey(key("compound")));
 
     private ModItems() { throw new UnsupportedOperationException(); }
 
@@ -30,5 +32,9 @@ public final class ModItems {
             entries.addAfter(Items.LECTERN, CABLE);
         });
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.INGREDIENTS).register(entries -> entries.addAfter(Items.DISC_FRAGMENT_5, COMPOUND));
+    }
+
+    private static RegistryKey<Item> key(String path) {
+        return RegistryKey.of(RegistryKeys.ITEM, AdvancedNetworking.id(path));
     }
 }

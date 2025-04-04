@@ -7,18 +7,18 @@ import io.github.mattidragon.advancednetworking.graph.node.item.storage.ItemTarg
 import io.github.mattidragon.advancednetworking.test.util.AdvancedNetworkingGameTest;
 import io.github.mattidragon.advancednetworking.test.util.AdvancedNetworkingTestContext;
 import io.github.mattidragon.nodeflow.graph.Graph;
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LeverBlock;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.block.enums.BlockFace;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.test.GameTest;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 public class GroupMoveTests implements AdvancedNetworkingGameTest {
-    @GameTest(templateName = AdvancedNetworkingGameTest.EMPTY_4x4x4)
+    @GameTest(structure = AdvancedNetworkingGameTest.EMPTY_4x4x4)
     public void moveItemsWithGroup(AdvancedNetworkingTestContext context) {
         var controllerPos = new BlockPos(1, 1, 1);
         var controller = context.controller(controllerPos);

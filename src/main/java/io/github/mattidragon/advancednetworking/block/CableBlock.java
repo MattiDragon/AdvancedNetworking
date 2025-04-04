@@ -21,16 +21,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -95,7 +101,7 @@ public class CableBlock extends BlockWithEntity {
     }
 
     @Override
-    public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
         if (canConnect(state, neighborState, direction)) {
             return state.with(FACING_PROPERTIES.get(direction), ConnectionType.CONNECTED);
         } else if (state.get(FACING_PROPERTIES.get(direction)) == ConnectionType.CONNECTED) {
@@ -104,6 +110,7 @@ public class CableBlock extends BlockWithEntity {
 
         return state;
     }
+
 
     @Override
     public boolean emitsRedstonePower(BlockState state) {
@@ -168,7 +175,7 @@ public class CableBlock extends BlockWithEntity {
     }
 
     @Override
-    public boolean isTransparent(BlockState state, BlockView world, BlockPos pos) {
+    protected boolean isTransparent(BlockState state) {
         return false;
     }
 
@@ -216,7 +223,7 @@ public class CableBlock extends BlockWithEntity {
         id ^= id >>> 33;
         id *= 0xc4ceb9fe1a85ec53L;
         id ^= id >>> 33;
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(ArrayUtils.add(Longs.toByteArray(id), (byte) dir.getId()));
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(ArrayUtils.add(Longs.toByteArray(id), (byte) dir.getIndex()));
     }
 
     public static void changeMode(World world, BlockState state, BlockPos pos, Direction side, InterfaceType newType) {
@@ -238,10 +245,10 @@ public class CableBlock extends BlockWithEntity {
     }
 
     @Override
-    protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         var direction = calcHitDirection(hit.getPos().subtract(Vec3d.of(pos)));
         var property = FACING_PROPERTIES.get(direction);
-        
+
         if (stack.isIn(ModTags.Items.WRENCHES)) {
             changeMode(world, state, pos, direction, switch (state.get(property)) {
                 case NONE -> InterfaceType.INTERFACE;
@@ -249,9 +256,9 @@ public class CableBlock extends BlockWithEntity {
                 case INTERFACE, INTERFACE_POWERED, CONNECTED -> InterfaceType.BLOCKED;
             });
 
-            return ItemActionResult.success(world.isClient);
+            return ActionResult.SUCCESS_SERVER;
         }
-        return ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return ActionResult.PASS_TO_DEFAULT_BLOCK_ACTION;
     }
 
     @Override
@@ -260,7 +267,7 @@ public class CableBlock extends BlockWithEntity {
         if (!player.getAbilities().allowModifyWorld && !cable.isAdventureModeAccessAllowed()) return ActionResult.PASS;
 
         var direction = calcHitDirection(hit.getPos().subtract(Vec3d.of(pos)));
-        
+
         if (player.isSneaking()) {
             ((ClientScreenOpener)player).advancednetworking$openCableConfigScreen(
                     pos.toImmutable(),

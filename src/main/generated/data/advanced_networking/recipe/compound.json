@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "minecraft:amethyst_shard"
-    },
-    {
-      "item": "minecraft:clay_ball"
-    },
-    {
-      "tag": "minecraft:coals"
-    }
+    "minecraft:amethyst_shard",
+    "minecraft:clay_ball",
+    "#minecraft:coals"
   ],
   "result": {
     "count": 1,

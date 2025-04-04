@@ -2,27 +2,25 @@ package io.github.mattidragon.advancednetworking.misc;
 
 import com.mojang.brigadier.ImmutableStringReader;
 import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.*;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Decoder;
+import com.mojang.serialization.Dynamic;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
-import net.minecraft.command.argument.packrat.ArgumentParser;
-import net.minecraft.command.argument.packrat.PackratParsing;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.ComponentMapImpl;
+import net.minecraft.command.argument.ItemPredicateParsing;
 import net.minecraft.component.ComponentType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.predicate.item.ItemSubPredicate;
+import net.minecraft.predicate.component.ComponentPredicate;
 import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
+import net.minecraft.util.packrat.PackratParser;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,15 +31,12 @@ import java.util.stream.Stream;
 public class FilterPredicateParsing {
     private static final RegistryWrapper.WrapperLookup STATIC_LOOKUP = DynamicRegistryManager.of(Registries.REGISTRIES);
     @SuppressWarnings("deprecation")
-    private static final ArgumentParser<List<Predicate<TransferVariant<Item>>>> ITEM_PARSER 
-            = PackratParsing.createParser(new Context<>(STATIC_LOOKUP, RegistryKeys.ITEM, Item::getRegistryEntry, Item::getComponents));
+    private static final PackratParser<List<Predicate<TransferVariant<Item>>>> ITEM_PARSER
+            = ItemPredicateParsing.createParser(new Context<>(STATIC_LOOKUP, RegistryKeys.ITEM, Item::getRegistryEntry));
     @SuppressWarnings("deprecation")
-    private static final ArgumentParser<List<Predicate<TransferVariant<Fluid>>>> FLUID_PARSER 
-            = PackratParsing.createParser(new Context<>(STATIC_LOOKUP, RegistryKeys.FLUID, Fluid::getRegistryEntry, fluid -> ComponentMap.EMPTY));
+    private static final PackratParser<List<Predicate<TransferVariant<Fluid>>>> FLUID_PARSER
+            = ItemPredicateParsing.createParser(new Context<>(STATIC_LOOKUP, RegistryKeys.FLUID, Fluid::getRegistryEntry));
 
-    private static final SimpleCommandExceptionType ITEM_PREDICATES_NOT_SUPPORTED = new SimpleCommandExceptionType(
-            Text.translatable("advanced_networking.resource_filter.predicates_not_supported")
-    );
     private static final DynamicCommandExceptionType INVALID_ITEM_ID_EXCEPTION = new DynamicCommandExceptionType(
             id -> Text.stringifiedTranslatable("argument.item.id.invalid", id)
     );
@@ -81,58 +76,54 @@ public class FilterPredicateParsing {
         Either<Predicate<TransferVariant<R>>, CommandSyntaxException> parse(StringReader reader);
     }
 
-    private static class Context<V> implements PackratParsing.Callbacks<Predicate<TransferVariant<V>>, ComponentCheck<V>, ItemSubPredicateCheck> {
+    private static class Context<V> implements ItemPredicateParsing.Callbacks<Predicate<TransferVariant<V>>, ComponentCheck, SubPredicateCheck> {
         private final Function<V, RegistryEntry<V>> entryFunction;
-        private final Function<V, ComponentMap> defaultComponentGetter;
-        
-        private final RegistryWrapper.Impl<V> items;
+        private final RegistryWrapper.Impl<V> valueRegistry;
         private final RegistryWrapper.Impl<ComponentType<?>> components;
-        private final RegistryWrapper.Impl<ItemSubPredicate.Type<?>> subPredicateTypes;
+        private final RegistryWrapper.Impl<ComponentPredicate.Type<?>> subPredicateTypes;
         private final RegistryKey<Registry<V>> key;
-        private final RegistryOps<NbtElement> ops;
+        private final RegistryWrapper.WrapperLookup lookup;
 
-        Context(RegistryWrapper.WrapperLookup lookup, RegistryKey<Registry<V>> registryKey, Function<V, RegistryEntry<V>> entryFunction, Function<V, ComponentMap> defaultComponentGetter) {
+        Context(RegistryWrapper.WrapperLookup lookup, RegistryKey<Registry<V>> registryKey, Function<V, RegistryEntry<V>> entryFunction) {
+            this.valueRegistry = lookup.getOrThrow(registryKey);
             this.entryFunction = entryFunction;
-            this.defaultComponentGetter = defaultComponentGetter;
-            this.items = lookup.getWrapperOrThrow(registryKey);
-            this.components = lookup.getWrapperOrThrow(RegistryKeys.DATA_COMPONENT_TYPE);
-            this.subPredicateTypes = lookup.getWrapperOrThrow(RegistryKeys.ITEM_SUB_PREDICATE_TYPE);
-            this.ops = lookup.getOps(NbtOps.INSTANCE);
+            this.components = lookup.getOrThrow(RegistryKeys.DATA_COMPONENT_TYPE);
+            this.subPredicateTypes = lookup.getOrThrow(RegistryKeys.DATA_COMPONENT_PREDICATE_TYPE);
             this.key = registryKey;
+            this.lookup = lookup;
         }
-
 
         @Override
         public Predicate<TransferVariant<V>> itemMatchPredicate(ImmutableStringReader reader, Identifier id) throws CommandSyntaxException {
-            var entry = items.getOptional(RegistryKey.of(key, id))
+            var entry = valueRegistry.getOptional(RegistryKey.of(key, id))
                     .orElseThrow(() -> INVALID_ITEM_ID_EXCEPTION.createWithContext(reader, id));
             return variant -> entryFunction.apply(variant.getObject()) == entry;
         }
 
         @Override
         public Stream<Identifier> streamItemIds() {
-            return items.streamKeys().map(RegistryKey::getValue);
+            return valueRegistry.streamKeys().map(RegistryKey::getValue);
         }
 
         @Override
         public Predicate<TransferVariant<V>> tagMatchPredicate(ImmutableStringReader reader, Identifier id) throws CommandSyntaxException {
-            var tag = items.getOptional(TagKey.of(key, id))
+            var tag = valueRegistry.getOptional(TagKey.of(key, id))
                     .orElseThrow(() -> UNKNOWN_ITEM_TAG_EXCEPTION.createWithContext(reader, id));
             return variant -> entryFunction.apply(variant.getObject()).isIn(tag.getTag());
         }
 
         @Override
         public Stream<Identifier> streamTags() {
-            return items.streamTagKeys().map(TagKey::id);
+            return valueRegistry.streamTagKeys().map(TagKey::id);
         }
 
         @Override
-        public ComponentCheck<V> componentCheck(ImmutableStringReader reader, Identifier id) throws CommandSyntaxException {
+        public ComponentCheck componentCheck(ImmutableStringReader reader, Identifier id) throws CommandSyntaxException {
             var componentType = this.components
                     .getOptional(RegistryKey.of(RegistryKeys.DATA_COMPONENT_TYPE, id))
                     .map(RegistryEntry::value)
                     .orElseThrow(() -> UNKNOWN_ITEM_COMPONENT_EXCEPTION.createWithContext(reader, id));
-            return ComponentCheck.read(reader, id, componentType, defaultComponentGetter);
+            return ComponentCheck.read(reader, id, componentType);
         }
 
         @Override
@@ -141,20 +132,20 @@ public class FilterPredicateParsing {
         }
 
         @Override
-        public Predicate<TransferVariant<V>> componentMatchPredicate(ImmutableStringReader reader, ComponentCheck<V> check, NbtElement nbt) throws CommandSyntaxException {
-            return check.createPredicate(reader, ops, nbt);
+        public Predicate<TransferVariant<V>> componentMatchPredicate(ImmutableStringReader reader, ComponentCheck check, Dynamic<?> dynamic) throws CommandSyntaxException {
+            return check.createPredicate(reader, wrapDynamic(dynamic))::test;
         }
 
         @Override
-        public Predicate<TransferVariant<V>> componentPresencePredicate(ImmutableStringReader reader, ComponentCheck<V> check) {
-            return check.presenceChecker;
+        public Predicate<TransferVariant<V>> componentPresencePredicate(ImmutableStringReader reader, ComponentCheck check) {
+            return check.presenceChecker::test;
         }
 
         @Override
-        public ItemSubPredicateCheck subPredicateCheck(ImmutableStringReader reader, Identifier id) throws CommandSyntaxException {
+        public SubPredicateCheck subPredicateCheck(ImmutableStringReader reader, Identifier id) throws CommandSyntaxException {
             return this.subPredicateTypes
-                    .getOptional(RegistryKey.of(RegistryKeys.ITEM_SUB_PREDICATE_TYPE, id))
-                    .map(ItemSubPredicateCheck::new)
+                    .getOptional(RegistryKey.of(RegistryKeys.DATA_COMPONENT_PREDICATE_TYPE, id))
+                    .map(SubPredicateCheck::new)
                     .orElseThrow(() -> UNKNOWN_ITEM_PREDICATE_EXCEPTION.createWithContext(reader, id));
 
         }
@@ -164,14 +155,9 @@ public class FilterPredicateParsing {
             return subPredicateTypes.streamKeys().map(RegistryKey::getValue);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public Predicate<TransferVariant<V>> subPredicatePredicate(ImmutableStringReader reader, ItemSubPredicateCheck check, NbtElement nbt) throws CommandSyntaxException {
-            if (key.equals(RegistryKeys.ITEM)) {
-                // Unchecked cast because we know V is Item from the registry key
-                return (Predicate<TransferVariant<V>>) (Predicate<?>) check.createPredicate(reader, ops, nbt);
-            }
-            throw ITEM_PREDICATES_NOT_SUPPORTED.createWithContext(reader);
+        public Predicate<TransferVariant<V>> subPredicatePredicate(ImmutableStringReader reader, SubPredicateCheck check, Dynamic<?> dynamic) throws CommandSyntaxException {
+            return check.createPredicate(reader, wrapDynamic(dynamic))::test;
         }
 
         @Override
@@ -183,55 +169,45 @@ public class FilterPredicateParsing {
         public Predicate<TransferVariant<V>> anyOf(List<Predicate<TransferVariant<V>>> predicates) {
             return Util.anyOf(predicates);
         }
+
+        private <T> Dynamic<T> wrapDynamic(Dynamic<T> dynamic) {
+            return new Dynamic<>(lookup.getOps(dynamic.getOps()), dynamic.getValue());
+        }
     }
 
-    private record ComponentCheck<V>(
+    private record ComponentCheck(
             Identifier id,
-            Predicate<TransferVariant<V>> presenceChecker,
-            Decoder<? extends Predicate<TransferVariant<V>>> valueChecker
+            Predicate<? super TransferVariant<?>> presenceChecker,
+            Decoder<? extends Predicate<? super TransferVariant<?>>> valueChecker
     ) {
-        public static <V, T> ComponentCheck<V> read(ImmutableStringReader reader,
-                                                    Identifier id,
-                                                    ComponentType<T> type,
-                                                    Function<V, ComponentMap> defaultComponentGetter) throws CommandSyntaxException {
+        public static <T> ComponentCheck read(ImmutableStringReader reader,
+                                              Identifier id,
+                                              ComponentType<T> type) throws CommandSyntaxException {
             var codec = type.getCodec();
             if (codec == null) {
                 throw UNKNOWN_ITEM_COMPONENT_EXCEPTION.createWithContext(reader, id);
             } else {
-                return new ComponentCheck<>(id, 
-                        stack -> getComponents(stack, defaultComponentGetter).contains(type), 
-                        codec.map(expected -> stack -> Objects.equals(expected, getComponents(stack, defaultComponentGetter).get(type))));
+                return new ComponentCheck(id,
+                        stack -> stack.getComponentMap().contains(type),
+                        codec.map(expected -> stack -> Objects.equals(expected, stack.getComponentMap().get(type))));
             }
         }
 
-        public Predicate<TransferVariant<V>> createPredicate(ImmutableStringReader reader, RegistryOps<NbtElement> ops, NbtElement nbt) throws CommandSyntaxException {
-            return this.valueChecker.parse(ops, nbt).getOrThrow(
+        public Predicate<? super TransferVariant<?>> createPredicate(ImmutableStringReader reader, Dynamic<?> dynamic) throws CommandSyntaxException {
+            return this.valueChecker.parse(dynamic).getOrThrow(
                     error -> MALFORMED_ITEM_COMPONENT_EXCEPTION.createWithContext(reader, this.id.toString(), error)
             );
         }
     }
 
-    private record ItemSubPredicateCheck(Identifier id, Decoder<? extends Predicate<TransferVariant<Item>>> type) {
-        public ItemSubPredicateCheck(RegistryEntry.Reference<ItemSubPredicate.Type<?>> type) {
-            this(type.registryKey().getValue(),
-                    type.value().codec().map(predicate -> variant -> {
-                        @SuppressWarnings("deprecation")
-                        var stack = new ItemStack(variant.getObject().getRegistryEntry(), 1, variant.getComponents());
-                        return predicate.test(stack);
-                    }));
+    private record SubPredicateCheck(Identifier id, Decoder<? extends Predicate<? super TransferVariant<?>>> type) {
+        public SubPredicateCheck(RegistryEntry.Reference<ComponentPredicate.Type<?>> type) {
+            this(type.registryKey().getValue(), type.value().getPredicateCodec()
+                    .map((predicate) -> v -> predicate.test(v.getComponentMap())));
         }
 
-        public Predicate<TransferVariant<Item>> createPredicate(ImmutableStringReader reader, RegistryOps<NbtElement> ops, NbtElement nbt) throws CommandSyntaxException {
-            var dataResult = this.type.parse(ops, nbt);
-            return dataResult.getOrThrow(
-                    error -> MALFORMED_ITEM_PREDICATE_EXCEPTION.createWithContext(reader, this.id.toString(), error)
-            );
+        public Predicate<? super TransferVariant<?>> createPredicate(ImmutableStringReader reader, Dynamic<?> value) throws CommandSyntaxException {
+            return type.parse(value).getOrThrow((error) -> MALFORMED_ITEM_PREDICATE_EXCEPTION.createWithContext(reader, this.id.toString(), error));
         }
-    }
-    
-    private static <V> ComponentMap getComponents(TransferVariant<V> variant, Function<V, ComponentMap> baseGetter) {
-        var map = new ComponentMapImpl(baseGetter.apply(variant.getObject()));
-        map.applyChanges(variant.getComponents());
-        return map;
     }
 }

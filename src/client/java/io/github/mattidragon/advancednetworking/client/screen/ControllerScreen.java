@@ -80,7 +80,7 @@ public class ControllerScreen extends HandledEditorScreen {
             var text = Text.translatable("advanced_networking.editor.errors");
             context.drawText(textRenderer, text, x, y, 0xff5555, false);
             if (mouseX > x && mouseX < x + textRenderer.getWidth(text) && mouseY > y && mouseY < y + 9)
-                context.drawHoverEvent(textRenderer, Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, texts.stream().collect(Text::empty, MutableText::append, MutableText::append))), mouseX, mouseY);
+                context.drawHoverEvent(textRenderer, Style.EMPTY.withHoverEvent(new HoverEvent.ShowText(texts.stream().collect(Text::empty, MutableText::append, MutableText::append))), mouseX, mouseY);
         } else {
             context.drawText(textRenderer, Text.translatable("advanced_networking.editor.no_errors"), x, y, 0x55ff55, false);
         }

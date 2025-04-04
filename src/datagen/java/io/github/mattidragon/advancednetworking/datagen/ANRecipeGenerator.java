@@ -1,26 +1,21 @@
 package io.github.mattidragon.advancednetworking.datagen;
 
 import io.github.mattidragon.advancednetworking.registry.ModItems;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
-import net.minecraft.data.server.recipe.RecipeExporter;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
+import net.minecraft.data.recipe.RecipeExporter;
+import net.minecraft.data.recipe.RecipeGenerator;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.ItemTags;
 
-import java.util.concurrent.CompletableFuture;
-
-public class RecipeProvider extends FabricRecipeProvider {
-    public RecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
-        super(output, registriesFuture);
+public class ANRecipeGenerator extends RecipeGenerator {
+    protected ANRecipeGenerator(RegistryWrapper.WrapperLookup registries, RecipeExporter exporter) {
+        super(registries, exporter);
     }
 
     @Override
-    public void generate(RecipeExporter exporter) {
-        ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, ModItems.COMPOUND)
+    public void generate() {
+        createShapeless(RecipeCategory.MISC, ModItems.COMPOUND)
                 .input(Items.AMETHYST_SHARD)
                 .input(Items.CLAY_BALL)
                 .input(ItemTags.COALS)
@@ -28,14 +23,14 @@ public class RecipeProvider extends FabricRecipeProvider {
                 .criterion(hasItem(Items.AMETHYST_SHARD), conditionsFromItem(Items.AMETHYST_SHARD))
                 .offerTo(exporter);
 
-        ShapedRecipeJsonBuilder.create(RecipeCategory.REDSTONE, ModItems.CABLE, 8)
+        createShaped(RecipeCategory.REDSTONE, ModItems.CABLE, 8)
                 .input('#', ModItems.COMPOUND)
                 .pattern("###")
                 .criterion(hasItem(ModItems.CABLE), conditionsFromItem(ModItems.CABLE))
                 .criterion(hasItem(ModItems.COMPOUND), conditionsFromItem(ModItems.COMPOUND))
                 .offerTo(exporter);
 
-        ShapedRecipeJsonBuilder.create(RecipeCategory.REDSTONE, ModItems.CONTROLLER)
+        createShaped(RecipeCategory.REDSTONE, ModItems.CONTROLLER)
                 .input('#', ModItems.COMPOUND)
                 .input('D', Items.DIAMOND)
                 .input('I', Items.IRON_INGOT)

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "#": {
-      "item": "advanced_networking:compound"
-    },
-    "D": {
-      "item": "minecraft:diamond"
-    },
-    "I": {
-      "item": "minecraft:iron_ingot"
-    }
+    "#": "advanced_networking:compound",
+    "D": "minecraft:diamond",
+    "I": "minecraft:iron_ingot"
   },
   "pattern": [
     "I#I",

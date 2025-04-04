@@ -2,6 +2,7 @@ package io.github.mattidragon.advancednetworking.datagen;
 
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import org.jetbrains.annotations.Nullable;
 
 public class AdvancedNetworkingDatagen implements DataGeneratorEntrypoint {
     @Override
@@ -15,5 +16,10 @@ public class AdvancedNetworkingDatagen implements DataGeneratorEntrypoint {
         pack.addProvider(NodeTypeTagProvider::new);
         var blockTagProvider = pack.addProvider(BlockTagProvider::new);
         pack.addProvider((output, registriesFuture) ->  new ItemTagProvider(output, registriesFuture, blockTagProvider));
+    }
+
+    @Override
+    public @Nullable String getEffectiveModId() {
+        return "advanced_networking";
     }
 }

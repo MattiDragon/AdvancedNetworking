@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "advanced_networking_datagen",
+  "version": "1",
+  "name": "Advanced Networking Datagen",
+  "entrypoints": {
+    "fabric-datagen": [
+      "io.github.mattidragon.advancednetworking.datagen.AdvancedNetworkingDatagen"
+    ]
+  }
+}

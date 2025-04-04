@@ -53,7 +53,7 @@ public class SplitEnergyNode extends SingleSliderNode {
     @Override
     public void readNbt(NbtCompound data) {
         super.readNbt(data);
-        count = MathHelper.clamp(data.getInt("count"), 2, 8);
+        count = MathHelper.clamp(data.getInt("count", 2), 2, 8);
     }
 
     @Override

@@ -46,8 +46,8 @@ public abstract class InterfaceNode extends Node {
     @Override
     public void readNbt(NbtCompound data) {
         super.readNbt(data);
-        interfaceId = data.getString("interfaceId");
-        isGroup = data.getBoolean("isGroup");
+        interfaceId = data.getString("interfaceId", "");
+        isGroup = data.getBoolean("isGroup", false);
     }
 
     @Override

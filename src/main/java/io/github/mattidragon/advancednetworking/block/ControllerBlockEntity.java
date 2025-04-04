@@ -71,12 +71,12 @@ public class ControllerBlockEntity extends BlockEntity implements AdventureModeA
     @Override
     public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.readNbt(nbt, registryLookup);
-        allowAdventureModeAccess = nbt.getBoolean("allowAdventureModeAccess");
-        viewX = nbt.getDouble("viewX");
-        viewY = nbt.getDouble("viewY");
-        zoom = nbt.getInt("zoom");
+        allowAdventureModeAccess = nbt.getBoolean("allowAdventureModeAccess", false);
+        viewX = nbt.getDouble("viewX", 0);
+        viewY = nbt.getDouble("viewY", 0);
+        zoom = nbt.getInt("zoom", 0);
 
-        graph.readNbt(nbt.getCompound("graph"));
+        graph.readNbt(nbt.getCompound("graph").orElseGet(NbtCompound::new));
         errors = NbtUtils.readStrings(nbt, "errors").stream()
                 .map((Function<String, Optional<Text>>) json -> Optional.ofNullable(Text.Serialization.fromJson(json, registryLookup)))
                 .flatMap(Optional::stream)
