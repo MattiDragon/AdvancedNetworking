@@ -145,6 +145,10 @@ loom {
 
 test.dependsOn(tasks.runGametest)
 
+// Gradle is trying to be smart about the datagen output
+// We do this to fix things
+tasks.runGametest.mustRunAfter(tasks.runDatagen)
+
 // Delete datagen on clean
 clean.delete("src/main/generated")
 
