@@ -7,7 +7,6 @@ import io.github.mattidragon.advancednetworking.graph.node.energy.EnergyLimitTra
 import io.github.mattidragon.advancednetworking.graph.node.fluid.FluidTransformer;
 import io.github.mattidragon.advancednetworking.graph.node.item.ItemTransformer;
 import io.github.mattidragon.advancednetworking.graph.path.PathEnvironment;
-import io.github.mattidragon.advancednetworking.misc.NbtUtils;
 import io.github.mattidragon.advancednetworking.misc.StorageHelper;
 import io.github.mattidragon.advancednetworking.network.NetworkRegistry;
 import io.github.mattidragon.advancednetworking.network.node.ControllerNode;
@@ -29,13 +28,14 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -43,8 +43,6 @@ import team.reborn.energy.api.EnergyStorage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 public class ControllerBlockEntity extends BlockEntity implements AdventureModeAccessBlockEntity, GraphProvider, ExtendedScreenHandlerFactory<ControllerScreenHandlerPayload> {
     private Graph graph = new Graph(AdvancedNetworking.ENVIRONMENT);
@@ -69,32 +67,25 @@ public class ControllerBlockEntity extends BlockEntity implements AdventureModeA
     }
 
     @Override
-    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.readNbt(nbt, registryLookup);
-        allowAdventureModeAccess = nbt.getBoolean("allowAdventureModeAccess", false);
-        viewX = nbt.getDouble("viewX", 0);
-        viewY = nbt.getDouble("viewY", 0);
-        zoom = nbt.getInt("zoom", 0);
+    protected void readData(ReadView view) {
+        allowAdventureModeAccess = view.getBoolean("allowAdventureModeAccess", false);
+        viewX = view.getDouble("viewX", 0);
+        viewY = view.getDouble("viewY", 0);
+        zoom = view.getInt("zoom", 0);
 
-        graph.readNbt(nbt.getCompound("graph").orElseGet(NbtCompound::new));
-        errors = NbtUtils.readStrings(nbt, "errors").stream()
-                .map((Function<String, Optional<Text>>) json -> Optional.ofNullable(Text.Serialization.fromJson(json, registryLookup)))
-                .flatMap(Optional::stream)
-                .toList();
+        graph.readData(view.getReadView("graph"));
+        errors = view.read("errors", TextCodecs.CODEC.listOf()).orElse(List.of());
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.writeNbt(nbt, registryLookup);
-        nbt.putBoolean("allowAdventureModeAccess", allowAdventureModeAccess);
-        nbt.putDouble("viewX", viewX);
-        nbt.putDouble("viewY", viewY);
-        nbt.putInt("zoom", zoom);
+    protected void writeData(WriteView view) {
+        view.putBoolean("allowAdventureModeAccess", allowAdventureModeAccess);
+        view.putDouble("viewX", viewX);
+        view.putDouble("viewY", viewY);
+        view.putInt("zoom", zoom);
 
-        var graphNbt = new NbtCompound();
-        graph.writeNbt(graphNbt);
-        nbt.put("graph", graphNbt);
-        NbtUtils.writeStrings(nbt, "errors", errors.stream().map(text -> Text.Serialization.toJsonString(text, registryLookup)).toList());
+        graph.writeData(view.get("graph"));
+        view.put("errors", TextCodecs.CODEC.listOf(), errors);
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, ControllerBlockEntity controller) {

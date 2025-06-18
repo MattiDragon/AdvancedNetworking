@@ -1,10 +1,15 @@
 package io.github.mattidragon.advancednetworking.test.util;
 
+import io.github.mattidragon.nodeflow.NodeFlow;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.node.builtin.NumberNode;
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
+import net.minecraft.storage.NbtReadView;
 import net.minecraft.test.TestContext;
+import net.minecraft.util.ErrorReporter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,7 +29,10 @@ public interface AdvancedNetworkingGameTest extends CustomTestMethodInvoker {
         var node = new NumberNode(graph);
         var numberNbt = new NbtCompound();
         numberNbt.putString("value", value + "");
-        node.readNbt(numberNbt);
+        try (var logging = new ErrorReporter.Logging(() -> "Test number node construction", NodeFlow.LOGGER)) {
+            var readView = NbtReadView.create(logging, DynamicRegistryManager.of(Registries.REGISTRIES), numberNbt);
+            node.readData(readView);
+        }
         return node;
     }
 }

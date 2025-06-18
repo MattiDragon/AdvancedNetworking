@@ -12,8 +12,8 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 
 public final class ModItems {
-    public static final BlockItem CONTROLLER = new BlockItem(ModBlocks.CONTROLLER, new Item.Settings().registryKey(key("controller")));
-    public static final BlockItem CABLE = new BlockItem(ModBlocks.CABLE, new Item.Settings().registryKey(key("cable")));
+    public static final BlockItem CONTROLLER = new BlockItem(ModBlocks.CONTROLLER, new Item.Settings().registryKey(key("controller")).useBlockPrefixedTranslationKey());
+    public static final BlockItem CABLE = new BlockItem(ModBlocks.CABLE, new Item.Settings().registryKey(key("cable")).useBlockPrefixedTranslationKey());
     public static final Item COMPOUND = new Item(new Item.Settings().registryKey(key("compound")));
 
     private ModItems() { throw new UnsupportedOperationException(); }

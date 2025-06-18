@@ -81,5 +81,6 @@ public class ModelProvider extends FabricModelProvider {
     @Override
     public void generateItemModels(ItemModelGenerator generator) {
         generator.register(ModItems.COMPOUND, Models.GENERATED);
+        generator.register(ModItems.CABLE);
     }
 }

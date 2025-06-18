@@ -12,8 +12,9 @@ import io.github.mattidragon.nodeflow.graph.node.Node;
 import io.github.mattidragon.nodeflow.graph.node.NodeType;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
@@ -58,15 +59,15 @@ public abstract class FilterNode<R, V extends TransferVariant<R>, T> extends Nod
     }
 
     @Override
-    public void readNbt(NbtCompound data) {
-        super.readNbt(data);
-        filter.readNbt(data);
+    public void readData(ReadView view) {
+        super.readData(view);
+        filter.readData(view);
     }
 
     @Override
-    public void writeNbt(NbtCompound data) {
-        super.writeNbt(data);
-        filter.writeNbt(data);
+    public void writeData(WriteView view) {
+        super.writeData(view);
+        filter.writeData(view);
     }
 
     public ResourceFilter<R, V> getFilter() {

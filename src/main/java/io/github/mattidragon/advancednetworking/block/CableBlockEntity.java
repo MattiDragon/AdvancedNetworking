@@ -1,16 +1,17 @@
 package io.github.mattidragon.advancednetworking.block;
 
+import com.mojang.serialization.Codec;
 import io.github.mattidragon.advancednetworking.registry.ModBlocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import net.minecraft.util.Nameable;
 import net.minecraft.util.math.BlockPos;
@@ -91,40 +92,36 @@ public class CableBlockEntity extends BlockEntity implements AdventureModeAccess
     }
 
     @Override
-    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.readNbt(nbt, registryLookup);
-        var power = nbt.getIntArray("power").orElseGet(() -> new int[0]);
+    protected void readData(ReadView view) {
+        var power = view.getOptionalIntArray("power").orElseGet(() -> new int[0]);
         System.arraycopy(power, 0, this.power, 0, Math.min(power.length, 6));
-        allowAdventureModeAccess = nbt.getBoolean("allowAdventureModeAccess", false);
+        allowAdventureModeAccess = view.getBoolean("allowAdventureModeAccess", false);
 
-        var names = nbt.getList("names").orElseGet(NbtList::new);
+        var names = view.getTypedListView("names", Codec.STRING).stream().toList();
         for (int i = 0; i < Math.min(names.size(), 6); i++) {
-            this.names[i] = names.get(i).asString().orElse("");
+            this.names[i] = names.get(i);
         }
 
-        var groups = nbt.getList("groups").orElseGet(NbtList::new);
+        var groups = view.getTypedListView("groups", Codec.STRING).stream().toList();
         for (int i = 0; i < Math.min(groups.size(), 6); i++) {
-            this.groups[i] = groups.get(i).asString().orElse("");
+            this.groups[i] = groups.get(i);
         }
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.writeNbt(nbt, registryLookup);
-        nbt.putIntArray("power", power);
-        nbt.putBoolean("allowAdventureModeAccess", allowAdventureModeAccess);
+    protected void writeData(WriteView view) {
+        view.putIntArray("power", power);
+        view.putBoolean("allowAdventureModeAccess", allowAdventureModeAccess);
 
-        var names = new NbtList();
+        var names = view.getListAppender("names", Codec.STRING);
         for (var name : this.names) {
-            names.add(NbtString.of(name));
+            names.add(name);
         }
-        nbt.put("names", names);
 
-        var groups = new NbtList();
+        var groups = view.getListAppender("groups", Codec.STRING);
         for (var group : this.groups) {
-            groups.add(NbtString.of(group));
+            groups.add(group);
         }
-        nbt.put("groups", groups);
     }
 
     public boolean isAdventureModeAccessAllowed() {

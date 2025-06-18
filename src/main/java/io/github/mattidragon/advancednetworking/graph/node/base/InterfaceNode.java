@@ -9,8 +9,9 @@ import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.context.ContextType;
 import io.github.mattidragon.nodeflow.graph.node.Node;
 import io.github.mattidragon.nodeflow.graph.node.NodeType;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -44,17 +45,17 @@ public abstract class InterfaceNode extends Node {
     }
 
     @Override
-    public void readNbt(NbtCompound data) {
-        super.readNbt(data);
-        interfaceId = data.getString("interfaceId", "");
-        isGroup = data.getBoolean("isGroup", false);
+    public void readData(ReadView view) {
+        super.readData(view);
+        interfaceId = view.getString("interfaceId", "");
+        isGroup = view.getBoolean("isGroup", false);
     }
 
     @Override
-    public void writeNbt(NbtCompound data) {
-        super.writeNbt(data);
-        data.putString("interfaceId", interfaceId);
-        data.putBoolean("isGroup", isGroup);
+    public void writeData(WriteView view) {
+        super.writeData(view);
+        view.putString("interfaceId", interfaceId);
+        view.putBoolean("isGroup", isGroup);
     }
 
     @Override

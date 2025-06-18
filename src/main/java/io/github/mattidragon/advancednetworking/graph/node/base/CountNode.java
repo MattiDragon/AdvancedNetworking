@@ -15,8 +15,9 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.CombinedStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -82,15 +83,15 @@ public abstract class CountNode<R, V extends TransferVariant<R>> extends Interfa
     }
 
     @Override
-    public void readNbt(NbtCompound data) {
-        super.readNbt(data);
-        filter.readNbt(data);
+    public void readData(ReadView view) {
+        super.readData(view);
+        filter.readData(view);
     }
 
     @Override
-    public void writeNbt(NbtCompound data) {
-        super.writeNbt(data);
-        filter.writeNbt(data);
+    public void writeData(WriteView view) {
+        super.writeData(view);
+        filter.writeData(view);
     }
 
     public ResourceFilter<R,V> getFilter() {

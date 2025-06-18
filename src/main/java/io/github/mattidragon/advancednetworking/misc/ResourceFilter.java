@@ -3,8 +3,9 @@ package io.github.mattidragon.advancednetworking.misc;
 import com.mojang.brigadier.StringReader;
 import io.github.mattidragon.advancednetworking.AdvancedNetworking;
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registry;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,21 +73,18 @@ public class ResourceFilter<R, V extends TransferVariant<R>> {
         }
     }
 
-    public void readNbt(NbtCompound data) {
-        filter = data.getString("idFilter")
-                .or(() -> data.getString("filter"))
-                .orElse("");
+    public void readData(ReadView view) {
+        filter = view.getString("idFilter", view.getString("filter", "*"));
+        isWhitelist = view.getBoolean("whitelist", true);
+        isRegex = view.getBoolean("regex", false);
 
-        isWhitelist = data.getBoolean("whitelist", true);
-        isRegex = data.getBoolean("regex", false);
-        
         cachedPredicate = null;
     }
 
-    public void writeNbt(NbtCompound data) {
-        data.putString("filter", filter);
-        data.putBoolean("whitelist", isWhitelist);
-        data.putBoolean("regex", isRegex);
+    public void writeData(WriteView view) {
+        view.putString("filter", filter);
+        view.putBoolean("whitelist", isWhitelist);
+        view.putBoolean("regex", isRegex);
     }
 
     public String getFilter() {

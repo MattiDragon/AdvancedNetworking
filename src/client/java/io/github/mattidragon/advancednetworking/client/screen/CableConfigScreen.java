@@ -121,20 +121,19 @@ public class CableConfigScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
 
         // Title
-        context.drawText(textRenderer, title, (width - textRenderer.getWidth(title.asOrderedText())) / 2, 10, 0xffffff, false);
+        context.drawText(textRenderer, title, (width - textRenderer.getWidth(title.asOrderedText())) / 2, 10, 0xffffffff, false);
 
         // Info rows
-        context.drawText(textRenderer, Text.translatable("screen.advanced_networking.cable_config.pos", pos.getX(), pos.getY(), pos.getZ()), calcRightX() - 150, 120, 0xffffff, false);
-        context.drawText(textRenderer, Text.translatable("screen.advanced_networking.cable_config.id", CableBlock.calcInterfaceId(pos, side)), calcRightX() - 150, 130, 0xffffff, false);
+        context.drawText(textRenderer, Text.translatable("screen.advanced_networking.cable_config.pos", pos.getX(), pos.getY(), pos.getZ()), calcRightX() - 150, 120, 0xffffffff, false);
+        context.drawText(textRenderer, Text.translatable("screen.advanced_networking.cable_config.id", CableBlock.calcInterfaceId(pos, side)), calcRightX() - 150, 130, 0xffffffff, false);
 
         // Name field tag
         var nameText = Text.translatable("screen.advanced_networking.cable_config.name");
-        context.drawText(textRenderer, nameText, calcRightX() - 110 - textRenderer.getWidth(nameText), 75, 0xffffff, false);
+        context.drawText(textRenderer, nameText, calcRightX() - 110 - textRenderer.getWidth(nameText), 75, 0xffffffff, false);
         var groupText = Text.translatable("screen.advanced_networking.cable_config.group");
-        context.drawText(textRenderer, groupText, calcRightX() - 110 - textRenderer.getWidth(groupText), 95, 0xffffff, false);
+        context.drawText(textRenderer, groupText, calcRightX() - 110 - textRenderer.getWidth(groupText), 95, 0xffffffff, false);
     }
 }

@@ -7,7 +7,8 @@ import io.github.mattidragon.advancednetworking.graph.node.base.SingleSliderNode
 import io.github.mattidragon.nodeflow.graph.Connector;
 import io.github.mattidragon.nodeflow.graph.Graph;
 import io.github.mattidragon.nodeflow.graph.data.DataValue;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
@@ -51,15 +52,15 @@ public class SplitEnergyNode extends SingleSliderNode {
     }
 
     @Override
-    public void readNbt(NbtCompound data) {
-        super.readNbt(data);
-        count = MathHelper.clamp(data.getInt("count", 2), 2, 8);
+    public void readData(ReadView view) {
+        super.readData(view);
+        count = MathHelper.clamp(view.getInt("count", 2), 2, 8);
     }
 
     @Override
-    public void writeNbt(NbtCompound data) {
-        super.writeNbt(data);
-        data.putInt("count", count);
+    public void writeData(WriteView view) {
+        super.writeData(view);
+        view.putInt("count", count);
     }
 
     @Override
